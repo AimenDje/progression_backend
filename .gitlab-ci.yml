@@ -248,7 +248,7 @@ deploy_crosemont:
     url: $URL_PROD_2
     on_stop: stop_crosemont
   before_script:
-    - export CD_HOST=$CD_HOST_2 CD_PORT=$CD_HOST_2 CD_USER=$CD_USER_2
+    - export CD_HOST=$CD_HOST_2 CD_PORT=$CD_PORT_2 CD_USER=$CD_USER_2
     - *preparer_contexte
     - *login
   script:
@@ -268,7 +268,7 @@ stop_crosemont:
     name: crosemont
     action: stop
   before_script:
-    - export CD_HOST=$CD_HOST_2 CD_PORT=$CD_HOST_2 CD_USER=$CD_USER_2
+    - export CD_HOST=$CD_HOST_2 CD_PORT=$CD_PORT_2 CD_USER=$CD_USER_2
     - *preparer_contexte
   script:
     - docker-compose -p prod stop api db redis
