@@ -123,7 +123,7 @@ final class AuthenticateTests extends TestCase
 	# Ces tests nécessitent que LDAP soit découplé de l'interacteur: https://git.dti.crosemont.quebec/progression/progression_backend/-/issues/79
 	//public function test_étant_donné_un_utilisateur_existant_et_une_authentification_LDAP_effectue_une_requête_avec_identifiant_et_mdp_corrects_on_obtient_la_ressource()
 	//{
-	//	putenv("AUTH_LOCAL=false");
+	//	Config::set("authentification.local", false);
 	//	putenv("AUTH_LDAP=true");
 	//
 	//	$résultat_observé = $this->call("GET", "/user/bob", [
@@ -137,7 +137,7 @@ final class AuthenticateTests extends TestCase
 	//
 	//public function test_étant_donné_un_utilisateur_existant_et_une_authentification_LDAP_effectue_une_requête_avec_courriel_et_mdp_corrects_on_obtient_la_ressource()
 	//{
-	//	putenv("AUTH_LOCAL=false");
+	//	Config::set("authentification.local", false);
 	//	putenv("AUTH_LDAP=true");
 	//
 	//	$résultat_observé = $this->call("GET", "/user/bob", [
@@ -151,8 +151,8 @@ final class AuthenticateTests extends TestCase
 
 	public function test_étant_donné_un_utilisateur_inexistant_avec_authentification_LDAP_lorsquon_effectue_une_requête_sans_domaine_on_obtient_une_erreur_401()
 	{
-		putenv("AUTH_LOCAL=false");
-		putenv("AUTH_LDAP=true");
+		Config::set("authentification.local", false);
+		Config::set("authentification.ldap", true);
 
 		$résultat_observé = $this->call(
 			"GET",
@@ -171,8 +171,8 @@ final class AuthenticateTests extends TestCase
 
 	public function test_étant_donné_une_authentification_LDAP_lorsquon_effectue_une_requête_avec_un_nom_dutilisateur_invalide_on_obtient_une_erreur_400()
 	{
-		putenv("AUTH_LOCAL=false");
-		putenv("AUTH_LDAP=true");
+		Config::set("authentification.local", false);
+		Config::set("authentification.ldap", true);
 
 		$résultat_observé = $this->call(
 			"GET",
@@ -195,8 +195,8 @@ final class AuthenticateTests extends TestCase
 	#  Aucune AUTH
 	public function test_étant_donné_un_utilisateur_existant_et_sans_authentification_lorsquon_effectue_une_requête_avec_identifiant_sans_mdp_on_obtient_la_ressource()
 	{
-		putenv("AUTH_LOCAL=false");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.local", false);
+		Config::set("authentification.ldap", false);
 
 		$résultat_observé = $this->call(
 			"GET",
@@ -218,8 +218,8 @@ final class AuthenticateTests extends TestCase
 
 	public function test_étant_donné_un_utilisateur_existant_et_sans_authentification_lorsquon_effectue_une_requête_avec_identifiant_et_mdp_vide_on_obtient_la_ressource()
 	{
-		putenv("AUTH_LOCAL=false");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.local", false);
+		Config::set("authentification.ldap", false);
 
 		$résultat_observé = $this->call(
 			"GET",
@@ -241,8 +241,8 @@ final class AuthenticateTests extends TestCase
 
 	public function test_étant_donné_un_utilisateur_inexistant_sans_authentification_lorsquon_effectue_une_requête_avec_un_courriel_on_obtient_une_erreur_400()
 	{
-		putenv("AUTH_LOCAL=false");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.local", false);
+		Config::set("authentification.ldap", false);
 
 		$résultat_observé = $this->call(
 			"GET",
@@ -262,8 +262,8 @@ final class AuthenticateTests extends TestCase
 	# AUTH locale
 	public function test_étant_donné_un_utilisateur_existant_et_une_authentification_locale_lorsquon_effectue_une_requête_avec_identifiant_et_mdp_corrects_on_obtient_la_ressource()
 	{
-		putenv("AUTH_LOCAL=true");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.local", true);
+		Config::set("authentification.ldap", false);
 
 		$résultat_observé = $this->call(
 			"GET",
@@ -285,8 +285,8 @@ final class AuthenticateTests extends TestCase
 
 	public function test_étant_donné_un_utilisateur_existant_et_une_authentificaton_locale_lorsquon_effectue_une_requête_avec_courriel_et_mdp_corrects_on_obtient_la_ressource()
 	{
-		putenv("AUTH_LOCAL=true");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.local", true);
+		Config::set("authentification.ldap", false);
 
 		$résultat_observé = $this->call(
 			"GET",
@@ -309,8 +309,8 @@ final class AuthenticateTests extends TestCase
 
 	public function test_étant_donné_un_utilisateur_actif_et_une_authentification_par_identifiant_et_mdp_lorsquon_requiert_une_ressource_protégée_on_obtient_la_ressource()
 	{
-		putenv("AUTH_LOCAL=true");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.local", true);
+		Config::set("authentification.ldap", false);
 
 		$résultat_observé = $this->call(
 			"GET",
@@ -332,8 +332,8 @@ final class AuthenticateTests extends TestCase
 
 	public function test_étant_donné_un_utilisateur_inactif_avec_authentification_lorsquon_effectue_une_requête_mdp_correct_on_obtient_une_erreur_401()
 	{
-		putenv("AUTH_LOCAL=true");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.local", true);
+		Config::set("authentification.ldap", false);
 
 		$this->call(
 			"GET",
@@ -350,8 +350,9 @@ final class AuthenticateTests extends TestCase
 
 	public function test_étant_donné_un_utilisateur_actif_avec_authentification_lorsquon_effectue_une_requête_sur_une_ressource_non_protégée_on_obtient_la_ressource_et_un_code_200()
 	{
-		putenv("AUTH_LOCAL=true");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.local", true);
+		Config::set("authentification.ldap", false);
+		Config::set("app.version", "3.0.0");
 
 		$résultat_observé = $this->call(
 			"GET",
@@ -372,8 +373,8 @@ final class AuthenticateTests extends TestCase
 
 	public function test_étant_donné_un_utilisateur_inexistant_avec_authentification_lorsquon_effectue_une_requête_sur_une_ressource_non_protégée_on_obtient_une_erreur_401()
 	{
-		putenv("AUTH_LOCAL=true");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.local", true);
+		Config::set("authentification.ldap", false);
 
 		$this->call(
 			"GET",
@@ -390,8 +391,8 @@ final class AuthenticateTests extends TestCase
 
 	public function test_étant_donné_un_utilisateur_en_attente_de_validation_avec_authentification_lorsquon_effectue_une_requête_mdp_correct_on_obtient_une_erreur_403()
 	{
-		putenv("AUTH_LOCAL=true");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.local", true);
+		Config::set("authentification.ldap", false);
 
 		$résultat_observé = $this->call(
 			"GET",
@@ -408,8 +409,8 @@ final class AuthenticateTests extends TestCase
 
 	public function test_étant_donné_un_utilisateur_inexistant_avec_authentification_lorsquon_effectue_une_requête_avec_identifiant_on_obtient_une_erreur_401()
 	{
-		putenv("AUTH_LOCAL=true");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.local", true);
+		Config::set("authentification.ldap", false);
 
 		$résultat_observé = $this->call(
 			"GET",
@@ -428,8 +429,8 @@ final class AuthenticateTests extends TestCase
 
 	public function test_étant_donné_un_utilisateur_existant_avec_authentification_effectue_une_requête_avec_identifiant_et_mdp_erroné_on_obtient_une_erreur_401()
 	{
-		putenv("AUTH_LOCAL=true");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.local", true);
+		Config::set("authentification.ldap", false);
 
 		$résultat_observé = $this->call(
 			"GET",
@@ -448,8 +449,8 @@ final class AuthenticateTests extends TestCase
 
 	public function test_étant_donné_une_authentificaton_locale_lorsquon_effectue_une_requête_un_nom_dutilisateur_vide_on_obtient_une_erreur_400()
 	{
-		putenv("AUTH_LOCAL=true");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.local", true);
+		Config::set("authentification.ldap", false);
 
 		$résultat_observé = $this->call(
 			"GET",
@@ -465,8 +466,8 @@ final class AuthenticateTests extends TestCase
 
 	public function test_étant_donné_une_authentificaton_locale_lorsquon_effectue_une_requête_un_nom_dutilisateur_invalide_on_obtient_une_erreur_400()
 	{
-		putenv("AUTH_LOCAL=true");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.local", true);
+		Config::set("authentification.ldap", false);
 
 		$résultat_observé = $this->call(
 			"GET",
@@ -484,8 +485,8 @@ final class AuthenticateTests extends TestCase
 
 	public function test_étant_donné_une_authentificaton_locale_lorsquon_effectue_une_requête_sans_nom_dutlisateur_on_obtient_une_erreur_400()
 	{
-		putenv("AUTH_LOCAL=true");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.local", true);
+		Config::set("authentification.ldap", false);
 
 		$résultat_observé = $this->call(
 			"GET",
@@ -501,8 +502,8 @@ final class AuthenticateTests extends TestCase
 
 	public function test_étant_donné_une_authentification_locale_lorsquon_effectue_une_requête_sans_mot_de_passe_on_obtient_une_erreur_400()
 	{
-		putenv("AUTH_LOCAL=true");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.local", true);
+		Config::set("authentification.ldap", false);
 
 		$résultat_observé = $this->call(
 			"GET",
@@ -518,8 +519,8 @@ final class AuthenticateTests extends TestCase
 
 	public function test_étant_donné_une_authentification_locale_lorsquon_effectue_une_requête_avec_mot_de_passe_vide_on_obtient_une_erreur_400()
 	{
-		putenv("AUTH_LOCAL=true");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.local", true);
+		Config::set("authentification.ldap", false);
 
 		$résultat_observé = $this->call(
 			"GET",

@@ -58,8 +58,8 @@ class LoginInt extends Interacteur
 		}
 
 		$user = null;
-		$auth_local = getenv("AUTH_LOCAL") === "true";
-		$auth_ldap = getenv("AUTH_LDAP") === "true";
+		$auth_local = config("authentification.local") === true;
+		$auth_ldap = config("authentification.ldap") === true;
 
 		if ($auth_ldap && $domaine) {
 			// LDAP
@@ -124,23 +124,23 @@ class LoginInt extends Interacteur
 	 */
 	private function get_user_ldap(string $identifiant, string $password, string $domaine): array|null
 	{
-		if ($domaine != getenv("LDAP_DOMAINE")) {
+		if ($domaine != config("ldap.domaine")) {
 			throw new IntéracteurException("Domaine multiple non implémenté", 500);
 		}
 
 		// Connexion au serveur LDAP
-		$ldap = @ldap_connect("ldap://" . getenv("LDAP_HOTE"), (int) getenv("LDAP_PORT"));
+		$ldap = @ldap_connect("ldap://" . config("ldap.hôte"), (int) config("ldap.port"));
 		if (!$ldap) {
 			syslog(LOG_ERR, "Erreur de configuration LDAP");
 			throw new IntéracteurException("Erreur de configuration LDAP", 500);
 		}
 		ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
 		ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
-		ldap_set_option($ldap, LDAP_OPT_NETWORK_TIMEOUT, (int) getenv("LDAP_TIMEOUT"));
+		ldap_set_option($ldap, LDAP_OPT_NETWORK_TIMEOUT, (int) config("ldap.timeout"));
 
-		// Bind l'utilisateur LDAP
-		if (getenv("LDAP_DN_BIND") && getenv("LDAP_PW_BIND")) {
-			$bind = @ldap_bind($ldap, getenv("LDAP_DN_BIND"), getenv("LDAP_PW_BIND"));
+		// bind l'utilisateur LDAP
+		if (config("ldap.bind.dn") && config("ldap.bind.pw")) {
+			$bind = @ldap_bind($ldap, config("ldap.bind.dn"), config("ldap.bind.pw"));
 		} else {
 			$bind = @ldap_bind($ldap, $identifiant, $password);
 		}
@@ -154,8 +154,8 @@ class LoginInt extends Interacteur
 		//Recherche de l'utilisateur à authentifier
 		$result = @ldap_search(
 			$ldap,
-			base: getenv("LDAP_BASE") ?: "",
-			filter: "(" . getenv("LDAP_UID") . "=$identifiant)",
+			base: config("ldap.base") ?: "",
+			filter: "(" . config("ldap.uid") . "=$identifiant)",
 			attributes: ["dn", "cn", "mail"],
 		);
 

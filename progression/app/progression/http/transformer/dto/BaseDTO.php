@@ -24,6 +24,6 @@ class BaseDTO
 
 	public function __construct()
 	{
-		$this->urlBase = preg_replace("/\/+$/", "", getenv("APP_URL") ?: "") ?? "";
+		$this->urlBase = preg_replace("/\/+$/", "", config("app.url") ?: "") ?? "";
 	}
 }

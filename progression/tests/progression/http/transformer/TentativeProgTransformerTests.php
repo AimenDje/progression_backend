@@ -18,7 +18,7 @@
 
 namespace progression\http\transformer;
 
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use progression\domaine\entité\{TentativeProg, Résultat, Commentaire};
 use progression\domaine\entité\user\User;
 use progression\http\transformer\dto\TentativeDTO;

@@ -21,7 +21,7 @@ namespace progression\domaine\interacteur;
 use progression\domaine\entité\{Exécutable, Test, Résultat};
 use progression\dao\exécuteur\Exécuteur;
 use progression\dao\DAOFactory;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use Mockery;
 
 final class ExécuterProgIntTests extends TestCase

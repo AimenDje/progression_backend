@@ -78,7 +78,7 @@ class ChargeurQuestionHTTP extends Chargeur
 
 	private function vérifier_taille($taille)
 	{
-		$taille_max = getenv("QUESTION_TAILLE_MAX");
+		$taille_max = config("limites.taille_question");
 
 		if (!$taille) {
 			throw new ChargeurException("Fichier de taille inconnue. On ne le chargera pas.");

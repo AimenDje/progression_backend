@@ -18,7 +18,7 @@
 
 namespace progression\http\transformer;
 
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use progression\domaine\entité\Résultat;
 use progression\http\transformer\dto\GénériqueDTO;
 

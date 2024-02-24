@@ -23,7 +23,7 @@ use progression\domaine\entité\{Exécutable, Avancement, Résultat, TentativePr
 use progression\domaine\entité\user\User;
 use progression\dao\DAOFactory;
 use progression\dao\tentative\TentativeProgDAO;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use Mockery;
 use progression\dao\question\QuestionDAO;
 

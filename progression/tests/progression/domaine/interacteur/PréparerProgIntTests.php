@@ -20,7 +20,7 @@ namespace progression\domaine\interacteur;
 
 use progression\domaine\entité\question\QuestionProg;
 use progression\domaine\entité\{Exécutable, TentativeProg};
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use Mockery;
 
 final class PréparerProgIntTests extends TestCase

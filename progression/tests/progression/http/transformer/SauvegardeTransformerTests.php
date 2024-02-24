@@ -20,7 +20,7 @@ namespace progression\http\transformer;
 
 use progression\domaine\entité\Sauvegarde;
 use progression\http\transformer\dto\GénériqueDTO;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 
 final class SauvegardeTransformerTests extends TestCase
 {

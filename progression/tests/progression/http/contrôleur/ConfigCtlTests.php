@@ -27,15 +27,15 @@ final class ConfigCtlTests extends ContrôleurTestCase
 	{
 		parent::setUp();
 
-		Config::set("version.numéro", "3.0.0");
+		Config::set("app.version", "3.0.0");
 	}
 
 	// GET
 	// Utilisateur sans authentification
 	public function test_config_simple_sans_authentification()
 	{
-		putenv("AUTH_LOCAL=false");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.local", false);
+		Config::set("authentification.ldap", false);
 
 		$résultat_observé = $this->call("GET", "/");
 
@@ -49,8 +49,7 @@ final class ConfigCtlTests extends ContrôleurTestCase
 	// Utilisateur avec authentification locale
 	public function test_config_simple_avec_authentification_locale_utilisateur_anonyme()
 	{
-		putenv("AUTH_LOCAL=true");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.ldap", false);
 
 		$résultat_observé = $this->call("GET", "/");
 
@@ -63,8 +62,7 @@ final class ConfigCtlTests extends ContrôleurTestCase
 
 	public function test_config_simple_avec_authentification_locale_utilisateur_authentifié()
 	{
-		putenv("AUTH_LOCAL=true");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.ldap", false);
 
 		$user = new UserAuthentifiable(username: "jdoe", date_inscription: 0, rôle: Rôle::NORMAL, état: État::ACTIF);
 
@@ -79,8 +77,7 @@ final class ConfigCtlTests extends ContrôleurTestCase
 
 	public function test_config_simple_avec_authentification_locale_utilisateur_inactif()
 	{
-		putenv("AUTH_LOCAL=true");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.ldap", false);
 
 		$user = new UserAuthentifiable(username: "jdoe", date_inscription: 0, rôle: Rôle::NORMAL, état: État::INACTIF);
 
@@ -92,10 +89,9 @@ final class ConfigCtlTests extends ContrôleurTestCase
 	# Utilisateur LDAP
 	public function test_config_simple_avec_LDAP_utilisateur_anonyme()
 	{
-		putenv("AUTH_LOCAL=false");
-		putenv("AUTH_LDAP=true");
-		putenv("LDAP_DOMAINE=exemple.com");
-		putenv("LDAP_URL_MDP_REINIT=http://portail.exemple.com");
+		Config::set("authentification.local", false);
+		Config::set("ldap.domaine", "exemple.com");
+		Config::set("ldap.url_mdp_reinit", "http://portail.exemple.com");
 
 		$résultat_observé = $this->call("GET", "/");
 
@@ -108,10 +104,8 @@ final class ConfigCtlTests extends ContrôleurTestCase
 
 	public function test_config_simple_avec_authentification_locale_et_LDAP_utilisateur_anonyme()
 	{
-		putenv("AUTH_LOCAL=true");
-		putenv("AUTH_LDAP=true");
-		putenv("LDAP_DOMAINE=exemple.com");
-		putenv("LDAP_URL_MDP_REINIT=http://portail.exemple.com");
+		Config::set("ldap.domaine", "exemple.com");
+		Config::set("ldap.url_mdp_reinit", "http://portail.exemple.com");
 
 		$résultat_observé = $this->call("GET", "/");
 
@@ -124,10 +118,9 @@ final class ConfigCtlTests extends ContrôleurTestCase
 
 	public function test_config_simple_avec_LDAP_utilisateur_authentifié()
 	{
-		putenv("AUTH_LOCAL=false");
-		putenv("AUTH_LDAP=true");
-		putenv("LDAP_DOMAINE=exemple.com");
-		putenv("LDAP_URL_MDP_REINIT=http://portail.exemple.com");
+		Config::set("authentification.local", false);
+		Config::set("ldap.domaine", "exemple.com");
+		Config::set("ldap.url_mdp_reinit", "http://portail.exemple.com");
 
 		$user = new UserAuthentifiable(username: "jdoe", date_inscription: 0, rôle: Rôle::NORMAL, état: État::ACTIF);
 

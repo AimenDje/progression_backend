@@ -21,7 +21,7 @@ namespace progression\http\transformer;
 use progression\domaine\entité\{Exécutable, TestProg};
 use progression\domaine\entité\question\QuestionProg;
 use progression\http\transformer\dto\QuestionProgDTO;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 
 final class QuestionProgTransformerTests extends TestCase
 {

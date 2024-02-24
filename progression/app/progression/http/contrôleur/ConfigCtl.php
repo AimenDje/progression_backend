@@ -33,19 +33,19 @@ class ConfigCtl extends Contrôleur
 		Log::debug("ConfigCtl.get");
 
 		$config = [
-			"version" => config("app.name") . " " . config("version.numéro") . "(" . config("version.commit_sha") . ")",
+			"version" => config("app.name") . " " . config("app.version") . "(" . config("version.commit_sha") . ")",
 			"config" => [
 				"AUTH" => [
-					"LDAP" => getenv("AUTH_LDAP") == "true",
-					"LOCAL" => getenv("AUTH_LOCAL") == "true",
+					"LDAP" => config("authentification.ldap") === true,
+					"LOCAL" => config("authentification.local") === true,
 				],
 			],
 		];
 
-		if (getenv("AUTH_LDAP") === "true") {
+		if (config("authentification.ldap") === true) {
 			$config_ldap = [
-				"DOMAINE" => getenv("LDAP_DOMAINE"),
-				"URL_MDP_REINIT" => getenv("LDAP_URL_MDP_REINIT"),
+				"DOMAINE" => config("ldap.domaine"),
+				"URL_MDP_REINIT" => config("ldap.url_mdp_reinit"),
 			];
 
 			$config["config"]["LDAP"] = $config_ldap;
@@ -69,8 +69,8 @@ class ConfigCtl extends Contrôleur
 	{
 		$urlBase = Contrôleur::$urlBase;
 
-		$ldap = getenv("AUTH_LDAP") == "true";
-		$local = getenv("AUTH_LOCAL") == "true";
+		$ldap = config("authentification.ldap") === true;
+		$local = config("authentification.local") === true;
 
 		$liens = [
 			"self" => "$urlBase/",

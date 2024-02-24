@@ -38,7 +38,7 @@ class TokenCtl extends Contrôleur
 		// Désuétude V 4.0.0
 		// Le corps du token doit être passé directement dans la requête et non dans un objet data.
 		assert(
-			Comparator::lessThan(strval(getenv("APP_VERSION")), "4.0.0"),
+			Comparator::lessThan(strval(config("app.version")), "4.0.0"),
 			"Fonctionnalité désuète. Doit être retirée",
 		);
 		$data_in = $request->all();

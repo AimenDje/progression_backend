@@ -20,7 +20,7 @@ namespace progression\domaine\interacteur;
 
 use progression\domaine\entité\{Sauvegarde};
 use progression\dao\DAOFactory;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use Mockery;
 
 final class EnregistrerSauvegardeIntTests extends TestCase

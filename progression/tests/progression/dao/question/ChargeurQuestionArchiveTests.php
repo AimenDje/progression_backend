@@ -19,7 +19,7 @@
 namespace progression\dao\question;
 
 use RuntimeException;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use ZipArchive;
 
 final class ChargeurQuestionArchiveTests extends TestCase
@@ -28,6 +28,7 @@ final class ChargeurQuestionArchiveTests extends TestCase
 
 	public function setUp(): void
 	{
+		parent::setUp();
 		$this->contenu_tmp = scandir("/tmp");
 	}
 

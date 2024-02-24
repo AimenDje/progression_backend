@@ -22,7 +22,7 @@ use progression\domaine\entité\question\QuestionSys;
 use progression\domaine\entité\{TestSys, Résultat, TentativeSys};
 use progression\dao\exécuteur\Exécuteur;
 use progression\dao\DAOFactory;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use Mockery;
 
 final class ExécuterSysIntTests extends TestCase

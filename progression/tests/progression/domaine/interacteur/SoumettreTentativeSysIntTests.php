@@ -22,7 +22,7 @@ use progression\domaine\entité\question\{Question, QuestionSys};
 use progression\domaine\entité\{Résultat, TentativeSys, TestSys};
 use progression\domaine\entité\user\User;
 use progression\dao\DAOFactory;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use Mockery;
 use progression\dao\question\QuestionDAO;
 

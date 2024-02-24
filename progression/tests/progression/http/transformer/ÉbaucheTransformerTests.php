@@ -20,7 +20,7 @@ namespace progression\http\transformer;
 
 use progression\domaine\entité\Exécutable;
 use progression\http\transformer\dto\GénériqueDTO;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 
 final class ÉbaucheTransformerTests extends TestCase
 {

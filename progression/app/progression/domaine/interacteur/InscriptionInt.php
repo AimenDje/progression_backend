@@ -92,7 +92,7 @@ class InscriptionInt extends Interacteur
 				courriel: $courriel,
 				rôle: $rôle,
 				état: État::ACTIF,
-				préférences: getenv("PREFERENCES_DEFAUT") ?: "",
+				préférences: config("préférences.défaut") ?: "",
 			),
 		);
 		return $user;
@@ -129,7 +129,7 @@ class InscriptionInt extends Interacteur
 				courriel: $courriel,
 				rôle: $rôle,
 				état: Gate::allows("valider-le-courriel", $rôle) ? État::EN_ATTENTE_DE_VALIDATION : État::ACTIF,
-				préférences: getenv("PREFERENCES_DEFAUT") ?: "",
+				préférences: config("préférences.défaut") ?: "{}",
 			),
 		);
 

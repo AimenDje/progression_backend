@@ -95,7 +95,7 @@ class RésultatCtl extends Contrôleur
 
 	private function valider_paramètres_prog(Request $request, string $uri)
 	{
-		$TAILLE_CODE_MAX = (int) getenv("TAILLE_CODE_MAX");
+		$TAILLE_CODE_MAX = (int) config("limites.taille_code");
 
 		$validateur = Validator::make(
 			[...$request->all(), "uri" => $uri],

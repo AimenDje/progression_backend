@@ -18,6 +18,7 @@ along with Progression.  If not, see <https://www.gnu.org/licenses/>.
 
 use progression\ContrôleurTestCase;
 
+use Illuminate\Support\Facades\Config;
 use progression\dao\DAOFactory;
 use progression\http\contrôleur\GénérateurAléatoire;
 use progression\domaine\entité\user\{User, Rôle, État};
@@ -59,8 +60,8 @@ final class TokenCtlV3Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_token_qui_donne_accès_à_une_ressource_lorsquon_effectue_un_post_on_obtient_un_token_avec_les_ressources_voulues_sans_expiration()
 	{
-		putenv("APP_VERSION=1.2.3");
-		putenv("JWT_SECRET=secret");
+		Config::set("app.version", "1.2.3");
+		Config::set("jwt.secret", "secret");
 
 		$résultat_obtenu = $this->actingAs($this->user)->call("POST", "/user/utilisateur_lambda/tokens", [
 			"data" => [
@@ -82,8 +83,8 @@ final class TokenCtlV3Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_token_qui_donne_accès_à_une_date_dexpiration_spécifique_lorsquon_effectue_un_post_on_obtient_un_token_avec_cette_expiration()
 	{
-		putenv("APP_VERSION=1.2.3");
-		putenv("JWT_SECRET=secret");
+		Config::set("app.version", "1.2.3");
+		Config::set("jwt.secret", "secret");
 
 		$résultat_obtenu = $this->actingAs($this->user)->call("POST", "/user/utilisateur_lambda/tokens", [
 			"data" => [
@@ -108,8 +109,8 @@ final class TokenCtlV3Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_token_qui_donne_accès_à_un_date_dexpiration_relative_de_300s_lorsquon_effectue_un_post_on_obtient_un_token_avec_expiration_plus_tard_de_300s()
 	{
-		putenv("APP_VERSION=1.2.3");
-		putenv("JWT_SECRET=secret");
+		Config::set("app.version", "1.2.3");
+		Config::set("jwt.secret", "secret");
 
 		$résultat_obtenu = $this->actingAs($this->user)->call("POST", "/user/utilisateur_lambda/tokens", [
 			"data" => [
@@ -207,8 +208,8 @@ final class TokenCtlV3Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_token_sans_fingerprint_lorsquon_effectue_un_post_on_obtient_un_token_sans_fingerprint()
 	{
-		putenv("APP_VERSION=1.2.3");
-		putenv("JWT_SECRET=secret");
+		Config::set("app.version", "1.2.3");
+		Config::set("jwt.secret", "secret");
 
 		$résultat_obtenu = $this->actingAs($this->user)->call("POST", "/user/utilisateur_lambda/tokens", [
 			"data" => [
@@ -231,8 +232,8 @@ final class TokenCtlV3Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_contexte_lorsquon_génère_un_token_avec_expiration_spécifique_on_reçoit_le_hash_du_contexte_et_un_cookie_sécure_expirant_en_même_temps()
 	{
-		putenv("APP_VERSION=1.2.3");
-		putenv("JWT_SECRET=secret");
+		Config::set("app.version", "1.2.3");
+		Config::set("jwt.secret", "secret");
 
 		$résultat_obtenu = $this->actingAs($this->user)->call("POST", "user/utilisateur_lambda/tokens", [
 			"data" => [
@@ -264,8 +265,8 @@ final class TokenCtlV3Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_contexte_lorsquon_génère_un_token_avec_expiration_relatif_on_reçoit_le_hash_du_contexte_et_un_cookie_sécure_expirant_en_même_temps()
 	{
-		putenv("APP_VERSION=1.2.3");
-		putenv("JWT_SECRET=secret");
+		Config::set("app.version", "1.2.3");
+		Config::set("jwt.secret", "secret");
 
 		$résultat_obtenu = $this->actingAs($this->user)->call("POST", "user/utilisateur_lambda/tokens", [
 			"data" => [

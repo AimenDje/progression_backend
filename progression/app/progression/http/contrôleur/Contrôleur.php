@@ -131,4 +131,4 @@ class Contrôleur extends BaseController
 }
 
 //Initialise urlBase
-Contrôleur::$urlBase = preg_replace("/\/+$/", "", getenv("APP_URL") ?: "") ?? "";
+Contrôleur::$urlBase = preg_replace("/\/+$/", "", config("app.url") ?: "") ?? "";

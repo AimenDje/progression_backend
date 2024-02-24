@@ -21,7 +21,7 @@ namespace progression\domaine\interacteur;
 use progression\domaine\entité\Commentaire;
 use progression\domaine\entité\user\User;
 use progression\dao\DAOFactory;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use Mockery;
 
 final class ObtenirCommentaireIntTests extends TestCase

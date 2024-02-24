@@ -65,7 +65,7 @@ class UserCréationCtl extends UserCtl
 
 	private function créer_user(Request $request, string $username): JsonResponse
 	{
-		$auth_local = getenv("AUTH_LOCAL") !== "false";
+		$auth_local = config("authentification.local") !== false;
 
 		if ($auth_local) {
 			return $this->effectuer_inscription_locale($request, $username);
@@ -76,7 +76,7 @@ class UserCréationCtl extends UserCtl
 
 	private function effectuer_inscription_non_locale(Request $request, string $username): JsonResponse
 	{
-		$auth_ldap = getenv("AUTH_LDAP") === "true";
+		$auth_ldap = config("authentification.ldap") === true;
 
 		if ($auth_ldap) {
 			$réponse = $this->réponse_json(["erreur" => "Inscription locale non supportée."], 403);

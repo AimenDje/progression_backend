@@ -31,7 +31,7 @@ class ValidationCourrielMail extends Mailable
 	{
 		$this->user = $user;
 		$this->token = $token;
-		$this->appurl = getenv("MAIL_REDIRECTION") ?: "http://localhost";
+		$this->appurl = config("mail.redirection");
 	}
 
 	public function build(): self

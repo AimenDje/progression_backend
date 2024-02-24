@@ -22,7 +22,7 @@ use progression\domaine\entité\Avancement;
 use progression\domaine\entité\user\{User, État, Rôle};
 use progression\domaine\entité\clé\{Clé, Portée};
 use progression\http\transformer\dto\UserDTO;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use Illuminate\Support\Facades\Gate;
 
 final class UserTransformerTests extends TestCase

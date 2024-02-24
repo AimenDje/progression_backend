@@ -18,6 +18,7 @@
 
 namespace progression\domaine\interacteur;
 
+use Illuminate\Support\Facades\Config;
 use progression\dao\DAOFactory;
 use progression\domaine\entité\user\{User, État, Rôle};
 use progression\TestCase;
@@ -123,7 +124,7 @@ final class ModifierUserIntTests extends TestCase
 
 	public function test_étant_donné_un_utilisateur_sans_validation_de_courriel_lorsquon_modifie_son_courriel_on_obtient_le_même_utilisateur_avec_courriel_modifié_et_état_inactif()
 	{
-		putenv("MAIL_MAILER=no");
+		Config::set("mail.mailer", "no");
 
 		$user_test = new User(username: "bob", date_inscription: 0, courriel: "bob@test.com");
 

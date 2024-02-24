@@ -24,7 +24,7 @@ use progression\domaine\entité\Résultat;
 use progression\domaine\entité\user\User;
 use progression\dao\DAOFactory;
 use progression\dao\tentative\TentativeDAO;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use Mockery;
 
 final class ObtenirTentativeIntTests extends TestCase

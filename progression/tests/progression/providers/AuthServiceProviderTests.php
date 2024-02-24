@@ -18,6 +18,7 @@ along with Progression.  If not, see <https://www.gnu.org/licenses/>.
 
 use progression\TestCase;
 
+use Illuminate\Support\Facades\Config;
 use progression\dao\DAOFactory;
 use progression\http\contrôleur\GénérateurDeToken;
 use progression\domaine\entité\user\{User, État, Rôle};
@@ -39,8 +40,8 @@ final class AuthServiceProviderTests extends TestCase
 	{
 		parent::setUp();
 
-		putenv("AUTH_LOCAL=true");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.local", true);
+		Config::set("authentification.ldap", false);
 
 		$this->utilisateurActifNormal = new UserAuthentifiable(
 			username: "utilisateur_actif_normal",

@@ -21,7 +21,7 @@ namespace progression\domaine\interacteur;
 use progression\domaine\entité\question\{Question, QuestionProg};
 use progression\dao\DAOFactory;
 use progression\dao\question\QuestionDAO;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use Mockery;
 
 final class ObtenirQuestionProgIntTests extends TestCase

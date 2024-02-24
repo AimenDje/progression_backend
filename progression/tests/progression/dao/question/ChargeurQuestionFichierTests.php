@@ -19,7 +19,7 @@
 namespace progression\dao\question;
 
 use DomainException;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 
 final class ChargeurQuestionFichierTests extends TestCase
 {

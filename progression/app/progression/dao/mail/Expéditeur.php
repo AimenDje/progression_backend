@@ -41,7 +41,7 @@ class Expéditeur
 	function envoyer_courriel_de_validation(User $user): void
 	{
 		$data = [
-			"url_user" => getenv("APP_URL") . "/user/" . $user->username,
+			"url_user" => config("app.url") . "/user/" . $user->username,
 			"user" => [
 				"username" => $user->username,
 				"courriel" => $user->courriel,
@@ -55,7 +55,7 @@ class Expéditeur
 			],
 		];
 
-		$expirationToken = Carbon::now()->addMinutes((int) getenv("JWT_EXPIRATION"))->timestamp;
+		$expirationToken = Carbon::now()->addMinutes((int) config("jwt.expiration"))->timestamp;
 		$token = GénérateurDeToken::get_instance()->générer_token(
 			$user->username,
 			$expirationToken,

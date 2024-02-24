@@ -19,7 +19,7 @@
 namespace progression\dao\question;
 
 use BadMethodCallException;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use Mockery;
 
 final class ChargeurQuestionTests extends TestCase

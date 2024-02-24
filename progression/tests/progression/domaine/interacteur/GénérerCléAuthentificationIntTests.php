@@ -20,13 +20,14 @@ namespace progression\domaine\interacteur;
 
 use progression\domaine\entité\clé\{Clé, Portée};
 use progression\dao\DAOFactory;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use Mockery;
 
 final class GénérerCléAuthentificationIntTests extends TestCase
 {
 	public function setUp(): void
 	{
+		parent::setUp();
 		$mockCléDAO = Mockery::mock("progression\\dao\\CléDAO");
 		$mockCléDAO
 			->allows("get_clé")

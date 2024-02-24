@@ -18,14 +18,15 @@
 
 namespace progression\http\transformer;
 
-use PHPUnit\Framework\TestCase;
+use Illuminate\Support\Facades\Config;
+use progression\TestCase;
 use progression\http\transformer\dto\GénériqueDTO;
 
 final class TokenTransformerTests extends TestCase
 {
 	public function tests_étant_donné_un_token_valide_avec_fingerprint_lorsquon_le_transforme_on_obtient_le_tableau_équivalent()
 	{
-		putenv("JWT_SECRET=secret");
+		Config::set("jwt.secret", "secret");
 
 		$token =
 			"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6InV0aWxpc2F0ZXVyX2xhbWJkYSIsImN1cnJlbnQiOjk5MDQ0NjQwMCwiZXhwaXJlZCI6MTY4NTgzMTM0MCwicmVzc291cmNlcyI6InJlc3NvdXJjZXMiLCJ2ZXJzaW9uIjoiMS4yLjMifQ.NR4TnTAp-LXZZDGM8EWhSFFQpSda19nULaca9hGcGXI";
@@ -53,7 +54,7 @@ final class TokenTransformerTests extends TestCase
 
 	public function tests_étant_donné_un_token_valide_sans_fingerprint_lorsquon_le_transforme_on_obtient_le_tableau_équivalent()
 	{
-		putenv("JWT_SECRET=secret");
+		Config::set("jwt.secret", "secret");
 
 		$token =
 			"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6InV0aWxpc2F0ZXVyX2xhbWJkYSIsImN1cnJlbnQiOjk5MDQ0NjQwMCwiZXhwaXJlZCI6MTY4NTgzMTM0MCwicmVzc291cmNlcyI6InJlc3NvdXJjZXMiLCJ2ZXJzaW9uIjoiMS4yLjMifQ.NR4TnTAp-LXZZDGM8EWhSFFQpSda19nULaca9hGcGXI";

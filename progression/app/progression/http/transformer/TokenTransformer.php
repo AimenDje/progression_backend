@@ -34,7 +34,7 @@ class TokenTransformer extends BaseTransformer
 		$token = $data_in->objet;
 		$liens = $data_in->liens;
 
-		$tokenDécodé = JWT::decode($token->jwt, getenv("JWT_SECRET"), ["HS256"]);
+		$tokenDécodé = JWT::decode($token->jwt, config("jwt.secret"), ["HS256"]);
 
 		$data_out = [
 			"id" => $id,

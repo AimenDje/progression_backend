@@ -18,7 +18,7 @@
 
 namespace progression\domaine\entité;
 
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 
 final class TestProgTests extends TestCase
 {

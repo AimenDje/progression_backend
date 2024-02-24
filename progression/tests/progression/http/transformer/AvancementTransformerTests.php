@@ -20,7 +20,7 @@ namespace progression\http\transformer;
 
 use progression\domaine\entité\{Avancement, TentativeProg, Question, Sauvegarde, Résultat};
 use progression\http\transformer\dto\AvancementDTO;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 
 final class AvancementTransformerTests extends TestCase
 {
