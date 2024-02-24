@@ -55,12 +55,6 @@ final class ObtenirAvancementIntTests extends TestCase
 		DAOFactory::setInstance($mockDAOFactory);
 	}
 
-	public function tearDown(): void
-	{
-		Mockery::close();
-		DAOFactory::setInstance(null);
-	}
-
 	public function test_étant_donné_un_avancement_avec_un_username_et_question_uri_existant_lorsquon_cherche_par_username_et_question_uri_on_obtient_un_objet_avancementprog_correspondant()
 	{
 		$interacteur = new ObtenirAvancementInt();

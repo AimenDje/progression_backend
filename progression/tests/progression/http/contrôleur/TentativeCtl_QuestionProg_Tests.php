@@ -42,9 +42,6 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 
 		Carbon::setTestNow(Carbon::create(2022, 05, 27, 22, 24, 01));
 
-		putenv("AUTH_TYPE=no");
-		putenv("APP_URL=https://example.com");
-
 		$this->user = new UserAuthentifiable(
 			username: "jdoe",
 			date_inscription: 0,
@@ -359,12 +356,6 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 		$mockDAOFactory->shouldReceive("get_user_dao")->andReturn($mockUserDAO);
 
 		DAOFactory::setInstance($mockDAOFactory);
-	}
-
-	public function tearDown(): void
-	{
-		Mockery::close();
-		DAOFactory::setInstance(null);
 	}
 
 	public function test_étant_donné_une_tentative_existante_lorsquon_appelle_get_on_obtient_la_TentativeProg_et_ses_relations_sous_forme_json()

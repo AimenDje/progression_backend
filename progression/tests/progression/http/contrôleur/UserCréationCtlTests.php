@@ -32,12 +32,6 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 	{
 		parent::setUp();
 
-		putenv("AUTH_LDAP=false");
-
-		putenv("APP_URL=https://example.com");
-		putenv("JWT_SECRET=secret-test");
-		putenv("PREFERENCES_DEFAUT={préférences par défaut}");
-
 		$this->user = new UserAuthentifiable(
 			username: "bob",
 			date_inscription: 0,
@@ -80,11 +74,6 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 
 		$mockExpéditeurDao = Mockery::mock("progression\\dao\\mail\Expéditeur");
 		$mockDAOFactory->allows()->get_expéditeur()->andReturn($mockExpéditeurDao);
-	}
-
-	public function tearDown(): void
-	{
-		Mockery::close();
 	}
 
 	#  AUTH_LOCAL = false
@@ -137,6 +126,7 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 	public function test_étant_donné_un_utilisateur_inexistant_sans_authentification_lorsquon_linscrit_il_est_sauvegardé_et_on_obtient_un_user()
 	{
 		putenv("AUTH_LOCAL=false");
+		putenv("PREFERENCES_DEFAUT={préférences par défaut}");
 
 		Carbon::setTestNow(Carbon::create(2021, 01, 16, 15, 23, 32));
 
@@ -233,6 +223,7 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 	public function test_étant_donné_un_utilisateur_inexistant_avec_authentification_lorsquon_linscrit_il_est_sauvegardé_et_on_obtient_un_user()
 	{
 		putenv("AUTH_LOCAL=true");
+		putenv("PREFERENCES_DEFAUT={préférences par défaut}");
 
 		Carbon::setTestNow(Carbon::create(2021, 01, 16, 15, 23, 32));
 

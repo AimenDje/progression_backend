@@ -40,12 +40,6 @@ final class ObtenirCléIntTests extends TestCase
 		DAOFactory::setInstance($mockDAOFactory);
 	}
 
-	public function tearDown(): void
-	{
-		Mockery::close();
-		DAOFactory::setInstance(null);
-	}
-
 	public function test_étant_donné_une_clé_existante_lorsquon_la_recherche_par_username_et_numéro_on_obtient_un_objet_Clé_correspondant()
 	{
 		$int = new ObtenirCléInt();

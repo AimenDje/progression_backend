@@ -26,8 +26,6 @@ final class TestSysTransformerTests extends TestCase
 {
 	public function test_étant_donné_un_test_instanciée_avec_des_valeurs_minimales_lorsquon_récupère_son_transformer_on_obtient_un_objet_json_correspondant()
 	{
-		putenv("APP_URL=https://example.com");
-
 		$test = new TestSys("Permissions", "-rwxrwxrwx");
 
 		$résultat_attendu = [
@@ -60,8 +58,6 @@ final class TestSysTransformerTests extends TestCase
 
 	public function test_étant_donné_un_test_instanciée_avec_des_valeurs_lorsquon_récupère_son_transformer_on_obtient_un_objet_json_correspondant()
 	{
-		putenv("APP_URL=https://example.com");
-
 		$test = new TestSys("Permissions", "-rwxrwxrwx", "ls -l", "root");
 
 		$résultat_attendu = [

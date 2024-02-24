@@ -60,7 +60,7 @@ services:
     #  - "./progression_backend/progression/:/var/www/progression/"
     restart: "no"
     env_file:
-      - ${ENV_FILE:-.env}
+      - env.testing
       - VERSION
     entrypoint: bash /var/www/progression/tests/exec_tests.sh
     user: www-data

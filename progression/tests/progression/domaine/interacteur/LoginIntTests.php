@@ -81,12 +81,6 @@ final class LoginIntTests extends TestCase
 		DAOFactory::setInstance($mockDAOFactory);
 	}
 
-	public function tearDown(): void
-	{
-		Mockery::close();
-		DAOFactory::setInstance(null);
-	}
-
 	public function test_étant_donné_lutilisateur_vide_lorsquon_login_obtient_null()
 	{
 		$interacteur = new LoginInt();

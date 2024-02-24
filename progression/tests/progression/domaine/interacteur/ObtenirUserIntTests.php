@@ -51,12 +51,6 @@ final class ObtenirUserIntTests extends TestCase
 		DAOFactory::setInstance($mockDAOFactory);
 	}
 
-	public function tearDown(): void
-	{
-		Mockery::close();
-		DAOFactory::setInstance(null);
-	}
-
 	public function test_étant_donné_un_utilisateur_bob_existant_lorsquon_le_cherche_par_username_on_obtient_un_objet_user()
 	{
 		$interacteur = new ObtenirUserInt();

@@ -24,13 +24,6 @@ use PHPUnit\Framework\TestCase;
 
 final class ÉbaucheTransformerTests extends TestCase
 {
-	public function setUp(): void
-	{
-		parent::setUp();
-
-		putenv("APP_URL=https://example.com");
-	}
-
 	public function test_étant_donné_une_ébauche_instanciée_avec_des_valeurs_lorsquon_récupère_son_transformer_on_obtient_un_objet_json_correspondant()
 	{
 		$ébaucheTransformer = new ÉbaucheTransformer();

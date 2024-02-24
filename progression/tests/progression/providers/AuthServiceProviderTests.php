@@ -223,12 +223,6 @@ final class AuthServiceProviderTests extends TestCase
 		DAOFactory::setInstance($mockDAOFactory);
 	}
 
-	public function tearDown(): void
-	{
-		Mockery::close();
-		GénérateurDeToken::set_instance(null);
-	}
-
 	// Authentification par token
 	public function test_étant_donné_un_token_pour_un_utilisateur_existant_lorsquon_utilise_un_token_avec_un_nom_dutilisateur_avec_une_casse_différente_on_obtient_un_code_200()
 	{

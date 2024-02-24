@@ -32,8 +32,6 @@ final class ÉbaucheCtlTests extends ContrôleurTestCase
 	{
 		parent::setUp();
 
-		putenv("APP_URL=https://example.com");
-
 		$this->user = new UserAuthentifiable(
 			username: "bob",
 			date_inscription: 0,
@@ -60,11 +58,6 @@ final class ÉbaucheCtlTests extends ContrôleurTestCase
 		$mockDAOFactory = Mockery::mock("progression\\dao\\DAOFactory");
 		$mockDAOFactory->shouldReceive("get_question_dao")->andReturn($mockQuestionDAO);
 		DAOFactory::setInstance($mockDAOFactory);
-	}
-
-	public function tearDown(): void
-	{
-		Mockery::close();
 	}
 
 	public function test_étant_donné_le_chemin_dune_ébauche_lorsquon_appelle_get_on_obtient_lébauche_et_ses_relations_sous_forme_json()

@@ -29,7 +29,6 @@ final class UserTransformerTests extends TestCase
 {
 	public function test_étant_donné_un_user_instancié_lorsquon_récupère_son_transformer_on_obtient_un_objet_json_correspondant()
 	{
-		putenv("APP_URL=https://example.com");
 		$user = new User(
 			username: "bob",
 			date_inscription: 1590828610,

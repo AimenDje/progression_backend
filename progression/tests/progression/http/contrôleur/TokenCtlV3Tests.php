@@ -24,7 +24,7 @@ use progression\domaine\entité\user\{User, Rôle, État};
 use progression\UserAuthentifiable;
 use Carbon\Carbon;
 
-final class TokenCtlTests extends ContrôleurTestCase
+final class TokenCtlV3Tests extends ContrôleurTestCase
 {
 	public function setUp(): void
 	{

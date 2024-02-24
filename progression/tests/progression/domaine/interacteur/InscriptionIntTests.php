@@ -30,14 +30,6 @@ final class InscriptionIntTests extends TestCase
 	{
 		parent::setUp();
 
-		putenv("AUTH_LOCAL=true");
-		putenv("APP_URL=https://example.com");
-		putenv("PREFERENCES_DEFAUT=");
-		putenv("JWT_SECRET=secret-test");
-		putenv("JWT_EXPIRATION=15");
-		putenv("APP_VERSION=2.0.0");
-		putenv("MAIL_MAILER=log");
-
 		$mockUserDao = Mockery::mock("progression\\dao\\UserDAO");
 		$mockUserDao
 			->shouldReceive("get_user")
@@ -55,12 +47,6 @@ final class InscriptionIntTests extends TestCase
 		$mockExpéditeurDao = Mockery::mock("progression\\dao\\mail\Expéditeur");
 		$mockDAOFactory->shouldReceive("get_expéditeur")->andReturn($mockExpéditeurDao);
 		DAOFactory::setInstance($mockDAOFactory);
-	}
-
-	public function tearDown(): void
-	{
-		Mockery::close();
-		DAOFactory::setInstance(null);
 	}
 
 	public function test_étant_donné_un_utilisateur_non_existant_et_un_type_dauthentification_local_lorsquon_effectue_linscription_il_est_sauvegardé_et_on_reçoit_le_nouveau_User_en_attente()
@@ -250,6 +236,8 @@ final class InscriptionIntTests extends TestCase
 
 	public function test_étant_donné_un_utilisateur_non_existant_un_type_dauthentification_locale_et_une_variable_PREFERENCES_DEFAUT_définie_lorsquon_effectue_linscription_il_est_sauvegardé_avec_des_préférences_par_défaut()
 	{
+		putenv("MAIL_MAILER=log");
+
 		putenv("AUTH_LOCAL=true");
 		putenv("AUTH_LDAP=false");
 		putenv("PREFERENCES_DEFAUT=préférences par défaut");
@@ -415,6 +403,7 @@ final class InscriptionIntTests extends TestCase
 					courriel: "admin@gmail.com",
 					état: État::ACTIF,
 					rôle: Rôle::ADMIN,
+					préférences: "préférences par défaut",
 				),
 			],
 			$user,

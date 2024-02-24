@@ -46,8 +46,6 @@ final class UserModificationCtlTests extends ContrôleurTestCase
 			état: État::ACTIF,
 		);
 
-		putenv("APP_URL=https://example.com");
-
 		$this->jdoe = new User(
 			username: "jdoe",
 			courriel: "jdoe@progressionmail.com",
@@ -82,12 +80,6 @@ final class UserModificationCtlTests extends ContrôleurTestCase
 		$mockDAOFactory->shouldReceive("get_user_dao")->andReturn($mockUserDAO);
 		$mockDAOFactory->shouldReceive("get_expéditeur")->andReturn($mockExpéditeurDao);
 		DAOFactory::setInstance($mockDAOFactory);
-	}
-
-	public function tearDown(): void
-	{
-		Mockery::close();
-		DAOFactory::setInstance(null);
 	}
 
 	// PATCH

@@ -41,9 +41,6 @@ final class TentativeCtl_QuestionSys_Tests extends ContrôleurTestCase
 
 		Carbon::setTestNow(Carbon::create(2022, 05, 27, 22, 24, 01));
 
-		putenv("AUTH_TYPE=no");
-		putenv("APP_URL=https://example.com");
-
 		$this->user = new UserAuthentifiable(
 			username: "jdoe",
 			date_inscription: 0,

@@ -27,7 +27,6 @@ final class ConfigCtlTests extends ContrôleurTestCase
 	{
 		parent::setUp();
 
-		putenv("APP_URL=https://example.com");
 		Config::set("version.numéro", "3.0.0");
 	}
 

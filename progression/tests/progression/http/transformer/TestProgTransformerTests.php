@@ -26,8 +26,6 @@ final class TestProgTransformerTests extends TestCase
 {
 	public function test_étant_donné_un_test_instanciée_avec_des_valeurs_minimales_lorsquon_récupère_son_transformer_on_obtient_un_objet_json_correspondant()
 	{
-		putenv("APP_URL=https://example.com");
-
 		$test = new TestProg("Somme de deux nombres", "42");
 
 		$résultat_attendu = [
@@ -60,8 +58,6 @@ final class TestProgTransformerTests extends TestCase
 
 	public function test_étant_donné_un_test_instanciée_avec_des_valeurs_lorsquon_récupère_son_transformer_on_obtient_un_objet_json_correspondant()
 	{
-		putenv("APP_URL=https://example.com");
-
 		$test = new TestProg("Somme de deux nombres", "42", "21\n21\n", "-h");
 
 		$résultat_attendu = [

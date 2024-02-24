@@ -40,8 +40,6 @@ final class AvancementCtlTests extends ContrôleurTestCase
 			état: UserÉtat::ACTIF,
 		);
 
-		putenv("APP_URL=https://example.com");
-
 		// UserDAO
 		$mockUserDAO = Mockery::mock("progression\\dao\\UserDAO");
 		$mockUserDAO
@@ -198,11 +196,6 @@ final class AvancementCtlTests extends ContrôleurTestCase
 		$mockDAOFactory->shouldReceive("get_avancement_dao")->andReturn($mockAvancementDAO);
 
 		DAOFactory::setInstance($mockDAOFactory);
-	}
-
-	public function tearDown(): void
-	{
-		Mockery::close();
 	}
 
 	// GET

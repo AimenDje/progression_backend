@@ -146,12 +146,6 @@ final class SoumettreTentativeSysIntTests extends TestCase
 		);
 	}
 
-	public function tearDown(): void
-	{
-		Mockery::close();
-		DAOFactory::setInstance(null);
-	}
-
 	public function test_étant_donné_une_questionsys_avec_des_tests_lorsquon_soumet_une_tentative_correcte_on_obtient_une_tentative_réussie_avec_temps_dexécution_et_ses_résultats()
 	{
 		$tentative_attendue = new TentativeSys(

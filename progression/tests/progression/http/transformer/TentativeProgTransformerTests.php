@@ -27,8 +27,6 @@ final class TentativeProgTransformerTests extends TestCase
 {
 	public function test_étant_donné_une_TentativeProg_instanciée_avec_des_valeurs_minimales_lorsquon_récupère_son_transformer_on_obtient_un_objet_json_correspondant()
 	{
-		putenv("APP_URL=https://example.com");
-
 		$tentative = new TentativeProg("python", "codeTest", 1614711760);
 
 		$tentativeTransformer = new TentativeProgTransformer("roger/uri");
@@ -65,8 +63,6 @@ final class TentativeProgTransformerTests extends TestCase
 
 	public function test_étant_donné_une_TentativeProg_instanciée_avec_des_valeurs_lorsquon_récupère_son_transformer_on_obtient_un_objet_json_correspondant()
 	{
-		putenv("APP_URL=https://example.com");
-
 		$tentative = new TentativeProg(
 			"python",
 			"codeTest",
@@ -122,8 +118,6 @@ final class TentativeProgTransformerTests extends TestCase
 
 	public function test_étant_donné_une_TentativeProg_instanciée_avec_des_résultats_lorsquon_inclut_les_résultats_on_obtient_un_tableau_de_résultats()
 	{
-		putenv("APP_URL=https://example.com");
-
 		$tentative = new TentativeProg(
 			"python",
 			"codeTest",
@@ -175,8 +169,6 @@ final class TentativeProgTransformerTests extends TestCase
 
 	public function test_étant_donné_une_TentativeProg_instanciée_avec_des_commentaires_lorsquon_inclut_les_commentaires_on_obtient_un_tableau_de_commentaires()
 	{
-		putenv("APP_URL=https://example.com");
-
 		$tentative = new TentativeProg("python", "codeTest", 1614711760, false, [], 2, 34567, "feedBackTest", [
 			new Commentaire("Message", new User("jdoe", 0), 123456, 12),
 			new Commentaire("Message 2", new User("bob", 0), 654321, 13),

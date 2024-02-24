@@ -72,12 +72,6 @@ final class ExécuteurCacheTests extends TestCase
 			->andReturn("code standardisé");
 	}
 
-	public function tearDown(): void
-	{
-		parent::tearDown();
-		Mockery::close();
-	}
-
 	public function test_étant_donné_une_cache_vide_lorsquon_exécute_un_nouveau_code_on_obtient_le_code_exécuté()
 	{
 		$exécutable = new Exécutable("nouveau code", "python");

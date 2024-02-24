@@ -37,8 +37,6 @@ final class UserCtlTests extends ContrôleurTestCase
 			état: État::ACTIF,
 		);
 
-		putenv("APP_URL=https://example.com");
-
 		$user = new User(
 			username: "jdoe",
 			date_inscription: 1600828609,
@@ -87,12 +85,6 @@ final class UserCtlTests extends ContrôleurTestCase
 		$mockDAOFactory = Mockery::mock("progression\\dao\\DAOFactory");
 		$mockDAOFactory->shouldReceive("get_user_dao")->andReturn($mockUserDAO);
 		DAOFactory::setInstance($mockDAOFactory);
-	}
-
-	public function tearDown(): void
-	{
-		Mockery::close();
-		DAOFactory::setInstance(null);
 	}
 
 	public function test_étant_donné_le_nom_dun_utilisateur_lorsquon_appelle_get_on_obtient_lutilisateur_et_ses_relations_sous_forme_json()

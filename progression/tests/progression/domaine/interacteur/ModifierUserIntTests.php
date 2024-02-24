@@ -32,8 +32,6 @@ final class ModifierUserIntTests extends TestCase
 	{
 		parent::setUp();
 
-		putenv("MAIL_MAILER=log");
-
 		$this->user = new UserAuthentifiable(
 			username: "jdoe",
 			date_inscription: 0,
@@ -295,6 +293,11 @@ final class ModifierUserIntTests extends TestCase
 
 		$interacteur = new ModifierUserInt();
 
-		$interacteur->modifier_password($user_test, "qwerty123!");
+		$user_modifié = $interacteur->modifier_password($user_test, "qwerty123!");
+
+		$this->assertEquals(
+			new User(username: "bob", date_inscription: 0, état: État::ACTIF, rôle: Rôle::NORMAL),
+			$user_modifié,
+		);
 	}
 }

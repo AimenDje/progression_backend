@@ -27,28 +27,53 @@ use progression\http\transformer\TokenTransformer;
 use progression\http\transformer\dto\GénériqueDTO;
 use Carbon\Carbon;
 
+use Composer\Semver\Comparator;
+
 class TokenCtl extends Contrôleur
 {
 	public function post(Request $request, string $username): JsonResponse
 	{
 		Log::debug("TokenCtl.post. Params : ", [$request->all()]);
 
-		$validateur = $this->valider_paramètres($request);
+		// Désuétude V 4.0.0
+		// Le corps du token doit être passé directement dans la requête et non dans un objet data.
+		assert(
+			Comparator::lessThan(strval(getenv("APP_VERSION")), "4.0.0"),
+			"Fonctionnalité désuète. Doit être retirée",
+		);
+		$data_in = $request->all();
+		if (array_key_exists("ressources", $data_in["data"] ?? [])) {
+			$data_in["ressources"] = $data_in["data"]["ressources"];
+		}
+		if (array_key_exists("expiration", $data_in["data"] ?? [])) {
+			$data_in["expiration"] = $data_in["data"]["expiration"];
+		}
+		if (array_key_exists("fingerprint", $data_in["data"] ?? [])) {
+			$data_in["fingerprint"] = $data_in["data"]["fingerprint"];
+		}
+		if (array_key_exists("data", $data_in["data"] ?? [])) {
+			$data_in["data"] = $data_in["data"]["data"];
+		} else {
+			unset($data_in["data"]);
+		}
+		// Fin désuétude
+
+		$validateur = $this->valider_paramètres($data_in);
+		$data_in = (object) $data_in;
 
 		if ($validateur->stopOnFirstFailure()->fails()) {
 			$réponse = $this->réponse_json(["erreur" => $validateur->errors()], 400);
 		} else {
-			$data_in = $request->input("data");
-			$ressources = $data_in["ressources"];
+			$ressources = $data_in->ressources;
 			$expiration =
-				gettype($data_in["expiration"]) == "string"
-					? $this->calculer_expiration($data_in["expiration"])
-					: $data_in["expiration"];
-			$data = $data_in["data"] ?? [];
+				gettype($data_in->expiration) == "string"
+					? $this->calculer_expiration($data_in->expiration)
+					: $data_in->expiration;
+			$data = $data_in->data ?? [];
 
 			$contexte = null;
 			$fingerprint = null;
-			if (isset($data_in["fingerprint"]) && $data_in["fingerprint"]) {
+			if (isset($data_in->fingerprint) && $data_in->fingerprint) {
 				$contexte = $this->getContexteAléatoire();
 				$fingerprint = hash("sha256", $contexte);
 			}
@@ -107,21 +132,23 @@ class TokenCtl extends Contrôleur
 		return $liens;
 	}
 
-	private function valider_paramètres(Request $request): ValidatorImpl
+	/**
+	 * @param array<mixed> $data_in
+	 */
+	private function valider_paramètres(array $data_in): ValidatorImpl
 	{
 		$validateur = Validator::make(
-			$request->all(),
+			$data_in,
 			[
-				"data" => "required",
-				"data.ressources" => "required",
-				"data.ressources.*.url" => "required|string",
-				"data.ressources.*.method" => "required|string",
-				"data.expiration" => ["required", "regex:/^\+*[0-9]+$/"],
+				"ressources" => "required",
+				"ressources.*.url" => "required|string",
+				"ressources.*.method" => "required|string",
+				"expiration" => ["required", "regex:/^\+*[0-9]+$/"],
 				"fingerprint" => "boolean",
 			],
 			[
 				"required" => "Le champ :attribute est obligatoire.",
-				"data.expiration.regex" => "Le champ data.expiration doit représenter une date relative ou absolue.",
+				"expiration.regex" => "Le champ expiration doit représenter une date relative ou absolue.",
 				"fingerprint" => "Le champ fingerprint doit être un booléen.",
 			],
 		);

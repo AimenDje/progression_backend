@@ -24,13 +24,6 @@ use PHPUnit\Framework\TestCase;
 
 final class AvancementTransformerTests extends TestCase
 {
-	public function setUp(): void
-	{
-		parent::setUp();
-
-		putenv("APP_URL=https://example.com");
-	}
-
 	public function test_étant_donné_un_avancement_instancié_avec_des_valeurs_minimales_lorsquon_récupère_son_transformer_on_obtient_un_array_d_objets_identique()
 	{
 		$avancement = new Avancement();

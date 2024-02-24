@@ -63,12 +63,6 @@ final class ObtenirCommentaireIntTests extends TestCase
 		DAOFactory::setInstance($mockDAOFactory);
 	}
 
-	public function tearDown(): void
-	{
-		Mockery::close();
-		DAOFactory::setInstance(null);
-	}
-
 	public function test_étant_donné_un_commentaire_existant_lorsquon_le_recherche_par_id_sans_inclusion_on_obtient_un_objet_commentaire()
 	{
 		$résultat_observé = new ObtenirCommentaireInt();

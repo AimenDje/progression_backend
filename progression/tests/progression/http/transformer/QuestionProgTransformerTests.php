@@ -25,12 +25,6 @@ use PHPUnit\Framework\TestCase;
 
 final class QuestionProgTransformerTests extends TestCase
 {
-	public function setUp(): void
-	{
-		parent::setUp();
-
-		putenv("APP_URL=https://example.com");
-	}
 	public function test_étant_donné_une_questionprog_instanciée_avec_des_valeurs_minimales_lorsquon_le_transforme_on_obtient_un_tableau_d_objets_identique()
 	{
 		$question = new QuestionProg();

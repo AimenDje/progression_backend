@@ -45,8 +45,6 @@ final class CommentaireCtlTests extends ContrôleurTestCase
 			état: État::ACTIF,
 		);
 
-		putenv("APP_URL=https://example.com");
-
 		// Commentaire
 		$commentaire = new Commentaire("Bon travail", new User(username: "oteur", date_inscription: 0), 1615696276, 5);
 
@@ -69,12 +67,6 @@ final class CommentaireCtlTests extends ContrôleurTestCase
 		$mockDAOFactory->shouldReceive("get_user_dao")->andReturn($mockUserDAO);
 
 		DAOFactory::setInstance($mockDAOFactory);
-	}
-
-	public function tearDown(): void
-	{
-		Mockery::close();
-		DAOFactory::setInstance(null);
 	}
 
 	public function test_étant_donné_le_username_dun_utilisateur_le_chemin_dune_question_et_le_timestamp_lorsquon_appelle_post_on_obtient_le_commentaire_avec_ses_relations_sous_forme_json()

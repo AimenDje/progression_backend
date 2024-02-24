@@ -56,11 +56,6 @@ final class AuthenticateTests extends TestCase
 			état: État::EN_ATTENTE_DE_VALIDATION,
 		);
 
-		putenv("APP_URL=https://example.com/");
-		putenv("JWT_SECRET=secret");
-		putenv("JWT_TTL=86400");
-		putenv("APP_VERSION=1.2.3");
-
 		Carbon::setTestNowAndTimezone(Carbon::create(2001, 5, 21, 12));
 
 		// UserDAO
@@ -122,12 +117,6 @@ final class AuthenticateTests extends TestCase
 		$mockDAOFactory->shouldReceive("get_clé_dao")->andReturn($mockCléDAO);
 		$mockDAOFactory->shouldReceive("get_question_dao")->andReturn($mockQuestionDAO);
 		DAOFactory::setInstance($mockDAOFactory);
-	}
-
-	public function tearDown(): void
-	{
-		Mockery::close();
-		GénérateurDeToken::set_instance(null);
 	}
 
 	#  AUTH LDAP
