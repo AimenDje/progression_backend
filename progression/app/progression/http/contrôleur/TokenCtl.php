@@ -42,19 +42,22 @@ class TokenCtl extends Contrôleur
 			"Fonctionnalité désuète. Doit être retirée",
 		);
 		$data_in = $request->all();
-		if (array_key_exists("ressources", $data_in["data"] ?? [])) {
-			$data_in["ressources"] = $data_in["data"]["ressources"];
-		}
-		if (array_key_exists("expiration", $data_in["data"] ?? [])) {
-			$data_in["expiration"] = $data_in["data"]["expiration"];
-		}
-		if (array_key_exists("fingerprint", $data_in["data"] ?? [])) {
-			$data_in["fingerprint"] = $data_in["data"]["fingerprint"];
-		}
-		if (array_key_exists("data", $data_in["data"] ?? [])) {
-			$data_in["data"] = $data_in["data"]["data"];
-		} else {
-			unset($data_in["data"]);
+		if (array_key_exists("data", $data_in)) {
+			if (array_key_exists("ressources", $data_in["data"] ?? [])) {
+				$data_in["ressources"] = $data_in["data"]["ressources"];
+			}
+			if (array_key_exists("expiration", $data_in["data"] ?? [])) {
+				$data_in["expiration"] = $data_in["data"]["expiration"];
+			}
+			if (array_key_exists("fingerprint", $data_in["data"] ?? [])) {
+				$data_in["fingerprint"] = $data_in["data"]["fingerprint"];
+			}
+			if (array_key_exists("data", $data_in["data"] ?? [])) {
+				$data_in["data"] = $data_in["data"]["data"];
+			}
+			if (array_key_exists("ressources", $data_in["data"] ?? [])) {
+				unset($data_in["data"]);
+			}
 		}
 		// Fin désuétude
 

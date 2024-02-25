@@ -1,0 +1,30 @@
+{
+  "data": {
+    "type": "token",
+    "id": "seW_n0FFUAkVEngKxmvs9ovkU1gKhDH4AsUxEPRdFjM",
+    "attributes": {
+      "username": "utilisateur_lambda",
+      "création": 990446400,
+      "expiration": 0,
+      "data": {
+        "données": "une donnée"
+      },
+	  "ressources": {
+	      "ressource" :{
+	  	    "url": "test",
+	  	    "method": "POST"
+	      },
+	      "autre_ressource" :{
+	  	    "url": "autre_test",
+	  	    "method": "POST"
+	      }
+	  },
+      "jwt": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6InV0aWxpc2F0ZXVyX2xhbWJkYSIsImN1cnJlbnQiOjk5MDQ0NjQwMCwiZXhwaXJlZCI6MCwiZGF0YSI6eyJkb25uXHUwMGU5ZXMiOiJ1bmUgZG9ublx1MDBlOWUifSwicmVzc291cmNlcyI6eyJyZXNzb3VyY2UiOnsidXJsIjoidGVzdCIsIm1ldGhvZCI6IlBPU1QifSwiYXV0cmVfcmVzc291cmNlIjp7InVybCI6ImF1dHJlX3Rlc3QiLCJtZXRob2QiOiJQT1NUIn19LCJ2ZXJzaW9uIjoiMS4yLjMifQ.seW_n0FFUAkVEngKxmvs9ovkU1gKhDH4AsUxEPRdFjM",
+      "version": "1.2.3"
+    },
+    "links": {
+      "self": "https://example.com/token/seW_n0FFUAkVEngKxmvs9ovkU1gKhDH4AsUxEPRdFjM",
+      "user": "https://example.com/user/utilisateur_lambda"
+    }
+  }
+}

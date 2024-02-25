@@ -1,0 +1,26 @@
+{
+  "data": {
+    "type": "token",
+    "id": "94ON0Kid9N381J5bHsDtf6vxVNKQDxDQDK1-qIT8ZhY",
+    "attributes": {
+      "username": "utilisateur_lambda",
+      "création": 990446400,
+      "expiration": 0,
+      "data": {
+        "données": "une donnée"
+      },
+	    "ressources": {
+		    "ressource" : {
+			    "url": "test",
+			    "method": "POST"
+		    }
+      },
+      "jwt": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6InV0aWxpc2F0ZXVyX2xhbWJkYSIsImN1cnJlbnQiOjk5MDQ0NjQwMCwiZXhwaXJlZCI6MCwiZGF0YSI6eyJkb25uXHUwMGU5ZXMiOiJ1bmUgZG9ublx1MDBlOWUifSwicmVzc291cmNlcyI6eyJyZXNzb3VyY2UiOnsidXJsIjoidGVzdCIsIm1ldGhvZCI6IlBPU1QifX0sInZlcnNpb24iOiIxLjIuMyJ9.94ON0Kid9N381J5bHsDtf6vxVNKQDxDQDK1-qIT8ZhY",
+      "version": "1.2.3"
+    },
+    "links": {
+      "self": "https://example.com/token/94ON0Kid9N381J5bHsDtf6vxVNKQDxDQDK1-qIT8ZhY",
+      "user": "https://example.com/user/utilisateur_lambda"
+    }
+  }
+}
