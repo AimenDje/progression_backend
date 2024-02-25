@@ -72,7 +72,7 @@ class ExécuteurCompilebox extends Exécuteur
 			"code" => $exécutable->code,
 			"parameters" => "",
 			"tests" => $tests_out,
-			"vm_name" => $image ?? config("compilebox.image"),
+			"vm_name" => $image ?? config("exécuteur.image"),
 		];
 
 		$réponse = $this->envoyer_requête($data_rc);
@@ -143,7 +143,7 @@ class ExécuteurCompilebox extends Exécuteur
 		$context = stream_context_create($options_rc);
 
 		try {
-			$comp_resp = file_get_contents(config("compilebox.url"), false, $context);
+			$comp_resp = file_get_contents(config("exécuteur.url"), false, $context);
 			return $comp_resp ? json_decode(str_replace("\r", "", $comp_resp), true) : false;
 		} catch (\ErrorException $e) {
 			if (isset($http_response_header)) {
