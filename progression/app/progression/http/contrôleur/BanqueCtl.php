@@ -20,7 +20,7 @@ namespace progression\http\contrôleur;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-//use progression\domaine\interacteur\ObtenirBanquesInt;
+use progression\domaine\interacteur\ObtenirBanquesInt;
 use progression\http\transformer\dto\BanqueDTO;
 use progression\util\Encodage;
 use progression\domaine\entité\Banque;
@@ -39,33 +39,6 @@ class BanquesCtl extends Contrôleur
 		return $réponse;
 	}
 
-	private function valider_et_préparer_réponse($banques, $username)
-	{
-		Log::debug("BanquesCtl.valider_et_préparer_réponse. Params : ", [$banques]);
-
-		if ($banques === null) {
-			$réponse = null;
-		} else {
-			$dtos = [];
-			foreach ($banques as $question_uri => $banque) {
-				$uri_encodé = Encodage::base64_encode_url($question_uri);
-				array_push(
-					$dtos,
-					new BanqueDTO(
-						id: "{$username}/{$uri_encodé}",
-						objet: $banque,
-						liens: BanqueCtl::get_liens($username, $uri_encodé),
-					),
-				);
-			}
-			$réponse = $this->collection($dtos, new BanqueTransformer());
-		}
-
-		$réponse = $this->préparer_réponse($réponse);
-
-		Log::debug("BanquesCtl.valider_et_préparer_réponse. Retour : ", [$réponse]);
-		return $réponse;
-	}
 
 	private function obtenir_banques($username)
 	{
@@ -78,4 +51,43 @@ class BanquesCtl extends Contrôleur
 		Log::debug("BanquesCtl.obtenir_banques. Retour : ", [$banques]);
 		return $banques;
 	}
+    
+	private function valider_et_préparer_réponse($banques, $username)
+	{
+		Log::debug("BanquesCtl.valider_et_préparer_réponse. Params : ", [$banques]);
+
+		if ($banques === null) {
+			$réponse = null;
+		} else {
+			$dtos = [];
+			foreach ($banques as $id => $banque) {
+				array_push(
+					$dtos,
+					new BanqueDTO(
+						id: $id,
+						objet: $banque,
+						liens: BanqueCtl::get_liens($username),
+					),
+				);
+			}
+			$réponse = $this->collection($dtos, new BanqueTransformer());
+		}
+
+		$réponse = $this->préparer_réponse($réponse);
+
+		Log::debug("BanquesCtl.valider_et_préparer_réponse. Retour : ", [$réponse]);
+		return $réponse;
+	}
+
+    /**
+	 * @return array<string>
+	 */
+	public static function get_liens(string $username): array
+	{
+		$urlBase = Contrôleur::$urlBase;
+		return [
+			"self" => "{$urlBase}/user/{$username}"
+		];
+	}
+
 }
