@@ -61,10 +61,10 @@ class ChargeurQuestionGIT extends Chargeur
         throw new \RuntimeException("Le clonage du dépôt a échoué");
     }
 
-    // Récupérer le chemin complet du fichier info.yml dans le dépôt cloné
     $liste_info_yml = null;
     $code_de_retour = null;
-    exec("find $dossier_temporaire -name 'info.yml'", $liste_info_yml, $code_de_retour);
+
+    // Récupérer le chemin complet du fichier info.yml dans le dépôt cloné    exec("find $dossier_temporaire -name 'info.yml'", $liste_info_yml, $code_de_retour);
     $chemin_fichier_dans_depot = $liste_info_yml[0];
     Log::debug("chemin du depot" . $chemin_fichier_dans_depot);
 
