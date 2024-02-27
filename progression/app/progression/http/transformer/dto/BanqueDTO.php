@@ -31,7 +31,7 @@ class BanqueDTO extends GénériqueDTO
 		foreach ($object->banques as $uri => $banque) {
 			array_push(
 				$this->banques,
-				new BanqueDTO(id: "{$id}/{$uri}", objet: $banque: liens: BanqueCtl::get_liens($id, $uri)),
+				new BanqueDTO(id: "{$id}/{$uri}", objet: $banque, liens: BanqueCtl::get_liens($id, $uri)),
 			);
 		}
 	}
