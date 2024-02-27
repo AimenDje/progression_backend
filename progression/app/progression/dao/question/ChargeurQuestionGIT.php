@@ -64,8 +64,8 @@ class ChargeurQuestionGIT extends Chargeur
     // Récupérer le chemin complet du fichier info.yml dans le dépôt cloné
     $liste_info_yml = null;
     $code_de_retour = null;
-    exec("find . -name 'info.yml'", $liste_info_yml, $code_de_retour)
-    $chemin_fichier_dans_depot = $liste_info_yml[0]
+    exec("find $dossier_temporaire -name 'info.yml'", $liste_info_yml, $code_de_retour);
+    $chemin_fichier_dans_depot = $liste_info_yml[0];
     Log::debug("chemin du depot" . $chemin_fichier_dans_depot);
 
     // Créer une instance du chargeur de fichiers
