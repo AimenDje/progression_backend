@@ -28,12 +28,18 @@ class ChargeurQuestionGIT extends Chargeur
 		$chargeur_depot = new ChargeurGIT();
 
 		// Cloner le dépôt Git temporairement
-		$dossier_temporaire = $chargeur_depot->cloner_depot($url_du_depot);
+		$dépot_en_mémoire = $chargeur_depot->cloner_depot($url_du_depot);
 
 		// Récupérer le chemin complet du fichier info.yml dans le dépôt cloné
 		$liste_info_yml = null;
 		$code_de_retour = null;
-		exec("find $dossier_temporaire -name 'info.yml'", $liste_info_yml, $code_de_retour);
+		exec("find $dépot_en_mémoire -name 'info.yml'", $liste_info_yml, $code_de_retour);
+		
+		// Vérifie s'il y a un fichier de question dans le dépôt
+		if (empty($liste_info_yml)){
+			throw new RuntimeException("Aucun fichier info.yml trouvé dans le dépôt cloné");
+		}
+
 		$chemin_fichier_dans_depot = $liste_info_yml[0];
 		Log::debug("chemin du depot" . $chemin_fichier_dans_depot);
 
@@ -43,8 +49,8 @@ class ChargeurQuestionGIT extends Chargeur
 		// Lire le contenu du fichier info.yml depuis le dépôt cloné en utilisant le chargeur de fichiers
 		$contenu_question = $chargeur_fichier->récupérer_question($chemin_fichier_dans_depot);
 
-		// Supprimer le répertoire temporaire du dépôt cloné
-		exec("rm -rf $dossier_temporaire");
+		// Supprimer le dépôt cloner de la mémoire
+		$dépot_en_mémoire->run('delete', []);
 
 		return $contenu_question;
 	}

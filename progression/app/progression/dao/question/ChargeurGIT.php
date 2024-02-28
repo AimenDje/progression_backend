@@ -19,22 +19,26 @@
 namespace progression\dao\question;
 
 use RuntimeException, ErrorException;
+use Gitonomy\Git\Repository;
+
 
 class ChargeurGIT extends Chargeur
 {
 	public static function cloner_depot($url_du_depot)
 	{
-		// Cloner le dépôt Git temporairement
-		$dossier_temporaire = sys_get_temp_dir() . "/" . uniqid("git_repo_");
+		// Créer un dépôt en mémoire
+		$dépot_en_mémoire = new Repository(null, ['storage' => ['type' => 'memory']]);
 
-		// Cloner le dépôt dans le dossier temporaire
-		exec("git clone --depth 1 $url_du_depot $dossier_temporaire");
+		// Cloner le dépôt dans la mémoire
+		$dépot_en_mémoire->run('clone', [$url_du_depot, '--depth=1']);
 
-		// Vérifier si le clonage a réussi
-		if (!is_dir($dossier_temporaire)) {
-			throw new RuntimeException("Le clonage du dépôt a échoué");
-		}
+		// Vérifier si le clonage a réussi en vérifiant le statut du dépôt
+        try {
+            $dépot_en_mémoire->getStatus();
+        } catch (\Exception $e) {
+            throw new RuntimeException("Le clonage du dépôt a échoué");
+        }
 
-		return $dossier_temporaire;
+		return $dépot_en_mémoire;
 	}
 }
