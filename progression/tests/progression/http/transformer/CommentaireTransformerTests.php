@@ -18,7 +18,7 @@
 
 namespace progression\http\transformer;
 
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use progression\domaine\entité\Commentaire;
 use progression\domaine\entité\user\User;
 use progression\http\transformer\dto\GénériqueDTO;
@@ -27,8 +27,6 @@ final class CommentaireTransformerTests extends TestCase
 {
 	public function test_étant_donné_un_commentaire_instancié_avec_des_valeurs_lorsquon_récupère_son_transformer_on_obtient_un_objet_json_correspondant()
 	{
-		putenv("APP_URL=https://example.com");
-
 		$commentaire = new Commentaire(
 			"message envoyer par interacteurMocker",
 			new User(username: "createur_test", date_inscription: 0),

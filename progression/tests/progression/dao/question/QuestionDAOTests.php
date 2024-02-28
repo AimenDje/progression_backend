@@ -20,20 +20,15 @@ namespace progression\dao\question;
 
 use progression\domaine\entité\question\{Question, QuestionProg, QuestionSys};
 use progression\domaine\entité\{Exécutable, TestProg, TestSys};
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use Mockery;
 
 final class QuestionDAOTests extends TestCase
 {
-	public function setUp(): void
-	{
-		parent::setUp();
-	}
-
 	public function tearDown(): void
 	{
-		parent::tearDown();
 		ChargeurFactory::set_instance(null);
+		parent::tearDown();
 	}
 
 	public function test_étant_donné_un_uri_de_question_inexistant_lorqsuon_la_charge_on_obtient_null()

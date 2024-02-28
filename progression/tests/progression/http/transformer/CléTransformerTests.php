@@ -20,17 +20,10 @@ namespace progression\http\transformer;
 
 use progression\domaine\entité\clé\{Clé, Portée};
 use progression\http\transformer\dto\GénériqueDTO;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 
 final class CléTransformerTests extends TestCase
 {
-	public function setUp(): void
-	{
-		parent::setUp();
-
-		putenv("APP_URL=https://example.com");
-	}
-
 	public function test_étant_donné_une_clé_d_authentification_lorsquon_la_transforme_on_obtient_un_array_identifque()
 	{
 		$clé = new Clé("1234", "2021-06-25 00:00:00", "2021-06-26 00:00:00", Portée::AUTH);

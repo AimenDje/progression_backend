@@ -20,7 +20,7 @@ namespace progression\domaine\entité;
 
 use progression\domaine\entité\user\User;
 
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 
 final class CommentaireTests extends TestCase
 {

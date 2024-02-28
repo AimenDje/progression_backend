@@ -18,6 +18,7 @@
 
 use progression\ContrôleurTestCase;
 
+use Illuminate\Support\Facades\Config;
 use progression\dao\DAOFactory;
 use progression\dao\exécuteur\ExécutionException;
 use progression\domaine\entité\{TestProg, Exécutable, Résultat};
@@ -32,9 +33,6 @@ final class RésultatCtl_QuestionProg_Tests extends ContrôleurTestCase
 	public function setUp(): void
 	{
 		parent::setUp();
-
-		putenv("APP_URL=https://example.com");
-		putenv("TAILLE_CODE_MAX=1000");
 
 		$this->user = new UserAuthentifiable(
 			username: "jdoe",
@@ -165,12 +163,6 @@ final class RésultatCtl_QuestionProg_Tests extends ContrôleurTestCase
 		$mockDAOFactory->shouldReceive("get_user_dao")->andReturn($mockUserDAO);
 
 		DAOFactory::setInstance($mockDAOFactory);
-	}
-
-	public function tearDown(): void
-	{
-		Mockery::close();
-		DAOFactory::setInstance(null);
 	}
 
 	public function test_étant_donné_un_test_unique_lorsquil_est_soumis_on_obtient_le_résultat_réussi_pour_le_test_fourni()
@@ -398,7 +390,7 @@ final class RésultatCtl_QuestionProg_Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_test_unique_ayant_du_code_dépassant_la_taille_maximale_de_caractères_on_obtient_une_erreur_400()
 	{
-		putenv("TAILLE_CODE_MAX=23");
+		Config::set("limites.taille_code", 23);
 		$testCode = "#+TODO\n日本語でのテストです\n#-TODO"; //24 caractères UTF8
 
 		$résultat_obtenu = $this->actingAs($this->user)->call(
@@ -410,7 +402,7 @@ final class RésultatCtl_QuestionProg_Tests extends ContrôleurTestCase
 				"code" => "$testCode",
 			],
 		);
-		putenv("TAILLE_CODE_MAX=1000");
+		Config::set("limites.taille_code", 1000);
 
 		$this->assertEquals(400, $résultat_obtenu->status());
 		$this->assertEquals(
@@ -421,7 +413,7 @@ final class RésultatCtl_QuestionProg_Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_test_unique_ayant_exactement_la_taille_maximale_de_caractères_on_obtient_un_code_200()
 	{
-		putenv("TAILLE_CODE_MAX=24");
+		Config::set("limites.taille_code", 24);
 		$testCode = "#+TODO\n日本語でのテストです\n#-TODO"; //24 caractères UTF8
 
 		$résultat_obtenu = $this->actingAs($this->user)->call(
@@ -433,7 +425,7 @@ final class RésultatCtl_QuestionProg_Tests extends ContrôleurTestCase
 				"code" => "$testCode",
 			],
 		);
-		putenv("TAILLE_CODE_MAX=1000");
+		Config::set("limites.taille_code", 1000);
 
 		$this->assertEquals(200, $résultat_obtenu->status());
 	}

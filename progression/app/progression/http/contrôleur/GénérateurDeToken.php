@@ -61,14 +61,14 @@ class GénérateurDeToken
 			"expired" => $expiration,
 			"data" => $data,
 			"ressources" => $ressources,
-			"version" => getenv("APP_VERSION"),
+			"version" => config("app.version"),
 		];
 
 		if ($fingerprint) {
 			$payload["fingerprint"] = $fingerprint;
 		}
 
-		$secret = getenv("JWT_SECRET");
+		$secret = config("jwt.secret");
 		if (!$secret) {
 			throw new RuntimeException("Le secret JWT ne doit pas être vide");
 		}

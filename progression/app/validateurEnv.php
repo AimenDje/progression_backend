@@ -15,8 +15,8 @@ $dotenv->required("DB_DATABASE")->allowedRegexValues("(.*)");
 $dotenv->required("DB_USERNAME")->allowedRegexValues("([a-zA-Z0-9_]+)");
 $dotenv->required("DB_PASSWORD")->allowedRegexValues("(.*)");
 
-$dotenv->ifpresent("AUTH_LOCAL")->isBoolean();
-$dotenv->ifpresent("AUTH_LDAP")->isBoolean();
+$dotenv->ifpresent("auth.local")->isBoolean();
+$dotenv->ifpresent("auth.ldap")->isBoolean();
 
 $dotenv->required("HTTP_ORIGIN")->allowedRegexValues("(.*)");
 

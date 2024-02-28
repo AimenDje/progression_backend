@@ -32,9 +32,6 @@ final class PermissionsRessourcesTests extends TestCase
 	{
 		parent::setUp();
 
-		putenv("AUTH_TYPE=ldap");
-		putenv("APP_URL=https://example.com/");
-
 		$this->user = new UserAuthentifiable(
 			username: "bob",
 			date_inscription: 0,
@@ -63,12 +60,6 @@ final class PermissionsRessourcesTests extends TestCase
 		$mockDAOFactory = Mockery::mock("progression\\dao\\DAOFactory");
 		$mockDAOFactory->shouldReceive("get_user_dao")->andReturn($mockUserDAO);
 		DAOFactory::setInstance($mockDAOFactory);
-	}
-
-	public function tearDown(): void
-	{
-		Mockery::close();
-		DAOFactory::setInstance(null);
 	}
 
 	public function test_étant_donné_un_utilisateur_normal_bob_connecté_lorsquon_demande_une_ressource_pour_ce_même_utilisateur_on_obtient_OK()

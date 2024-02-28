@@ -20,7 +20,7 @@ namespace progression\domaine\interacteur;
 
 use progression\domaine\entité\user\User;
 use progression\dao\DAOFactory;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use Mockery;
 
 final class ObtenirUserIntTests extends TestCase
@@ -49,12 +49,6 @@ final class ObtenirUserIntTests extends TestCase
 		$mockDAOFactory->allows()->get_user_dao()->andReturn($mockUserDao);
 
 		DAOFactory::setInstance($mockDAOFactory);
-	}
-
-	public function tearDown(): void
-	{
-		Mockery::close();
-		DAOFactory::setInstance(null);
 	}
 
 	public function test_étant_donné_un_utilisateur_bob_existant_lorsquon_le_cherche_par_username_on_obtient_un_objet_user()

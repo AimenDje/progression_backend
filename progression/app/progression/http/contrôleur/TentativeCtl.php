@@ -198,7 +198,7 @@ class TentativeCtl extends Contrôleur
 
 	private function valider_paramètres_prog($request)
 	{
-		$TAILLE_CODE_MAX = (int) getenv("TAILLE_CODE_MAX");
+		$TAILLE_CODE_MAX = (int) config("limites.taille_code");
 
 		return Validator::make(
 			$request->all(),

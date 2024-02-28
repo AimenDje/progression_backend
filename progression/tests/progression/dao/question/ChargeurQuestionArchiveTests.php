@@ -19,7 +19,7 @@
 namespace progression\dao\question;
 
 use RuntimeException;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use ZipArchive;
 
 final class ChargeurQuestionArchiveTests extends TestCase
@@ -28,6 +28,7 @@ final class ChargeurQuestionArchiveTests extends TestCase
 
 	public function setUp(): void
 	{
+		parent::setUp();
 		$this->contenu_tmp = scandir("/tmp");
 	}
 
@@ -35,6 +36,8 @@ final class ChargeurQuestionArchiveTests extends TestCase
 	{
 		// Le contenu du répertoire /tmp n'a pas changé
 		$this->assertEquals($this->contenu_tmp, scandir("/tmp"));
+
+		parent::tearDown();
 	}
 
 	public function test_étant_donné_un_uri_de_fichier_zip_lorsquon_charge_la_question_on_obtient_un_tableau_associatif_représentant_la_question()

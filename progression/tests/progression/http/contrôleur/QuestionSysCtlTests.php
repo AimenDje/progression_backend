@@ -75,15 +75,8 @@ final class QuestionSysCtlTests extends ContrôleurTestCase
 		DAOFactory::setInstance($mockDAOFactory);
 	}
 
-	public function tearDown(): void
-	{
-		Mockery::close();
-		DAOFactory::setInstance(null);
-	}
-
 	public function test_étant_donné_le_chemin_dune_question_lorsquon_appelle_get_on_obtient_la_question_et_ses_relations_sous_forme_json()
 	{
-		putenv("APP_URL=https://example.com");
 		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"GET",
 			"/question/aHR0cHM6Ly9kZXBvdC5jb20vcm9nZXIvcXVlc3Rpb25zX3N5cy9wZXJtaXNzaW9uczAxL29jdHJveWVyX3RvdXRlc19sZXNfcGVybWlzc2lvbnMy?include=tests",

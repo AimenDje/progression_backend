@@ -23,7 +23,7 @@ use progression\domaine\entité\{TentativeProg, Avancement, TentativeSys};
 use progression\domaine\entité\user\User;
 use progression\domaine\interacteur\SauvegarderAvancementInt;
 use progression\dao\DAOFactory;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use progression\dao\question\QuestionDAO;
 use Mockery;
 
@@ -74,10 +74,6 @@ final class SauvegarderAvancementIntTests extends TestCase
 		$mockDAOFactory->allows()->get_user_dao()->andReturn($mockUserDAO);
 		$mockDAOFactory->allows()->get_avancement_dao()->andReturn($mockAvancementDAO);
 		DAOFactory::setInstance($mockDAOFactory);
-	}
-	public function tearDown(): void
-	{
-		Mockery::close();
 	}
 
 	public function test_étant_donné_un_avancement_existant_lorsquon_sauvegarde_l_avancement_non_modifié_il_est_sauvegardé_et_retourné_tel_quel()

@@ -39,8 +39,6 @@ final class TestCtlTests extends ContrôleurTestCase
 			état: État::ACTIF,
 		);
 
-		putenv("APP_URL=https://example.com");
-
 		// Question
 		$question = new QuestionProg(
 			titre: "appeler_une_fonction_paramétrée",
@@ -96,11 +94,6 @@ final class TestCtlTests extends ContrôleurTestCase
 		$mockDAOFactory->shouldReceive("get_question_dao")->andReturn($mockQuestionDAO);
 
 		DAOFactory::setInstance($mockDAOFactory);
-	}
-
-	public function tearDown(): void
-	{
-		Mockery::close();
 	}
 
 	public function test_étant_donné_le_chemin_dune_questionProg_et_son_test_numero_0_lorsquon_appelle_get_on_obtient_le_test_numero_0_et_ses_relations_sous_forme_json()

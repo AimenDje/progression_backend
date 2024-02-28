@@ -20,7 +20,7 @@ namespace progression\domaine\interacteur;
 
 use progression\domaine\entité\clé\{Clé, Portée};
 use progression\dao\DAOFactory;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use Mockery;
 
 final class ObtenirCléIntTests extends TestCase
@@ -38,12 +38,6 @@ final class ObtenirCléIntTests extends TestCase
 		$mockDAOFactory = Mockery::mock("progression\\dao\\DAOFactory");
 		$mockDAOFactory->allows()->get_clé_dao()->andReturn($mockCléDAO);
 		DAOFactory::setInstance($mockDAOFactory);
-	}
-
-	public function tearDown(): void
-	{
-		Mockery::close();
-		DAOFactory::setInstance(null);
 	}
 
 	public function test_étant_donné_une_clé_existante_lorsquon_la_recherche_par_username_et_numéro_on_obtient_un_objet_Clé_correspondant()

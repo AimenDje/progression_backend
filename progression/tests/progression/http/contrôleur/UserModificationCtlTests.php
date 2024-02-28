@@ -18,6 +18,7 @@
 
 use progression\ContrôleurTestCase;
 
+use Illuminate\Support\Facades\Config;
 use progression\dao\DAOFactory;
 use progression\domaine\entité\{Avancement, TentativeProg};
 use progression\domaine\entité\user\{User, État, Rôle};
@@ -45,8 +46,6 @@ final class UserModificationCtlTests extends ContrôleurTestCase
 			rôle: Rôle::ADMIN,
 			état: État::ACTIF,
 		);
-
-		putenv("APP_URL=https://example.com");
 
 		$this->jdoe = new User(
 			username: "jdoe",
@@ -82,12 +81,6 @@ final class UserModificationCtlTests extends ContrôleurTestCase
 		$mockDAOFactory->shouldReceive("get_user_dao")->andReturn($mockUserDAO);
 		$mockDAOFactory->shouldReceive("get_expéditeur")->andReturn($mockExpéditeurDao);
 		DAOFactory::setInstance($mockDAOFactory);
-	}
-
-	public function tearDown(): void
-	{
-		Mockery::close();
-		DAOFactory::setInstance(null);
 	}
 
 	// PATCH
@@ -151,7 +144,7 @@ final class UserModificationCtlTests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_utilisateur_existant_avec_authentification_lorsquon_le_modifie_avec_un_nouveau_mot_de_passe_il_nest_pas_sauvegardé_son_mdp_est_changé_et_on_obtient_le_même_utilisateur()
 	{
-		putenv("AUTH_LOCAL=true");
+		Config::set("authentification.local", true);
 
 		$mockUserDAO = DAOFactory::getInstance()->get_user_dao();
 		$mockUserDAO
@@ -175,7 +168,7 @@ final class UserModificationCtlTests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_utilisateur_existant_avec_authentification_lorsquon_le_modifie_avec_un_nouveau_mot_de_passe_insuffisant_il_nest_pas_sauvegardé_et_on_obtient_une_erreur_400()
 	{
-		putenv("AUTH_LOCAL=true");
+		Config::set("authentification.local", true);
 
 		$mockUserDAO = DAOFactory::getInstance()->get_user_dao();
 		$mockUserDAO->shouldNotReceive("set_password");
@@ -196,7 +189,7 @@ final class UserModificationCtlTests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_utilisateur_actif_lorsquon_le_modifie_avec_un_nouveau_courriel_un_courriel_de_validation_est_envoyé_et_on_obtient_lutilisateur_modifié_avec_état_en_attente()
 	{
-		putenv("AUTH_LOCAL=true");
+		Config::set("authentification.local", true);
 
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
 		$mockExpéditeurDao->shouldReceive("envoyer_courriel_de_validation")->once();
@@ -236,7 +229,7 @@ final class UserModificationCtlTests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_utilisateur_actif_lorsquon_le_modifie_avec_un_courriel_existant_on_obtient_une_erreur_409()
 	{
-		putenv("AUTH_LOCAL=true");
+		Config::set("authentification.local", true);
 
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
 		$mockExpéditeurDao->shouldNotReceive("envoyer_courriel_de_validation");
@@ -260,7 +253,7 @@ final class UserModificationCtlTests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_utilisateur_actif_lorsquon_le_modifie_avec_son_propre_courriel_on_il_n_est_pas_sauvegardé_et_lutilisateur_reste_à_l_état_actif()
 	{
-		putenv("AUTH_LOCAL=true");
+		Config::set("authentification.local", true);
 
 		$bob = new User("bob", 1600828609, "bob@progressionmail.com", état: État::ACTIF);
 

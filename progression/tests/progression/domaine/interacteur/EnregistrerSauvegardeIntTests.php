@@ -20,22 +20,11 @@ namespace progression\domaine\interacteur;
 
 use progression\domaine\entité\{Sauvegarde};
 use progression\dao\DAOFactory;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use Mockery;
 
 final class EnregistrerSauvegardeIntTests extends TestCase
 {
-	public function setUp(): void
-	{
-		parent::setUp();
-	}
-
-	public function tearDown(): void
-	{
-		Mockery::close();
-		DAOFactory::setInstance(null);
-	}
-
 	public function test_étant_donné_luri_dune_question_existante_un_username_existant_et_le_bon_langage_lorsquon_appelle_save_on_obtient_un_objet_sauvegarde_correspondant()
 	{
 		// Sauvegarde

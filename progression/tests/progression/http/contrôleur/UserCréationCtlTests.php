@@ -18,6 +18,7 @@
 
 use progression\ContrôleurTestCase;
 
+use Illuminate\Support\Facades\Config;
 use progression\http\contrôleur\GénérateurDeToken;
 use progression\domaine\entité\user\{User, État, Rôle};
 use progression\dao\DAOFactory;
@@ -31,12 +32,6 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 	public function setUp(): void
 	{
 		parent::setUp();
-
-		putenv("AUTH_LDAP=false");
-
-		putenv("APP_URL=https://example.com");
-		putenv("JWT_SECRET=secret-test");
-		putenv("PREFERENCES_DEFAUT={préférences par défaut}");
 
 		$this->user = new UserAuthentifiable(
 			username: "bob",
@@ -82,15 +77,11 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 		$mockDAOFactory->allows()->get_expéditeur()->andReturn($mockExpéditeurDao);
 	}
 
-	public function tearDown(): void
-	{
-		Mockery::close();
-	}
-
 	#  AUTH_LOCAL = false
 	public function test_étant_donné_un_utilisateur_existant_sans_authentification_lorsquon_inscrit_de_nouveau_on_obtient_un_user_avec_la_date_dinscription_originale()
 	{
-		putenv("AUTH_LOCAL=false");
+		Config::set("authentification.local", false);
+		Config::set("authentification.ldap", false);
 
 		$résultat_observé = $this->call("PUT", "/user/bob", [
 			"username" => "bob",
@@ -108,7 +99,8 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_utilisateur_existant_sans_authentification_lorsquon_inscrit_avec_un_nom_dutilisateur_différent_on_obtient_une_erreur_400()
 	{
-		putenv("AUTH_LOCAL=false");
+		Config::set("authentification.local", false);
+		Config::set("authentification.ldap", false);
 
 		$résultat_observé = $this->call("PUT", "/user/bob", [
 			"username" => "autre_nom",
@@ -122,7 +114,8 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_utilisateur_inexistant_sans_authentification_lorsquon_inscrit_avec_un_nom_dutilisateur_différent_on_obtient_une_erreur_400()
 	{
-		putenv("AUTH_LOCAL=false");
+		Config::set("authentification.local", false);
+		Config::set("authentification.ldap", false);
 
 		$résultat_observé = $this->call("PUT", "/user/roger", [
 			"username" => "autre_nom",
@@ -136,7 +129,9 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_utilisateur_inexistant_sans_authentification_lorsquon_linscrit_il_est_sauvegardé_et_on_obtient_un_user()
 	{
-		putenv("AUTH_LOCAL=false");
+		Config::set("authentification.local", false);
+		Config::set("authentification.ldap", false);
+		Config::set("préférences.défaut", "{préférences par défaut}");
 
 		Carbon::setTestNow(Carbon::create(2021, 01, 16, 15, 23, 32));
 
@@ -169,7 +164,7 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 	# PUT Utilisateur inexistant
 	public function test_étant_donné_un_utilisateur_inexistant_avec_authentification_lorsquon_linscrit_avec_un_courriel_existant_on_obtient_une_erreur_409()
 	{
-		putenv("AUTH_LOCAL=true");
+		Config::set("authentification.local", true);
 
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
 		$mockExpéditeurDao->shouldNotReceive("envoyer_courriel_de_validation");
@@ -192,7 +187,7 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_utilisateur_inexistant_avec_authentification_lorsquon_linscrit_avec_un_courriel_invalide_on_obtient_une_erreur_400()
 	{
-		putenv("AUTH_LOCAL=true");
+		Config::set("authentification.local", true);
 
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
 		$mockExpéditeurDao->shouldNotReceive("envoyer_courriel_de_validation");
@@ -212,7 +207,7 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_utilisateur_inexistant_avec_authentification_lorsquon_linscrit_avec_un_password_invalide_on_obtient_une_erreur_400()
 	{
-		putenv("AUTH_LOCAL=true");
+		Config::set("authentification.local", true);
 
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
 		$mockExpéditeurDao->shouldNotReceive("envoyer_courriel_de_validation");
@@ -232,7 +227,8 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_utilisateur_inexistant_avec_authentification_lorsquon_linscrit_il_est_sauvegardé_et_on_obtient_un_user()
 	{
-		putenv("AUTH_LOCAL=true");
+		Config::set("authentification.local", true);
+		Config::set("préférences.défaut", "{préférences par défaut}");
 
 		Carbon::setTestNow(Carbon::create(2021, 01, 16, 15, 23, 32));
 
@@ -271,7 +267,7 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_utilisateur_inexistant_avec_authentification_lorsquon_linscrit_sans_username_il_n_est_pas_sauvegardé_et_on_obtient_une_erreur_400()
 	{
-		putenv("AUTH_LOCAL=true");
+		Config::set("authentification.local", true);
 
 		Carbon::setTestNow(Carbon::create(2021, 01, 16, 15, 23, 32));
 
@@ -296,7 +292,7 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 	# PUT Utilisateur existant
 	public function test_étant_donné_un_utilisateur_en_attente_de_validation_lorsquon_linscrit_de_nouveau_avec_le_même_courriel_et_sans_mdp_il_nest_pas_sauvegardé_et_un_courriel_de_validation_est_renvoyé()
 	{
-		putenv("AUTH_LOCAL=true");
+		Config::set("authentification.local", true);
 
 		$mockUserDAO = DAOFactory::getInstance()->get_user_dao();
 		$mockUserDAO->shouldNotReceive("save")->shouldNotReceive("set_password");
@@ -318,7 +314,7 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_utilisateur_existant_avec_authentification_lorsquon_linscrit_de_nouveau_on_obtient_une_erreur_409()
 	{
-		putenv("AUTH_LOCAL=true");
+		Config::set("authentification.local", true);
 
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
 		$mockExpéditeurDao->shouldNotReceive("envoyer_courriel_de_validation");
@@ -335,7 +331,7 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_utilisateur_existant_lorsquon_linscrit_de_nouveau_sans_mdp_il_nest_pas_sauvegardé_et_on_obtient_une_erreur_400()
 	{
-		putenv("AUTH_LOCAL=true");
+		Config::set("authentification.local", true);
 
 		$mockUserDAO = DAOFactory::getInstance()->get_user_dao();
 		$mockUserDAO
@@ -361,7 +357,7 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_utilisateur_existant_linscrit_de_nouveau_sans_courriel_il_nest_pas_sauvegradé_et_on_obtient_une_erreur_400()
 	{
-		putenv("AUTH_LOCAL=true");
+		Config::set("authentification.local", true);
 
 		$mockUserDAO = DAOFactory::getInstance()->get_user_dao();
 		$mockUserDAO
@@ -388,7 +384,7 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 	# Identifiants invalides
 	public function test_étant_donné_un_utilisateur_inexistant_avec_authentification_lorsquon_linscrit_avec_un_username_différent_on_obtient_une_erreur_400()
 	{
-		putenv("AUTH_LOCAL=true");
+		Config::set("authentification.local", true);
 
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
 		$mockExpéditeurDao->shouldNotReceive("envoyer_courriel_de_validation");
@@ -408,7 +404,7 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 
 	public function test_étant_donné_une_authentificaton_locale_lorsquon_inscrit_un_nom_dutilisateur_invalide_on_obtient_une_erreur_400()
 	{
-		putenv("AUTH_LOCAL=true");
+		Config::set("authentification.local", true);
 
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
 		$mockExpéditeurDao->shouldNotReceive("envoyer_courriel_de_validation");
@@ -428,7 +424,7 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 
 	public function test_étant_donné_une_authentificaton_locale_lorsquon_inscrit_sans_nom_dutlisateur_on_obtient_une_erreur_400()
 	{
-		putenv("AUTH_LOCAL=true");
+		Config::set("authentification.local", true);
 
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
 		$mockExpéditeurDao->shouldNotReceive("envoyer_courriel_de_validation");
@@ -447,7 +443,7 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 
 	public function test_étant_donné_une_authentification_locale_lorsquon_inscrit_un_nouvel_utilisateur_sans_mot_de_passe_on_obtient_une_erreur_400()
 	{
-		putenv("AUTH_LOCAL=true");
+		Config::set("authentification.local", true);
 
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
 		$mockExpéditeurDao->shouldNotReceive("envoyer_courriel_de_validation");
@@ -466,7 +462,7 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 
 	public function test_étant_donné_une_authentification_locale_lorsquon_inscrit_un_nouvel_utilisateur_avec_mot_de_passe_vide_on_obtient_une_erreur_400()
 	{
-		putenv("AUTH_LOCAL=true");
+		Config::set("authentification.local", true);
 
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
 		$mockExpéditeurDao->shouldNotReceive("envoyer_courriel_de_validation");
@@ -486,7 +482,7 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 
 	public function test_étant_donné_une_authentification_locale_lorsquon_inscrit_sans_userame_courriel_ni_mdp_on_obtient_une_erreur_400()
 	{
-		putenv("AUTH_LOCAL=true");
+		Config::set("authentification.local", true);
 
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
 		$mockExpéditeurDao->shouldNotReceive("envoyer_courriel_de_validation");
@@ -502,7 +498,7 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 
 	public function test_étant_donné_une_authentification_locale_lorsquon_inscrit_sans_courriel_on_obtient_une_erreur_400()
 	{
-		putenv("AUTH_LOCAL=true");
+		Config::set("authentification.local", true);
 
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
 		$mockExpéditeurDao->shouldNotReceive("envoyer_courriel_de_validation");

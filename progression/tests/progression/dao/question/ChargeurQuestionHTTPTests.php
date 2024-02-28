@@ -19,23 +19,17 @@
 namespace progression\dao\question;
 
 use progression\domaine\entité\question\QuestionProg;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use Mockery;
 
 final class ChargeurQuestionHTTPTests extends TestCase
 {
 	private $contenu_tmp;
 
-	public static function setUpBeforeClass(): void
-	{
-		parent::setUpBeforeClass();
-
-		putenv("QUESTION_TAILLE_MAX=1000");
-	}
-
 	public function setUp(): void
 	{
 		parent::setUp();
+
 		$this->contenu_tmp = scandir("/tmp");
 	}
 
@@ -45,7 +39,6 @@ final class ChargeurQuestionHTTPTests extends TestCase
 		$this->assertEquals($this->contenu_tmp, scandir("/tmp"));
 
 		parent::tearDown();
-		Mockery::close();
 	}
 
 	public function test_étant_donné_un_url_de_type_text_yaml_lorsquon_charge_la_question_on_obtient_un_objet_Question_correspondant()
@@ -207,8 +200,11 @@ final class ChargeurQuestionHTTPTests extends TestCase
 			$this->assertEquals("Fichier de taille inconnue. On ne le chargera pas.", $e->getMessage());
 		}
 	}
+
 	public function test_étant_donné_un_url_de_type_text_de_taille_trop_grande_lorsquon_charge_la_question_on_obtient_une_ChargeurException()
 	{
+		putenv("QUESTION_TAILLE_MAX=1000");
+
 		// ChargeurHTTP
 		$mockChargeurHTTP = Mockery::mock("progression\\dao\\question\\ChargeurHTTP");
 		$mockChargeurHTTP
@@ -233,6 +229,7 @@ final class ChargeurQuestionHTTPTests extends TestCase
 			$this->assertEquals("Fichier trop volumineux (9999999 > 1000). On ne le chargera pas.", $e->getMessage());
 		}
 	}
+
 	public function test_étant_donné_un_url_de_type_application_de_taille_trop_grande_lorsquon_charge_la_question_on_obtient_une_ChargeurException()
 	{
 		// ChargeurHTTP

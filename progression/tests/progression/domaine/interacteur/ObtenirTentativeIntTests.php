@@ -24,7 +24,7 @@ use progression\domaine\entité\Résultat;
 use progression\domaine\entité\user\User;
 use progression\dao\DAOFactory;
 use progression\dao\tentative\TentativeDAO;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use Mockery;
 
 final class ObtenirTentativeIntTests extends TestCase
@@ -91,11 +91,6 @@ final class ObtenirTentativeIntTests extends TestCase
 		$mockDAOFactory->allows()->get_commentaire_dao()->andReturn($mockCommentaireDAO);
 
 		DAOFactory::setInstance($mockDAOFactory);
-	}
-
-	public function tearDown(): void
-	{
-		Mockery::close();
 	}
 
 	public function test_étant_donné_une_tentative_avec_des_attributs_lorsque_cherché_par_user_id_question_id_et_date_soumission_on_obtient_un_objet_tentative_correspondant()

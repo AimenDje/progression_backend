@@ -18,6 +18,7 @@
 
 namespace progression\domaine\interacteur;
 
+use Illuminate\Support\Facades\Config;
 use progression\dao\DAOFactory;
 use progression\domaine\entité\user\{User, État, Rôle};
 use progression\TestCase;
@@ -29,14 +30,6 @@ final class InscriptionIntTests extends TestCase
 	public function setUp(): void
 	{
 		parent::setUp();
-
-		putenv("AUTH_LOCAL=true");
-		putenv("APP_URL=https://example.com");
-		putenv("PREFERENCES_DEFAUT=");
-		putenv("JWT_SECRET=secret-test");
-		putenv("JWT_EXPIRATION=15");
-		putenv("APP_VERSION=2.0.0");
-		putenv("MAIL_MAILER=log");
 
 		$mockUserDao = Mockery::mock("progression\\dao\\UserDAO");
 		$mockUserDao
@@ -57,16 +50,10 @@ final class InscriptionIntTests extends TestCase
 		DAOFactory::setInstance($mockDAOFactory);
 	}
 
-	public function tearDown(): void
-	{
-		Mockery::close();
-		DAOFactory::setInstance(null);
-	}
-
 	public function test_étant_donné_un_utilisateur_non_existant_et_un_type_dauthentification_local_lorsquon_effectue_linscription_il_est_sauvegardé_et_on_reçoit_le_nouveau_User_en_attente()
 	{
-		putenv("AUTH_LOCAL=true");
-		putenv("AUTH_LDAP=true");
+		Config::set("authentification.local", true);
+		Config::set("authentification.ldap", true);
 
 		Carbon::setTestNow(Carbon::create(2001, 5, 21, 12));
 
@@ -123,8 +110,8 @@ final class InscriptionIntTests extends TestCase
 
 	public function test_étant_donné_un_utilisateur_non_existant_et_un_type_dauthentification_no_lorsquon_effectue_linscription_il_est_sauvegardé_et_on_reçoit_le_nouveau_User_actif()
 	{
-		putenv("AUTH_LOCAL=false");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.local", false);
+		Config::set("authentification.ldap", false);
 
 		Carbon::setTestNow(Carbon::create(2001, 5, 21, 12));
 
@@ -165,9 +152,9 @@ final class InscriptionIntTests extends TestCase
 
 	public function test_étant_donné_un_utilisateur_non_existant_et_un_type_dauthentification_local_sans_validation_de_courriel_lorsquon_effectue_linscription_il_est_sauvegardé_et_on_reçoit_le_nouveau_User_actif()
 	{
-		putenv("AUTH_LOCAL=true");
-		putenv("AUTH_LDAP=false");
-		putenv("MAIL_MAILER=no");
+		Config::set("authentification.local", true);
+		Config::set("authentification.ldap", false);
+		Config::set("mail.mailer", "no");
 
 		Carbon::setTestNow(Carbon::create(2001, 5, 21, 12));
 
@@ -203,7 +190,7 @@ final class InscriptionIntTests extends TestCase
 					"roger",
 					courriel: "roger@progressionmail.com",
 					date_inscription: 990446400,
-					préférences: "",
+					préférences: "{}",
 					état: État::ACTIF,
 				),
 			],
@@ -213,9 +200,9 @@ final class InscriptionIntTests extends TestCase
 
 	public function test_étant_donné_un_utilisateur_non_existant_sans_authentification_et_une_variable_PREFERENCES_DEFAUT_définie_lorsquon_effectue_linscription_il_est_sauvegardé_avec_des_préférences_par_défaut()
 	{
-		putenv("AUTH_LOCAL=false");
-		putenv("AUTH_LDAP=false");
-		putenv("PREFERENCES_DEFAUT=préférences par défaut");
+		Config::set("authentification.local", false);
+		Config::set("authentification.ldap", false);
+		Config::set("préférences.défaut", "préférences par défaut");
 
 		$mockUserDao = DAOFactory::getInstance()->get_user_dao();
 		$mockUserDao
@@ -250,9 +237,10 @@ final class InscriptionIntTests extends TestCase
 
 	public function test_étant_donné_un_utilisateur_non_existant_un_type_dauthentification_locale_et_une_variable_PREFERENCES_DEFAUT_définie_lorsquon_effectue_linscription_il_est_sauvegardé_avec_des_préférences_par_défaut()
 	{
-		putenv("AUTH_LOCAL=true");
-		putenv("AUTH_LDAP=false");
-		putenv("PREFERENCES_DEFAUT=préférences par défaut");
+		Config::set("mail.mailer", "log");
+		Config::set("authentification.local", true);
+		Config::set("authentification.ldap", false);
+		Config::set("préférences.défaut", "préférences par défaut");
 
 		$mockUserDao = DAOFactory::getInstance()->get_user_dao();
 		$mockUserDao
@@ -312,9 +300,9 @@ final class InscriptionIntTests extends TestCase
 
 	public function test_étant_donné_un_utilisateur_non_existant_sans_authentification_et_une_variable_PREFERENCES_DEFAUT_non_définie_lorsquon_effectue_linscription_il_est_sauvegardé_sans_préférences()
 	{
-		putenv("AUTH_LOCAL=false");
-		putenv("AUTH_LDAP=false");
-		putenv("PREFERENCES_DEFAUT=");
+		Config::set("authentification.local", false);
+		Config::set("authentification.ldap", false);
+		Config::set("préférences.défaut", "");
 
 		$mockUserDao = DAOFactory::getInstance()->get_user_dao();
 		$mockUserDao
@@ -343,8 +331,8 @@ final class InscriptionIntTests extends TestCase
 
 	public function test_étant_donné_un_utilisateur_non_existant_et_un_type_dauthentification_local_lorsquon_effectue_linscription_sans_mdp_on_obtient_une_exception()
 	{
-		putenv("AUTH_LOCAL=true");
-		putenv("AUTH_LDAP=true");
+		Config::set("authentification.local", true);
+		Config::set("authentification.ldap", true);
 
 		$mockUserDao = DAOFactory::getInstance()->get_user_dao();
 		$mockUserDao
@@ -360,8 +348,9 @@ final class InscriptionIntTests extends TestCase
 
 	public function test_étant_donné_un_nouvel_admin_lorsquon_effectue_linscription_il_est_sauvegardé_et_on_reçoit_le_nouveau_User_actif()
 	{
-		putenv("AUTH_LOCAL=true");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.local", true);
+		Config::set("authentification.ldap", false);
+		Config::set("préférences.défaut", "préférences par défaut");
 
 		Carbon::setTestNow(Carbon::create(2001, 5, 21, 12));
 
@@ -415,6 +404,7 @@ final class InscriptionIntTests extends TestCase
 					courriel: "admin@gmail.com",
 					état: État::ACTIF,
 					rôle: Rôle::ADMIN,
+					préférences: "préférences par défaut",
 				),
 			],
 			$user,

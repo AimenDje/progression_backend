@@ -19,7 +19,7 @@
 namespace progression\domaine\entité\user;
 
 use Carbon\Carbon;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use \InvalidArgumentException;
 
 final class UserTests extends TestCase

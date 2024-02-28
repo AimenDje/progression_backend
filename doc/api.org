@@ -357,8 +357,8 @@ Un token JWT donnant accès à une ou plusieurs ressources. Une date d'expiratio
 | username    | str  |         | l'utilisateur propriétaire du token                                              |
 | création    | int  |         | timestamp à la création                                                          |
 | expiration  | int  |         | timestamp d'expiration ou "+n" ou n est le nombre de secondes avant l'expiration |
-| data        | str  |         | données incluses dans le token                                                   |
-| ressources  | str  |         | ressources permises par le token                                                 |
+| data        | any  |         | données incluses dans le token                                                   |
+| ressources  | []   |         | ressources permises par le token                                                 |
 | jwt         | str  |         | token jwt signé                                                                  |
 | fingerprint | str  |         | empreinte (sha256) du contexte aléatoire du token fourni via un cookie sécurisé. |
 | version     | int  |         | version de l'api ayant généré le token                                           |
@@ -371,33 +371,23 @@ data contient un objet peuplé de n'importes quelles données utiles au destinat
 
 Lorsqu'on soumet un nouveau token, l'expiration peut être exprimée de façon absolue, sous forme de timestamp en secondes depuis 1/1/1970 (ex.: 1685831340) ou de façon relative en nombre de secondes après la création du token (ex.: "+300")
 
-***** Exemple :
-
-#+begin_src json
-{
-  "user" : {
-    "username" : "bob",
-    "..."
-  },
-  "config" : {
-    "var1": 42,
-  }
-}
-#+end_src
-
-
 **** ressources
 
-Les ressources sont définies par leur URI et par la méthode de requête HTTP, avec une expression régulière. Un token ressource peut décrire une ou plusieurs ressources.
+Les ressources sont définies par leur URI et par la méthode de requête HTTP, avec une expression rationnelle. Un token ressource peut décrire une ou plusieurs ressources.
 
-***** Exemple :
+**** Exemple :
 
-#+begin_src json
-{
-  "get_bob" : {
-    "url" : "^/user/bob$",
-    "method" : "^GET$"
-  }
+#+begin_src javascript
+{ "username" : "bob",
+  "expiration" : "+300",
+  "data" : []
+	"ressources" : {
+		"get_bob" : {
+			"url" : "^/user/bob$",
+			"method" : "^GET$"
+		}
+	},
+  "fingerprint" : false
 }
 #+end_src
 
@@ -541,10 +531,12 @@ curl "<<get_api_url()>>/user/jdoe" -H "Authorization: Bearer $TOKEN"
 
 ** Mettre à jour les préférences de ~jdoe~
 
-#+begin_src bash :eval yes :session *bash* :results output :exports both :post json_pretty(*this*)
+#+begin_src bash :eval yes :session *bash* :results none :exports code
 DATA='{"préférences": "{\"thème\": \"sombre\"}"}'
+#+end_src
 
-curl "<<get_api_url()>>/user/jdoe" --data $DATA -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN"
+#+begin_src bash :eval yes :session *bash* :results output :exports both :post json_pretty(*this*)
+curl "<<get_api_url()>>/user/jdoe" -X PATCH --data "$DATA" -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN"
 #+end_src
 
 ** Obtenir la question «Les fonctions avec paramètres/Rectangle» et ses tests: 
@@ -632,20 +624,21 @@ curl "<<get_api_url()>>/test/aHR0cHM6Ly9wcm9ncmVzc2lvbi5wYWdlcy5kdGkuY3Jvc2Vtb25
 #+BEGIN_SRC bash :eval yes :session *bash* :results none :exports code
 DATA=$(cat <<EOF
 {
- [
-      {
-  	    "uri":"^avancement/jdoe/aHR0cHM6Ly9wcm9ncmVzc2lvbi5wYWdlcy5kdGkuY3Jvc2Vtb250LnF1ZWJlYy9jb250ZW51L3Byb2dfMS85YmRmNWYxYS00ODlhLTQ0MWYtOWU2ZS0yYzg3YmJhNThiZjgvaW5mby55bWw$",
-  	    "method":"^GET$"
+	"expiration" : "+300",
+    "data" : [],
+    "ressources" : {
+      "get_avancement" : {
+  	    "url":"^avancement/jdoe/aHR0cHM6Ly9wcm9ncmVzc2lvbi5wYWdlcy5kdGkuY3Jvc2Vtb250LnF1ZWJlYy9jb250ZW51L3Byb2dfMS85YmRmNWYxYS00ODlhLTQ0MWYtOWU2ZS0yYzg3YmJhNThiZjgvaW5mby55bWw$",
+	    "method":"^GET$"
       }
- ]
+    }
 }
 EOF
 )
 #+END_SRC
 
-
 #+BEGIN_SRC bash :eval yes :session *bash* :results output :exports both :post json_pretty(*this*)
-curl --data "$DATA" "<<get_api_url()>>/user/jdoe/tokens" -H "Authorization: Bearer $TOKEN"
+curl --data "$DATA" <<get_api_url()>>/user/jdoe/tokens -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN"
 #+END_SRC
 
 ** Créer ou mettre à jour la sauvegarde de ~jdoe~ pour la question «Les fonctions avec paramètres/Rectangle» et un code ~python~
@@ -691,8 +684,8 @@ curl --data "$DATA" "<<get_api_url()>>/user/jdoe/cles" -H "Content-Type: applica
 #+BEGIN_SRC bash :eval yes :session *bash* :results none :exports none
 DATA=$(cat <<EOF
 {
-  "nom":"cléAuth$(head -c 9 /dev/urandom|base64|tr '/+' '_-')",
-  "portée":1,
+  "nom": "cléAuth$(head -c 9 /dev/urandom|base64|tr '/+' '_-')",
+  "portée": "authentification",
   "expiration": $(( $(date +%s) + 60 ))
 }
 EOF
@@ -705,16 +698,26 @@ SECRET=$(echo $RES_CLE | grep -Po '(?<="secret":")\w*')
 #+END_SRC
 
 #+BEGIN_SRC bash :eval yes :session *bash* :results none :exports code
+AUTH=$(echo -n "jdoe:$NOM_CLE:$SECRET" | base64 -w0)
+#+END_SRC
+
+#+BEGIN_SRC bash :eval yes :session *bash* :results none :exports code
 DATA=$(cat <<EOF
 {
-  "username":"jdoe",
-  "key_name":"$NOM_CLE",
-  "key_secret":"$SECRET"
+	"expiration" : "+300",
+    "data" : [],
+    "ressources" : {
+      "get_avancement" : {
+  	    "url":"^avancement/jdoe/aHR0cHM6Ly9wcm9ncmVzc2lvbi5wYWdlcy5kdGkuY3Jvc2Vtb250LnF1ZWJlYy9jb250ZW51L3Byb2dfMS85YmRmNWYxYS00ODlhLTQ0MWYtOWU2ZS0yYzg3YmJhNThiZjgvaW5mby55bWw$",
+	    "method":"^GET$"
+      }
+    }
 }
 EOF
 )
 #+END_SRC
 
 #+BEGIN_SRC bash :eval yes :session *bash* :results output :exports both :post json_pretty(*this*)
-curl --data "$DATA" "<<get_api_url()>>/auth" -H "Content-Type: application/json"
+curl --data "$DATA" <<get_api_url()>>/user/jdoe/tokens -H "Content-Type: application/json" -H "Authorization: key $AUTH"
 #+END_SRC
+

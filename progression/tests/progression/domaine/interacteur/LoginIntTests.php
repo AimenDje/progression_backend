@@ -22,6 +22,7 @@ use progression\dao\DAOFactory;
 use progression\domaine\entité\clé\{Clé, Portée};
 use progression\domaine\entité\user\User;
 use progression\TestCase;
+use Illuminate\Support\Facades\Config;
 use Mockery;
 
 final class LoginIntTests extends TestCase
@@ -81,12 +82,6 @@ final class LoginIntTests extends TestCase
 		DAOFactory::setInstance($mockDAOFactory);
 	}
 
-	public function tearDown(): void
-	{
-		Mockery::close();
-		DAOFactory::setInstance(null);
-	}
-
 	public function test_étant_donné_lutilisateur_vide_lorsquon_login_obtient_null()
 	{
 		$interacteur = new LoginInt();
@@ -97,8 +92,8 @@ final class LoginIntTests extends TestCase
 
 	public function test_étant_donné_lutilisateur_bob_existant_et_une_authentification_de_type_no_lorsquon_login_sans_mot_de_passe_on_obtient_un_objet_user_nommé_bob()
 	{
-		putenv("AUTH_LOCAL=false");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.local", false);
+		Config::set("authentification.ldap", false);
 
 		$interacteur = new LoginInt();
 		$résultat_obtenu = $interacteur->effectuer_login_par_identifiant("bob");
@@ -108,8 +103,8 @@ final class LoginIntTests extends TestCase
 
 	public function test_étant_donné_lutilisateur_bob_existant_et_une_authentification_de_type_ldap_lorsquon_login_sans_mot_de_passe_on_obtient_null()
 	{
-		putenv("AUTH_LOCAL=false");
-		putenv("AUTH_LDAP=true");
+		Config::set("authentification.local", false);
+		Config::set("authentification.ldap", true);
 
 		$interacteur = new LoginInt();
 		$résultat_obtenu = $interacteur->effectuer_login_par_identifiant("bob");
@@ -119,8 +114,8 @@ final class LoginIntTests extends TestCase
 
 	public function test_étant_donné_lutilisateur_Banane_inexistant_et_une_authentification_de_type_no_lorsquon_login_sans_mot_de_passe_il_est_créé_et_on_obtient_un_objet_user_actif_nommé_Banane()
 	{
-		putenv("AUTH_LOCAL=false");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.local", false);
+		Config::set("authentification.ldap", false);
 
 		$interacteur = new LoginInt();
 		$résultat_obtenu = $interacteur->effectuer_login_par_identifiant("Banane");
@@ -130,8 +125,8 @@ final class LoginIntTests extends TestCase
 
 	public function test_étant_donné_lutilisateur_Banane_inexistant_et_une_authentification_de_type_ldap_lorsquon_login_sans_mot_de_passe_on_obtient_null()
 	{
-		putenv("AUTH_LOCAL=false");
-		putenv("AUTH_LDAP=true");
+		Config::set("authentification.local", false);
+		Config::set("authentification.ldap", true);
 
 		$interacteur = new LoginInt();
 		$résultat_obtenu = $interacteur->effectuer_login_par_identifiant("Banane");
@@ -141,8 +136,8 @@ final class LoginIntTests extends TestCase
 
 	public function test_étant_donné_lutilisateur_existant_bob_et_une_authentification_de_type_local_lorsquon_login_avec_username_et_mdp_correct_on_obtient_un_objet_user_nommé_bob()
 	{
-		putenv("AUTH_LOCAL=true");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.local", true);
+		Config::set("authentification.ldap", false);
 
 		$interacteur = new LoginInt();
 		$résultat_obtenu = $interacteur->effectuer_login_par_identifiant("bob", "password");
@@ -152,8 +147,8 @@ final class LoginIntTests extends TestCase
 
 	public function test_étant_donné_lutilisateur_existant_bob_et_une_authentification_de_type_local_lorsquon_login_avec_courriel_et_mdp_correct_on_obtient_un_objet_user_nommé_bob()
 	{
-		putenv("AUTH_LOCAL=true");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.local", true);
+		Config::set("authentification.ldap", false);
 
 		$interacteur = new LoginInt();
 		$résultat_obtenu = $interacteur->effectuer_login_par_identifiant("bob@progressionmail.com", "password");
@@ -166,8 +161,8 @@ final class LoginIntTests extends TestCase
 
 	public function test_étant_donné_lutilisateur_existant_bob_et_une_authentification_de_type_local_lorsquon_login_avec_mdp_incorrect_on_obtient_null()
 	{
-		putenv("AUTH_LOCAL=true");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.local", true);
+		Config::set("authentification.ldap", false);
 
 		$interacteur = new LoginInt();
 		$résultat_obtenu = $interacteur->effectuer_login_par_identifiant("bob", "pas mon mot de passe");
@@ -177,8 +172,8 @@ final class LoginIntTests extends TestCase
 
 	public function test_étant_donné_lutilisateur_Banane_inexistant_et_une_authentification_de_type_local_lorsquon_login_on_obtient_null()
 	{
-		putenv("AUTH_LOCAL=true");
-		putenv("AUTH_LDAP=false");
+		Config::set("authentification.local", true);
+		Config::set("authentification.ldap", false);
 
 		$interacteur = new LoginInt();
 		$résultat_obtenu = $interacteur->effectuer_login_par_identifiant("Banane", "password");

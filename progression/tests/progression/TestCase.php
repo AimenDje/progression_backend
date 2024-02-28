@@ -19,9 +19,34 @@
 namespace progression;
 
 use Laravel\Lumen\Testing\TestCase as BaseTestCase;
+use progression\dao\DAOFactory;
+use Mockery;
 
 abstract class TestCase extends BaseTestCase
 {
+	private $env;
+
+	public function setUp(): void
+	{
+		parent::setUp();
+
+		//Sauvegarde de l'environnement
+		$this->env = getenv(null);
+	}
+
+	public function tearDown(): void
+	{
+		DAOFactory::setInstance(null);
+		Mockery::close();
+
+		//Réinitialise l'environnement
+		foreach ($this->env as $k => $e) {
+			putenv("{$k}={$e}");
+		}
+
+		parent::tearDown();
+	}
+
 	public function createApplication()
 	{
 		return require __DIR__ . "/../../app/bootstrap/app.php";

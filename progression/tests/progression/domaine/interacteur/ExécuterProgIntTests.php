@@ -21,7 +21,7 @@ namespace progression\domaine\interacteur;
 use progression\domaine\entité\{Exécutable, Test, Résultat};
 use progression\dao\exécuteur\Exécuteur;
 use progression\dao\DAOFactory;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use Mockery;
 
 final class ExécuterProgIntTests extends TestCase
@@ -30,7 +30,6 @@ final class ExécuterProgIntTests extends TestCase
 	{
 		parent::setUp();
 
-		putenv("COMPILEBOX_URL=file://" . __DIR__ . "/ExécuterProgIntTests_fichiers/test_exec_prog_int_python");
 		$_SERVER["REMOTE_ADDR"] = "";
 		$_SERVER["PHP_SELF"] = "";
 
@@ -91,12 +90,6 @@ final class ExécuterProgIntTests extends TestCase
 		$mockDAOFactory = Mockery::mock("progression\\dao\\DAOFactory");
 		$mockDAOFactory->allows()->get_exécuteur()->andReturn($mockExécuteur);
 		DAOFactory::setInstance($mockDAOFactory);
-	}
-
-	public function tearDown(): void
-	{
-		Mockery::close();
-		DAOFactory::setInstance(null);
 	}
 
 	public function test_étant_donné_un_exécutable_valide_et_un_test_lorsquon_les_soumet_pour_exécution_on_obtient_un_résultat_de_test_avec_ses_sorties_standards()

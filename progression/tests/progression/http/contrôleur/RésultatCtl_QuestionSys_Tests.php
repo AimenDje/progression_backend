@@ -32,9 +32,6 @@ final class RésultatCtl_QuestionSys_Tests extends ContrôleurTestCase
 	{
 		parent::setUp();
 
-		putenv("APP_URL=https://example.com");
-		putenv("TAILLE_CODE_MAX=1000");
-
 		$this->user = new UserAuthentifiable(
 			username: "jdoe",
 			date_inscription: 0,
@@ -252,12 +249,6 @@ final class RésultatCtl_QuestionSys_Tests extends ContrôleurTestCase
 		$mockDAOFactory->shouldReceive("get_user_dao")->andReturn($mockUserDAO);
 
 		DAOFactory::setInstance($mockDAOFactory);
-	}
-
-	public function tearDown(): void
-	{
-		Mockery::close();
-		DAOFactory::setInstance(null);
 	}
 
 	public function test_étant_donné_un_test_unique_valide_lorsquil_est_soumis_on_obtient_le_résultat_réussi_pour_le_test_fourni()

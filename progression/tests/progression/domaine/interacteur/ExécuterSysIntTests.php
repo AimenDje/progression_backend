@@ -22,7 +22,7 @@ use progression\domaine\entité\question\QuestionSys;
 use progression\domaine\entité\{TestSys, Résultat, TentativeSys};
 use progression\dao\exécuteur\Exécuteur;
 use progression\dao\DAOFactory;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use Mockery;
 
 final class ExécuterSysIntTests extends TestCase
@@ -32,7 +32,6 @@ final class ExécuterSysIntTests extends TestCase
 	{
 		parent::setUp();
 
-		putenv("COMPILEBOX_URL=file://" . __DIR__ . "/ExécuterSysIntTests_fichiers/test_exec_question_sys");
 		$_SERVER["REMOTE_ADDR"] = "";
 		$_SERVER["PHP_SELF"] = "";
 
@@ -123,12 +122,6 @@ final class ExécuterSysIntTests extends TestCase
 		$mockDAOFactory = Mockery::mock("progression\\dao\\DAOFactory");
 		$mockDAOFactory->allows()->get_exécuteur()->andReturn($mockExécuteur);
 		DAOFactory::setInstance($mockDAOFactory);
-	}
-
-	public function tearDown(): void
-	{
-		Mockery::close();
-		DAOFactory::setInstance(null);
 	}
 
 	public function test_étant_donné_une_question_avec_une_tentative_sans_conteneur_on_recoit_lid_du_conteneur_de_compile_box()

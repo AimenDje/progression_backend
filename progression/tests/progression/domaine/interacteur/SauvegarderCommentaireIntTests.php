@@ -21,7 +21,7 @@ namespace progression\domaine\interacteur;
 use progression\domaine\entité\Commentaire;
 use progression\domaine\entité\user\User;
 use progression\dao\DAOFactory;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use Mockery;
 
 final class SauvegarderCommentaireTests extends TestCase
@@ -38,10 +38,6 @@ final class SauvegarderCommentaireTests extends TestCase
 		DAOFactory::setInstance($mockDAOFactory);
 	}
 
-	public function tearDown(): void
-	{
-		Mockery::close();
-	}
 	public function test_étant_donné_un_commentaire_non_existant_lorsquon_le_sauvegarde_obtient_un_commentaire_a_partir_de_la_BD()
 	{
 		$commentaireAttendu = new Commentaire(

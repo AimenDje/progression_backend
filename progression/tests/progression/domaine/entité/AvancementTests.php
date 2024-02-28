@@ -18,7 +18,7 @@
 
 namespace progression\domaine\entité;
 
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use progression\domaine\entité\question\État;
 
 final class AvancementTests extends TestCase

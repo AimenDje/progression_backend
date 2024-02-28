@@ -21,7 +21,7 @@ namespace progression\domaine\interacteur;
 use progression\domaine\entité\question\{Question, QuestionProg};
 use progression\dao\DAOFactory;
 use progression\dao\question\QuestionDAO;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use Mockery;
 
 final class ObtenirQuestionProgIntTests extends TestCase
@@ -42,12 +42,6 @@ final class ObtenirQuestionProgIntTests extends TestCase
 		$mockDAOFactory = Mockery::mock("progression\\dao\\DAOFactory");
 		$mockDAOFactory->allows()->get_question_dao()->andReturn($mockQuestionDao);
 		DAOFactory::setInstance($mockDAOFactory);
-	}
-
-	public function tearDown(): void
-	{
-		parent::tearDown();
-		Mockery::close();
 	}
 
 	public function test_étant_donné_une_questionprog_avec_un_chemin_existant_lorsque_cherché_par_chemin_on_obtient_un_objet_questionprog_correspondant()

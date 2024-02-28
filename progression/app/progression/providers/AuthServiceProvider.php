@@ -152,7 +152,7 @@ class AuthServiceProvider extends ServiceProvider
 		});
 
 		Gate::define("valider-le-courriel", function ($user, $rôle_user_cible) {
-			return !($rôle_user_cible == Rôle::ADMIN || getenv("MAIL_MAILER") == "no");
+			return !($rôle_user_cible == Rôle::ADMIN || config("mail.mailer") == "no");
 		});
 	}
 
@@ -219,7 +219,7 @@ class AuthServiceProvider extends ServiceProvider
 			//JWT::decode fournit une stdClass, le moyen le plus simple de transformer en array
 			//est de réencoder/décoder en json.
 			// @phpstan-ignore-next-line
-			return json_decode(json_encode(JWT::decode($tokenEncodé, getenv("JWT_SECRET"), ["HS256"])), true);
+			return json_decode(json_encode(JWT::decode($tokenEncodé, config("jwt.secret"), ["HS256"])), true);
 		} catch (UnexpectedValueException | SignatureInvalidException | DomainException $e) {
 			Log::notice("Token invalide ${tokenEncodé}");
 			return null;
@@ -383,20 +383,20 @@ class AuthServiceProvider extends ServiceProvider
 			],
 		)
 			->sometimes("password", "required_without_all:key_name,token", function ($input) {
-				$auth_local = getenv("AUTH_LOCAL") !== "false";
-				$auth_ldap = getenv("AUTH_LDAP") === "true";
+				$auth_local = config("authentification.local") !== false;
+				$auth_ldap = config("authentification.ldap") === true;
 
 				return $auth_local || $auth_ldap;
 			})
 			->sometimes("identifiant", "regex:/^\w{2,64}$/u", function ($input) {
-				$auth_local = getenv("AUTH_LOCAL") !== "false";
-				$auth_ldap = getenv("AUTH_LDAP") === "true";
+				$auth_local = config("authentification.local") !== false;
+				$auth_ldap = config("authentification.ldap") === true;
 
 				return isset($input->key_name) || (!$auth_local && !$auth_ldap);
 			})
 			->sometimes("identifiant", ["regex:/^\w{2,64}$|^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/u"], function ($input) {
-				$auth_local = getenv("AUTH_LOCAL") !== "false";
-				$auth_ldap = getenv("AUTH_LDAP") === "true";
+				$auth_local = config("authentification.local") !== false;
+				$auth_ldap = config("authentification.ldap") === true;
 
 				return !isset($input->key_name) && ($auth_local || $auth_ldap);
 			});

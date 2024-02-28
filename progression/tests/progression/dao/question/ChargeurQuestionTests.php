@@ -19,7 +19,7 @@
 namespace progression\dao\question;
 
 use BadMethodCallException;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use Mockery;
 
 final class ChargeurQuestionTests extends TestCase
@@ -41,9 +41,8 @@ final class ChargeurQuestionTests extends TestCase
 
 	public function tearDown(): void
 	{
-		parent::tearDown();
 		ChargeurFactory::set_instance(null);
-		Mockery::close();
+		parent::tearDown();
 	}
 
 	public function test_étant_donné_un_uri_de_fichier_lorsquon_charge_la_question_on_obtient_un_tableau_associatif_avec_un_uri_correct()

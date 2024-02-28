@@ -21,17 +21,10 @@ namespace progression\http\transformer;
 use progression\domaine\entité\question\QuestionSys;
 use progression\domaine\entité\TestSys;
 use progression\http\transformer\dto\QuestionDTO;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 
 final class QuestionSysTransformerTests extends TestCase
 {
-	public function setUp(): void
-	{
-		parent::setUp();
-
-		putenv("APP_URL=https://example.com");
-	}
-
 	public function test_étant_donné_une_questionsys_instanciée_avec_des_valeurs_minimales_lorsquon_le_transforme_on_obtient_un_tableau_d_objets_identique()
 	{
 		$question = new QuestionSys();

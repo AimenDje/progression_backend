@@ -23,7 +23,7 @@ use progression\domaine\entité\{Exécutable, Avancement, Résultat, TentativePr
 use progression\domaine\entité\user\User;
 use progression\dao\DAOFactory;
 use progression\dao\tentative\TentativeProgDAO;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use Mockery;
 use progression\dao\question\QuestionDAO;
 
@@ -134,12 +134,6 @@ final class SoumettreTentativeProgIntTests extends TestCase
 			"#Commentaire invisible\n#+VISIBLE\n#+TODO\nprint(\"je fais mon possible!\")\n#-TODO\n# Rien à faire ici\n#+TODO\n# À faire\n\n",
 			1615696286,
 		);
-	}
-
-	public function tearDown(): void
-	{
-		Mockery::close();
-		DAOFactory::setInstance(null);
 	}
 
 	public function test_étant_donné_une_questionprog_et_une_tentativeprog_lorsqu_on_appelle_soumettre_tentative_on_obtient_un_objet_tentative_comportant_les_tests_réussis_et_les_résultats()

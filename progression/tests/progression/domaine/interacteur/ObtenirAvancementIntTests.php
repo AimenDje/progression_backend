@@ -21,7 +21,7 @@ namespace progression\domaine\interacteur;
 use progression\domaine\entité\Avancement;
 use progression\domaine\entité\question\{QuestionProg, État};
 use progression\dao\DAOFactory;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use Mockery;
 
 final class ObtenirAvancementIntTests extends TestCase
@@ -53,12 +53,6 @@ final class ObtenirAvancementIntTests extends TestCase
 		$mockDAOFactory->allows()->get_avancement_dao()->andReturn($mockAvancementDAO);
 		$mockDAOFactory->allows()->get_question_dao()->andReturn($mockQuestionDao);
 		DAOFactory::setInstance($mockDAOFactory);
-	}
-
-	public function tearDown(): void
-	{
-		Mockery::close();
-		DAOFactory::setInstance(null);
 	}
 
 	public function test_étant_donné_un_avancement_avec_un_username_et_question_uri_existant_lorsquon_cherche_par_username_et_question_uri_on_obtient_un_objet_avancementprog_correspondant()

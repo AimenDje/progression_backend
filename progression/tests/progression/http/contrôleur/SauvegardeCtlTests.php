@@ -38,8 +38,6 @@ final class SauvegardeCtlTests extends ContrôleurTestCase
 			état: État::ACTIF,
 		);
 
-		putenv("APP_URL=https://example.com");
-
 		// Sauvegarde
 		$sauvegarde = new Sauvegarde(1620150294, "print(\"Hello world!\")");
 		$sauvegardes = [];
@@ -66,11 +64,6 @@ final class SauvegardeCtlTests extends ContrôleurTestCase
 		$mockDAOFactory->shouldReceive("get_user_dao")->andReturn($mockUserDAO);
 
 		DAOFactory::setInstance($mockDAOFactory);
-	}
-
-	public function tearDown(): void
-	{
-		Mockery::close();
 	}
 
 	public function test_étant_donné_une_sauvegarde_existante_lorsquon_fait_une_requête_get_on_obtient_une_sauvegarde()

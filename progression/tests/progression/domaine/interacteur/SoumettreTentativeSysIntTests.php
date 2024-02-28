@@ -22,7 +22,7 @@ use progression\domaine\entité\question\{Question, QuestionSys};
 use progression\domaine\entité\{Résultat, TentativeSys, TestSys};
 use progression\domaine\entité\user\User;
 use progression\dao\DAOFactory;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use Mockery;
 use progression\dao\question\QuestionDAO;
 
@@ -144,12 +144,6 @@ final class SoumettreTentativeSysIntTests extends TestCase
 			feedback_neg: "feedbackGénéralNégatif",
 			feedback_pos: "feedbackGénéralPositif",
 		);
-	}
-
-	public function tearDown(): void
-	{
-		Mockery::close();
-		DAOFactory::setInstance(null);
 	}
 
 	public function test_étant_donné_une_questionsys_avec_des_tests_lorsquon_soumet_une_tentative_correcte_on_obtient_une_tentative_réussie_avec_temps_dexécution_et_ses_résultats()

@@ -18,7 +18,7 @@
 
 namespace progression\http\transformer;
 
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 use progression\domaine\entité\Résultat;
 use progression\http\transformer\dto\GénériqueDTO;
 
@@ -26,8 +26,6 @@ final class RésultatTransformerTests extends TestCase
 {
 	public function test_étant_donné_un_Résultat_instanciée_avec_des_valeurs_lorsquon_récupère_son_transformer_on_obtient_un_objet_json_correspondant()
 	{
-		putenv("APP_URL=https://example.com");
-
 		$résultat = new Résultat("Bonjour\nBonjour\n", "", true, "Bon travail!", 15);
 
 		$réponse_attendue = [

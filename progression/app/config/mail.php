@@ -94,7 +94,7 @@ return [
     */
 
 	"from" => [
-		"address" => env("MAIL_FROM_ADDRESS", "noreply@progression.crosemont.qc.ca"),
+		"address" => env("MAIL_FROM_ADDRESS", "noreply@exemple.com"),
 		"name" => env("MAIL_FROM_NAME", "Example"),
 	],
 
@@ -114,4 +114,6 @@ return [
 
 		"paths" => [resource_path("views/vendor/mail")],
 	],
+
+	"redirection" => env("MAIL_REDIRECTION"),
 ];

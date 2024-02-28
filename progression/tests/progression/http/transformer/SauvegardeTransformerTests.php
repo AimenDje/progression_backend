@@ -20,17 +20,10 @@ namespace progression\http\transformer;
 
 use progression\domaine\entité\Sauvegarde;
 use progression\http\transformer\dto\GénériqueDTO;
-use PHPUnit\Framework\TestCase;
+use progression\TestCase;
 
 final class SauvegardeTransformerTests extends TestCase
 {
-	public function setUp(): void
-	{
-		parent::setUp();
-
-		putenv("APP_URL=https://example.com");
-	}
-
 	public function test_étant_donné_une_sauvegarde_instanciée_avec_des_valeurs_lorsquon_récupère_son_transformer_on_obtient_un_array_d_objets_identique()
 	{
 		$sauvegarde = new Sauvegarde(1620150294, "print(\"Hello world!\")");

@@ -18,6 +18,7 @@
 
 use progression\ContrôleurTestCase;
 
+use Illuminate\Support\Facades\Config;
 use progression\dao\DAOFactory;
 use progression\dao\exécuteur\ExécutionException;
 use progression\domaine\entité\question\{Question, QuestionProg};
@@ -41,9 +42,6 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 		parent::setUp();
 
 		Carbon::setTestNow(Carbon::create(2022, 05, 27, 22, 24, 01));
-
-		putenv("AUTH_TYPE=no");
-		putenv("APP_URL=https://example.com");
 
 		$this->user = new UserAuthentifiable(
 			username: "jdoe",
@@ -359,12 +357,6 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 		$mockDAOFactory->shouldReceive("get_user_dao")->andReturn($mockUserDAO);
 
 		DAOFactory::setInstance($mockDAOFactory);
-	}
-
-	public function tearDown(): void
-	{
-		Mockery::close();
-		DAOFactory::setInstance(null);
 	}
 
 	public function test_étant_donné_une_tentative_existante_lorsquon_appelle_get_on_obtient_la_TentativeProg_et_ses_relations_sous_forme_json()
@@ -793,7 +785,7 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_une_tentative_ayant_du_code_dépassant_la_taille_maximale_de_caractères_on_obtient_une_erreur_400()
 	{
-		putenv("TAILLE_CODE_MAX=23");
+		Config::set("limites.taille_code", 23);
 		$testCode = "#+TODO\n日本語でのテストです\n#-TODO"; //24 caractères UTF8
 
 		$mockTentativeDAO = DAOFactory::getInstance()->get_tentative_prog_dao();
@@ -808,7 +800,7 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 			],
 		);
 
-		putenv("TAILLE_CODE_MAX=1000");
+		Config::set("limites.taille_code", 1000);
 
 		$this->assertEquals(400, $résultat_obtenu->status());
 		$this->assertEquals(

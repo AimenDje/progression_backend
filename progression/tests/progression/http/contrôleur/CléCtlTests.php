@@ -31,8 +31,6 @@ final class CléCtlTests extends ContrôleurTestCase
 	{
 		parent::setUp();
 
-		putenv("APP_URL=https://example.com");
-
 		$this->user = new UserAuthentifiable(
 			username: "jdoe",
 			date_inscription: 0,
@@ -74,12 +72,6 @@ final class CléCtlTests extends ContrôleurTestCase
 		$mockDAOFactory->shouldReceive("get_clé_dao")->andReturn($mockCléDAO);
 		$mockDAOFactory->shouldReceive("get_user_dao")->andReturn($mockUserDAO);
 		DAOFactory::setInstance($mockDAOFactory);
-	}
-
-	public function tearDown(): void
-	{
-		Mockery::close();
-		DAOFactory::setInstance(null);
 	}
 
 	// GET

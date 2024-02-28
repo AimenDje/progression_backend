@@ -61,7 +61,7 @@ class CléCtl extends Contrôleur
 					$this->créerCookieSécure(
 						nom: "authKey_secret",
 						valeur: $clé[$id]->secret,
-						âge_max: intval(getenv("AUTHKEY_TTL") ?: 2592000),
+						âge_max: intval(config("authentification.key.ttl")),
 					),
 				);
 			} else {
