@@ -27,17 +27,17 @@ class ChargeurGIT extends Chargeur
 	public static function cloner_depot($url_du_depot)
 	{
 		// Créer un dépôt en mémoire
-		$dépot_en_mémoire = new Repository(null, ['storage' => ['type' => 'memory']]);
+		$dépot_en_mémoire = new Repository('/tmp', ['storage' => ['type' => 'memory']]);
 
 		// Cloner le dépôt dans la mémoire
 		$dépot_en_mémoire->run('clone', [$url_du_depot, '--depth=1']);
 
 		// Vérifier si le clonage a réussi en vérifiant le statut du dépôt
-       /* try {
+       try {
             $dépot_en_mémoire->getStatus();
         } catch (\Exception $e) {
             throw new RuntimeException("Le clonage du dépôt a échoué");
-        }*/
+        }
 
 		return $dépot_en_mémoire;
 	}
