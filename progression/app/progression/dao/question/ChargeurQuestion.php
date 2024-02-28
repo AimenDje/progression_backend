@@ -23,25 +23,25 @@ use Illuminate\Support\Facades\Log;
 
 class ChargeurQuestion extends Chargeur
 {
-    public function récupérer_question($uri)
-    {
-        $scheme = parse_url($uri, PHP_URL_SCHEME);
-        $extension = pathinfo($uri, PATHINFO_EXTENSION);
+	public function récupérer_question($uri)
+	{
+		$scheme = parse_url(strtolower($uri), PHP_URL_SCHEME);
+		$extension = pathinfo($uri, PATHINFO_EXTENSION);
 
-        if ($scheme == "file") {
-            $sortie = $this->source->get_chargeur_question_fichier()->récupérer_question($uri);
-        } elseif ($scheme == "https") {
-            Log::debug("HTTP");
-            $sortie = $this->source->get_chargeur_question_http()->récupérer_question($uri);
-        } elseif ($extension == "git") {
-            Log::debug("GIT");
-            $sortie = $this->source->get_chargeur_question_git()->récupérer_question($uri);
-        } else {
-            throw new BadMethodCallException("Schéma d'URI invalide");
-        }
+		if ($scheme == "file") {
+			$sortie = $this->source->get_chargeur_question_fichier()->récupérer_question($uri);
+		} elseif ($scheme == "https") {
+			Log::debug("HTTP");
+			$sortie = $this->source->get_chargeur_question_http()->récupérer_question($uri);
+		} elseif ($extension == "git") {
+			Log::debug("GIT");
+			$sortie = $this->source->get_chargeur_question_git()->récupérer_question($uri);
+		} else {
+			throw new BadMethodCallException("Schéma d'URI invalide");
+		}
 
-        $sortie["uri"] = $uri;
+		$sortie["uri"] = $uri;
 
-        return $sortie;
-    }
+		return $sortie;
+	}
 }
