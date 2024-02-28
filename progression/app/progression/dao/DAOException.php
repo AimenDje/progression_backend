@@ -29,8 +29,7 @@ class DAOException extends Exception
 			$this->previous = $e;
 			$this->message = "Erreur d'accès à la base de données";
 		} else {
-			$this->previous = $e->toString();
-			$this->message = $e->toString();
+			$this->message = strval($e);
 		}
 
 		$this->code = 500;
