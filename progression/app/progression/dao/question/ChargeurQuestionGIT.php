@@ -20,67 +20,32 @@ namespace progression\dao\question;
 use Gitonomy\Git\Repository;
 use Illuminate\Support\Facades\Log;
 
-
-/*class ChargeurQuestionGIT extends Chargeur
-{
-    public static function récupérer_question($url_du_depot)
-    {
-        // Cloner le dépôt Git temporairement
-        $dossier_temporaire = sys_get_temp_dir() . '/' . uniqid('git_repo_');
-        $repository = new Repository($url_du_depot, $dossier_temporaire, false, array('depth' => 1));
-        $repository->run('clone', array('--depth' => 1, $url_du_depot, $dossier_temporaire));
-
-        // Récupérer le chemin complet du fichier info.yml dans le dépôt cloné
-        $chemin_fichier_dans_depot = "$dossier_temporaire/info.yml";
-        Log::debug("chemin du depot" . $chemin_fichier_dans_depot);
-
-        // Créer une instance du chargeur de fichiers
-        $chargeur_fichier = new ChargeurQuestionFichier();
-
-        // Lire le contenu du fichier info.yml depuis le dépôt cloné en utilisant le chargeur de fichiers
-        $contenu_question = $chargeur_fichier->récupérer_question($chemin_fichier_dans_depot);
-
-        // Supprimer le répertoire temporaire du dépôt cloné
-        exec("rm -rf $dossier_temporaire");
-
-        return $contenu_question; 
-    }
-}*/
 class ChargeurQuestionGIT extends Chargeur
 {
-    public static function récupérer_question($url_du_depot)
-{
-    // Cloner le dépôt Git temporairement
-    $dossier_temporaire = sys_get_temp_dir() . '/' . uniqid('git_repo_');
-    
-    // Cloner le dépôt dans le dossier temporaire
-    exec("git clone --depth 1 $url_du_depot $dossier_temporaire");
+	public static function récupérer_question($url_du_depot)
+	{
+		// Créer une instance du chargeur de depot git
+		$chargeur_depot = new ChargeurGIT();
 
-    // Vérifier si le clonage a réussi
-    if (!is_dir($dossier_temporaire)) {
-        throw new \RuntimeException("Le clonage du dépôt a échoué");
-    }
+		// Cloner le dépôt Git temporairement
+		$dossier_temporaire = $chargeur_depot->cloner_depot($url_du_depot);
 
-    // Récupérer le chemin complet du fichier info.yml dans le dépôt cloné
-    $liste_info_yml = null;
-    $code_de_retour = null;
-    exec("find $dossier_temporaire -name 'info.yml'", $liste_info_yml, $code_de_retour);
-    $chemin_fichier_dans_depot = $liste_info_yml[0];
-    Log::debug("chemin du depot" . $chemin_fichier_dans_depot);
+		// Récupérer le chemin complet du fichier info.yml dans le dépôt cloné
+		$liste_info_yml = null;
+		$code_de_retour = null;
+		exec("find $dossier_temporaire -name 'info.yml'", $liste_info_yml, $code_de_retour);
+		$chemin_fichier_dans_depot = $liste_info_yml[0];
+		Log::debug("chemin du depot" . $chemin_fichier_dans_depot);
 
-    // Créer une instance du chargeur de fichiers
-    $chargeur_fichier = new ChargeurQuestionFichier();
+		// Créer une instance du chargeur de fichiers
+		$chargeur_fichier = new ChargeurQuestionFichier();
 
-    // Lire le contenu du fichier info.yml depuis le dépôt cloné en utilisant le chargeur de fichiers
-    $contenu_question = $chargeur_fichier->récupérer_question($chemin_fichier_dans_depot);
+		// Lire le contenu du fichier info.yml depuis le dépôt cloné en utilisant le chargeur de fichiers
+		$contenu_question = $chargeur_fichier->récupérer_question($chemin_fichier_dans_depot);
 
-    // Supprimer le répertoire temporaire du dépôt cloné
-    exec("rm -rf $dossier_temporaire");
+		// Supprimer le répertoire temporaire du dépôt cloné
+		exec("rm -rf $dossier_temporaire");
 
-    return $contenu_question; 
+		return $contenu_question;
+	}
 }
-
-}
-
-
-
