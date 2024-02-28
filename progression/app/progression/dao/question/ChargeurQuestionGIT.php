@@ -55,11 +55,18 @@ class ChargeurQuestionGIT extends Chargeur
     
     // Cloner le dépôt dans le dossier temporaire
     exec("git clone --depth 1 $url_du_depot $dossier_temporaire");
-
+    $résultat_clone = exec("git clone --depth 1 $url_du_depot $dossier_temporaire");
     // Vérifier si le clonage a réussi
+    
     if (!is_dir($dossier_temporaire)) {
-        throw new \RuntimeException("Le clonage du dépôt a échoué");
+        throw new \RuntimeException("Clonage échoué : il est possible que votre dépôt est privé");
     }
+
+    $chemin_fichier_dans_depot = "$dossier_temporaire/info.yml";
+    if (!file_exists($chemin_fichier_dans_depot)) {
+        throw new \RuntimeException("Clonage échoué : fichier info.yml inexistant");
+    }
+    
 
     // Récupérer le chemin complet du fichier info.yml dans le dépôt cloné
     $chemin_fichier_dans_depot = "$dossier_temporaire/info.yml";
