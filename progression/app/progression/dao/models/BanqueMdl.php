@@ -18,7 +18,6 @@
 
 namespace progression\dao\models;
 
-// use progression\domaine\entité\banque\Url;
 use Illuminate\Database\Eloquent\Model;
 
 class BanqueMdl extends Model
@@ -26,8 +25,8 @@ class BanqueMdl extends Model
 	protected $table = "banque";
 	public $timestamps = false;
 	
-	protected $guarded = []
-/***	
+	protected $guarded = [];
+    	
 	protected $appends = ["url"];
 	
 	public function getUrlAttribute(): Url
@@ -39,8 +38,7 @@ class BanqueMdl extends Model
 	{
 		$urls = array_column(Url::cases(), "value");
 		$this->attributes["url"] = array_search($url->value, $urls);
-	}
-***/	
+	}	
 }
 
 ?>

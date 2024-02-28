@@ -22,10 +22,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use progression\domaine\interacteur\ObtenirBanquesInt;
 use progression\http\transformer\dto\BanqueDTO;
+use progression\http\transformer\BanqueTransformer;
 use progression\util\Encodage;
 use progression\domaine\entité\Banque;
 
-class BanquesCtl extends Contrôleur
+class BanqueCtl extends Contrôleur
 {
 	public function get(Request $request, $username)
 	{

@@ -13,9 +13,9 @@ DELIMITER &&
 		  CREATE TABLE `banque` (
 			`id`				int(11) NOT NULL,
 			`nom` 				varchar(255) NOT NULL,
-			`url`			 	int(10) NOT NULL,
-			`user_id`      	 	varchar(255) NOT NULL,
-			PRIMARY KEY (`id`, `nom`),
+			`url`			 	varchar(255) NOT NULL,
+			`user_id`      	 	        int(11) NOT NULL,
+			PRIMARY KEY (`id`),
 			FOREIGN KEY (`user_id`) REFERENCES `user`(`id`)
 			
 		  );

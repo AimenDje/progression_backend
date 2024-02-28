@@ -18,7 +18,7 @@
 
 namespace progression\http\transformer;
 
-use progression\domaine\entité\banque;
+use progression\domaine\entité\banque\Banque;
 use progression\http\transformer\dto\GénériqueDTO;
 
 class BanqueTransformer extends BaseTransformer
@@ -32,11 +32,11 @@ class BanqueTransformer extends BaseTransformer
 		$liens = $data_in->liens;
 		
 		$data_out = [
-				"id" => "id",
-				"nom" => $banque->nom,
-				"url" => $banque->url,
-				"user_id" => $banque->user_id,
-				"links" => $liens,
+            "id" => banque->id,
+            "nom" => $banque->nom,
+            "url" => $banque->url,
+            "user_id" => $banque->user_id,
+            "links" => $liens,
 		];
 		return $data_out;
 	}

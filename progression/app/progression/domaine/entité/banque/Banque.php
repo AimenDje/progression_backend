@@ -32,6 +32,6 @@ class Banque
 		$this->id = $id;
 		$this->nom = $nom;
 		$this->url = $url;
-		$this->user_id = $user_id
+		$this->user_id = $user_id;
 	}
 }

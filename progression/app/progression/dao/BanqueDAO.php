@@ -29,17 +29,36 @@ class BanqueDAO extends EntitéDAO
 	/**
 	 * @param array<string> $includes
 	 */
-	public function get_banques(string $username, array $includes = []): Banque|null
+	public function get_banques(string $username, array $includes = []): array
 	{
 		try {
-			$banque = BanqueMdl::query()
-				->where("id", $id)
-                ->join("user", "banque.user_id", "=", "user.id")
-                ->where("user.username", $username)
-				->get(),
-                $includes,);
+			return $this->construire(BanqueMdl::query()
+                                     ->join("user", "banque.user_id", "=", "user.id")
+                                     ->where("user.username", $username)
+                                     ->get(),
+                                     $includes,
+            );
         } catch (QueryException $e) {
-        throw new DAOException($e);
+            throw new DAOException($e);
+        }
+    }
+    public static function construire($data, $includes = [])
+	{
+		$banques = [];
+		foreach ($data as $item) {
+			if ($item == null) {
+				continue;
+			}
+            
+            $banque = new Banque(
+				id: $item["id"],
+				nom: $item["nom"],
+				url: $item["url"],
+				user_id: $item["user_id"],
+            );
+			$banquess[$item["id"]] = $banque;
 		}
+		return $banques;
 	}
+
 }

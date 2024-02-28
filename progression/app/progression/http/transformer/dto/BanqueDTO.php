@@ -17,7 +17,8 @@
 */
 
 namespace progression\http\transformer\dto;
-use progression\http\contrôleur\{BanqueCtl};
+
+use progression\http\contrôleur\BanqueCtl;
 
 class BanqueDTO extends GénériqueDTO
 {
@@ -27,7 +28,7 @@ class BanqueDTO extends GénériqueDTO
 	{
 		parent::__construct($id, $object, $liens);
 		
-		$this->banques = []
+		$this->banques = [];
 		foreach ($object->banques as $uri => $banque) {
 			array_push(
 				$this->banques,

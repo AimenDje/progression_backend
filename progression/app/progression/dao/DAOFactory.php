@@ -100,5 +100,6 @@ class DAOFactory
 
     function get_banque_dao()
     {
-        return new BanqueDAO($this)
+        return new BanqueDAO($this);
     }        
+}
