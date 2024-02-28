@@ -32,9 +32,14 @@ class ChargeurGIT extends Chargeur
 
 		// Vérifier si le clonage a réussi
 		if (!is_dir($dossier_temporaire)) {
-			throw new RuntimeException("Le clonage du dépôt a échoué");
+			throw new RuntimeException("Clonage échoué : il est possible que votre dépôt est privé");
 		}
-
+	
+		$chemin_fichier_dans_depot = "$dossier_temporaire/info.yml";
+		if (!file_exists($chemin_fichier_dans_depot)) {
+			throw new RuntimeException("Clonage échoué : fichier info.yml inexistant");
+		}
+	
 		return $dossier_temporaire;
 	}
 }
