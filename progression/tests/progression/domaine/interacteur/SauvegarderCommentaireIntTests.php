@@ -19,6 +19,7 @@
 namespace progression\domaine\interacteur;
 
 use progression\domaine\entité\Commentaire;
+use progression\domaine\entité\user\User;
 use progression\dao\DAOFactory;
 use PHPUnit\Framework\TestCase;
 use Mockery;
@@ -43,7 +44,12 @@ final class SauvegarderCommentaireTests extends TestCase
 	}
 	public function test_étant_donné_un_commentaire_non_existant_lorsquon_le_sauvegarde_obtient_un_commentaire_a_partir_de_la_BD()
 	{
-		$commentaireAttendu = new Commentaire("le 99iem message", "mock", 1615696276, 14);
+		$commentaireAttendu = new Commentaire(
+			"le 99iem message",
+			new User(username: "mock", date_inscription: 0),
+			1615696276,
+			14,
+		);
 		$commentaireInt = new SauvegarderCommentaireInt();
 		DAOFactory::getInstance()
 			->get_commentaire_dao()
@@ -52,7 +58,13 @@ final class SauvegarderCommentaireTests extends TestCase
 				return $user == "jdoe" &&
 					$uri == "prog1/les_fonctions_01/appeler_une_fonction_paramétrée" &&
 					$numéro == 99 &&
-					$commentaire == new Commentaire("le 99iem message", "mock", 1615696276, 14);
+					$commentaire ==
+						new Commentaire(
+							"le 99iem message",
+							new User(username: "mock", date_inscription: 0),
+							1615696276,
+							14,
+						);
 			})
 			->andReturn([0 => $commentaireAttendu]);
 

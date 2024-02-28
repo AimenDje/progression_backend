@@ -18,14 +18,16 @@
 
 namespace progression\domaine\entité;
 
+use progression\domaine\entité\user\User;
+
 class Commentaire
 {
-	public $message;
-	public $créateur;
-	public $date;
-	public $numéro_ligne;
+	public string $message;
+	public User $créateur;
+	public int $date;
+	public int $numéro_ligne;
 
-	public function __construct($message, $créateur, $date, $numéro_ligne)
+	public function __construct(string $message, User $créateur, int $date, int $numéro_ligne)
 	{
 		$this->message = $message;
 		$this->créateur = $créateur;

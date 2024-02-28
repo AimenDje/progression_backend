@@ -41,7 +41,9 @@ final class ObtenirCommentaireIntTests extends TestCase
 		$mockCommentaireDAO
 			->shouldReceive("get_commentaire")
 			->with(3, [])
-			->andReturn(new Commentaire("le 3er message", null, 1615696276, 14));
+			->andReturn(
+				new Commentaire("le 3er message", new User(username: "oteur", date_inscription: 0), 1615696276, 14),
+			);
 		$mockCommentaireDAO
 			->shouldReceive("get_commentaire")
 			->with(3, ["créateur"])
@@ -71,7 +73,12 @@ final class ObtenirCommentaireIntTests extends TestCase
 	{
 		$résultat_observé = new ObtenirCommentaireInt();
 
-		$résultat_attendu = new Commentaire("le 3er message", null, 1615696276, 14);
+		$résultat_attendu = new Commentaire(
+			"le 3er message",
+			new User(username: "oteur", date_inscription: 0),
+			1615696276,
+			14,
+		);
 
 		$this->assertEquals($résultat_attendu, $résultat_observé->get_commentaire_par_id(3));
 	}

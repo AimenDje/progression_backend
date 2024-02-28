@@ -73,16 +73,16 @@ username/question_uri
 
 *** Propriétés :
 
-| Nom               | Type | Valeurs       | Description                                                            |
-|-------------------+------+---------------+------------------------------------------------------------------------|
-| état              | int  | 0=non débutée | Aucune tentative envoyée                                               |
-|                   |      | 1=non réussie | Au moins une tentative, mais aucune n'est réussie                      |
-|                   |      | 2=réussie     | Au moins une tentative dont une réussie                                |
-| titre             | str  |               | Le titre de la question tel qu'il était lors de la dernière tentative  |
-| niveau            | str  |               | Le niveau de la question tel qu'il était lors de la dernière tentative |
-| date_modification | int  |               | La date de la dernière tentative                                       |
-| date_réussie      | int  |               | La date de la première tentative réussie                               |
-| extra             | str  |               | Infos extra à stoquer avec l'Avancement                                |
+| Nom               | Type | Valeurs      | Description                                                            |
+|-------------------+------+--------------+------------------------------------------------------------------------|
+| état              | str  | "début"      | Aucune tentative envoyée                                               |
+|                   |      | "non_réussi" | Au moins une tentative, mais aucune n'est réussie                      |
+|                   |      | "réussi"     | Au moins une tentative dont une réussie                                |
+| titre             | str  |              | Le titre de la question tel qu'il était lors de la dernière tentative  |
+| niveau            | str  |              | Le niveau de la question tel qu'il était lors de la dernière tentative |
+| date_modification | int  |              | La date de la dernière tentative                                       |
+| date_réussie      | int  |              | La date de la première tentative réussie                               |
+| extra             | str  |              | Infos extra à stoquer avec l'Avancement                                |
 
 *** Relations :
 
@@ -105,15 +105,15 @@ username/nom
 
 *** Propriétés : 
 
-| Nom         | Type   | Valeurs            | Description                                               |
-|-------------+--------+--------------------+-----------------------------------------------------------|
-| secret      | string |                    | valeur secrète de la clé                                  |
-| création    | int    |                    | Timestamp de création                                     |
-| expiration  | int    |                    | Timestamp d'expiration, 0=n'expire jamais                 |
-| portée      | int    |                    | Service ou ressource accessible par la clé.               |
-|             |        | 0=Révoquée         | La clé est révoquée pour tout service ou ressource        |
-|             |        | 1=Authentification | La clé peut être utilisée pour authentifier l’utilisateur |
-|-------------+--------+--------------------+-----------------------------------------------------------|
+| Nom        | Type | Valeurs            | Description                                               |
+|------------+------+--------------------+-----------------------------------------------------------|
+| secret     | str  |                    | valeur secrète de la clé                                  |
+| création   | int  |                    | Timestamp de création                                     |
+| expiration | int  |                    | Timestamp d'expiration, 0=n'expire jamais                 |
+| portée     | str  |                    | Service ou ressource accessible par la clé.               |
+|            |      | "révoquée"         | La clé est révoquée pour tout service ou ressource        |
+|            |      | "authentification" | La clé peut être utilisée pour authentifier l’utilisateur |
+|------------+------+--------------------+-----------------------------------------------------------|
 
 ** Config
 
@@ -133,12 +133,12 @@ username/question_uri/date_soumission/numéro
 
 *** Propriétés:
 
-| Nom             | Type | Valeurs   |
-|-----------------+------+-----------|
-| message         | str  |           |
-| créateur        | str  |           |
-| date            | int  |           |
-| numéro_ligne    | int  |           |
+| Nom          | Type | Valeurs | Description                                  | Défaut                  |
+|--------------+------+---------+----------------------------------------------+-------------------------|
+| message      | str  |         |                                              |                         |
+| créateur     | str  |         | nom d'utilisateur du créateur                | Utilisateur authentifié |
+| date         | int  |         | timestamp de création                        | Date courante           |
+| numéro_ligne | int  |         | numéro de ligne où s'applique le commentaire |                         |
 
 ** Ébauche
 
@@ -149,10 +149,10 @@ question_uri/langage
 
 *** Propriétés:
 
-| Nom     | Type | Valeurs |
-|---------+------+---------|
-| langage | str  |         |
-| code    | str  |         |
+| Nom     | Type | Valeurs | Description                           |
+|---------+------+---------+---------------------------------------|
+| langage | str  |         | Langage de programmation de l'ébauche |
+| code    | str  |         | Code de l'ébauche                     |
 
 ** Question
 
@@ -174,19 +174,18 @@ Question
 
 *** Propriétés :
 
-| Nom         | Type                 | Valeurs      |
-|-------------+----------------------+--------------|
-| uri         | str                  |              |
-| niveau      | str                  |              |
-| titre       | str                  |              |
-| description | str                  |              |
-| objectif    | str                  |              |
-| énoncé      | str ou liste de dict |              |
-| auteur      | str                  |              |
-| licence     | str                  |              |
-| sous_type   | str                  | questionProg |
-|             |                      | questionSys  |
-|             |                      | questionBD   |
+| Nom         | Type                 | Valeurs      | Description |
+|-------------+----------------------+--------------+-------------|
+| niveau      | str                  |              |             |
+| titre       | str                  |              |             |
+| description | str                  |              |             |
+| objectif    | str                  |              |             |
+| énoncé      | str ou liste de dict |              |             |
+| auteur      | str                  |              |             |
+| licence     | str                  |              |             |
+| sous_type   | str                  | questionProg |             |
+|             |                      | questionSys  |             |
+|             |                      | questionBD   |             |
 
 ** Question (sous-type QuestionProg)
 
@@ -219,13 +218,13 @@ username/question_uri/hash
 
 *** Propriétés:
 
-| Nom             | Type | Valeurs                                                                                                    |
-|-----------------+------+------------------------------------------------------------------------------------------------------------|
-| sortie_observée | str  | Sortie standard du Test                                                                                    |
-| sortie_erreur   | str  | Sortie d'erreur du Test                                                                                    |
-| résultat        | bool | Vrai si le Test a été validé avec un code de retour de 0 et une sortie observée égale à la sortie attendue |
-| feedback        | str  | Rétroaction pour ce résultat de test                                                                       |
-| temps_exécution | int  | temps d'exécution en ms                                                                                    |
+| Nom             | Type | Valeurs | Description                                                                                                |
+|-----------------+------+---------+------------------------------------------------------------------------------------------------------------|
+| sortie_observée | str  |         | Sortie standard du Test                                                                                    |
+| sortie_erreur   | str  |         | Sortie d'erreur du Test                                                                                    |
+| résultat        | bool |         | Vrai si le Test a été validé avec un code de retour de 0 et une sortie observée égale à la sortie attendue |
+| feedback        | str  |         | Rétroaction pour ce résultat de test                                                                       |
+| temps_exécution | int  |         | temps d'exécution en ms                                                                                    |
 
 ** Sauvegarde automatique
 
@@ -260,15 +259,15 @@ Tentative
 
 *** Propriétés :
 
-| Nom             | Type | Valeurs                                                    |
-|-----------------+------+------------------------------------------------------------|
-| date_soumission | int  | timestamp                                                  |
-| feedback        | str  |                                                            |
-| réussi          | bool | vrai ssi la tentative a correctement répondu à la question |
-| temps_exécution | int  | temps d'exécution en ms                                    |
-| sous-type       | str  | tentativeProg                                              |
-|                 |      | tentativeSys                                               |
-|                 |      | tentativeBD                                                |
+| Nom             | Type | Valeurs       | Description                                                |
+|-----------------+------+---------------+------------------------------------------------------------|
+| date_soumission | int  |               | timestamp                                                  |
+| feedback        | str  |               |                                                            |
+| réussi          | bool |               | vrai ssi la tentative a correctement répondu à la question |
+| temps_exécution | int  |               | temps d'exécution en ms                                    |
+| sous-type       | str  | tentativeProg | Sous-type de la ressource                                  |
+|                 |      | tentativeSys  |                                                            |
+|                 |      | tentativeBD   |                                                            |
 
 *** Relations :
 
@@ -282,11 +281,11 @@ Une tentative de réponse à une QuestionProg.
 
 *** Propriétés:
 
-| Nom             | Type | Valeurs                 |
-|-----------------+------+-------------------------|
-| langage         | str  |                         |
-| code            | str  |                         |
-| tests_réussis   | int  | nb de tests réussis     |
+| Nom           | Type | Valeurs | Description             |
+|---------------+------+---------+-------------------------|
+| langage       | str  |         | Langage de la tentative |
+| code          | str  |         | Code de la tentative    |
+| tests_réussis | int  |         | nb de tests réussis     |
 
 ** Tentative (sous-type tentativeSys)
 
@@ -294,11 +293,11 @@ Une tentative de réponse à une QuestionSys.
 
 *** Propriétés:
 
-| Nom             | Type | Valeurs                 |
-|-----------------+------+-------------------------|
-| conteneur       | str  |                         |
-| réponse         | str  |                         |
-| tests_réussis   | int  | nb de tests réussis     |
+| Nom           | Type | Valeurs | Description                        |
+|---------------+------+---------+------------------------------------|
+| conteneur     | str  |         | identifiant du conteneur           |
+| réponse       | str  |         | Réponse à une question  à solution |
+| tests_réussis | int  |         | nb de tests réussis                |
 
 *** Relations :
 
@@ -315,13 +314,13 @@ question_uri/numéro
 
 *** Propriétés :
 
-| Nom             | Type | Valeurs                                               |
-|-----------------+------+-------------------------------------------------------|
-| nom             | str  |                                                       |
-| sortie_attendue | str  | La sortie attendue, ou null si sortie_cachée est vrai |
-| feedback_pos    | str  |                                                       |
-| feedback_neg    | str  |                                                       |
-| caché           | bool | vrai si les entrées et sorties ont été caviardées     |
+| Nom             | Type | Valeurs | Description                                           |
+|-----------------+------+---------+-------------------------------------------------------|
+| nom             | str  |         |                                                       |
+| sortie_attendue | str  |         | La sortie attendue, ou null si sortie_cachée est vrai |
+| feedback_pos    | str  |         |                                                       |
+| feedback_neg    | str  |         |                                                       |
+| caché           | bool |         | vrai si les entrées et sorties ont été caviardées     |
 
 
 ** TestProg (soustype de Test)
@@ -330,11 +329,11 @@ Un test de validation d'une QuestionProg auquel sont soumises les solutions prop
 
 *** Propriétés :
 
-| Nom          | Type | Valeurs                                                       |
-|--------------+------+---------------------------------------------------------------|
-| entrée       | str  | L'entrée du programme ou null si sortie_cachée est vrai       |
-| params       | str  | Les paramètres du programme ou null si sortie_cachée est vrai |
-| feedback_err | str  |                                                               |
+| Nom          | Type | Valeurs | Description                                                   |
+|--------------+------+---------+---------------------------------------------------------------|
+| entrée       | str  |         | L'entrée du programme ou null si sortie_cachée est vrai       |
+| params       | str  |         | Les paramètres du programme ou null si sortie_cachée est vrai |
+| feedback_err | str  |         |                                                               |
 
 ** TestSys (soustype de Test)
 
@@ -342,10 +341,10 @@ Un test de validation d'une QuestionSys auquel sont soumises les solutions propo
 
 *** Propriétés :
 
-| Nom         | Type | Valeurs                    |
-|-------------+------+----------------------------|
-| validation  | str  |                            |
-| utilisateur | str  | l'utilisateur du conteneur |
+| Nom         | Type | Valeurs | Description                |
+|-------------+------+---------+----------------------------|
+| validation  | str  |         | Script de validation       |
+| utilisateur | str  |         | l'utilisateur du conteneur |
 
 ** Token
 
@@ -353,16 +352,16 @@ Un token JWT donnant accès à une ou plusieurs ressources. Une date d'expiratio
 
 *** Propriétés :
 
-| Nom         | Type | Valeurs                                                                                 |
-|-------------+------+-----------------------------------------------------------------------------------------|
-| username    | str  | l'utilisateur propriétaire du token                                                     |
-| création    | int  | timestamp à la création                                                                 |
-| expiration  | int  | timestamp d'expiration ou "+n" ou n est le nombre de secondes avant l'expiration        |
-| data        | str  | données incluses dans le token                                                          |
-| ressources  | str  | ressources permises par le token                                                        |
-| jwt         | str  | token jwt signé                                                                         |
-| fingerprint | str  | empreinte (sha256) du contexte aléatoire du token fourni via un cookie sécurisé.        |
-| version     | int  | version de l'api ayant généré le token                                                  |
+| Nom         | Type | Valeurs | Description                                                                      |
+|-------------+------+---------+----------------------------------------------------------------------------------|
+| username    | str  |         | l'utilisateur propriétaire du token                                              |
+| création    | int  |         | timestamp à la création                                                          |
+| expiration  | int  |         | timestamp d'expiration ou "+n" ou n est le nombre de secondes avant l'expiration |
+| data        | str  |         | données incluses dans le token                                                   |
+| ressources  | str  |         | ressources permises par le token                                                 |
+| jwt         | str  |         | token jwt signé                                                                  |
+| fingerprint | str  |         | empreinte (sha256) du contexte aléatoire du token fourni via un cookie sécurisé. |
+| version     | int  |         | version de l'api ayant généré le token                                           |
 
 **** Data
 
@@ -417,14 +416,14 @@ username
 
 *** Propriétés :
 
-| Nom         | Type | Valeurs                                          |
-|-------------+------+--------------------------------------------------|
-| username    | str  |                                                  |
-| courriel    | str  |                                                  |
-| état        | int  | 0=inactif, 1=actif, 2=en attente de confirmation |
-| rôle        | int  | 0=normal, 1=admin                                |
-| préférences | str  | chaîne JSON décrivant les préférences UI         |
-|-------------+------+--------------------------------------------------|
+| Nom         | Type | Valeurs                                        | Description                              |
+|-------------+------+------------------------------------------------+------------------------------------------|
+| username    | str  |                                                |                                          |
+| courriel    | str  |                                                |                                          |
+| état        | str  | "inactif", "actif", "en_attente_de_validation" |                                          |
+| rôle        | str  | "normal", "admin"                              |                                          |
+| préférences | str  |                                                | chaîne JSON décrivant les préférences UI |
+|-------------+------+------------------------------------------------+------------------------------------------|
 
 *** Relations :
 
@@ -441,7 +440,7 @@ username
 #+begin_src sh :exports none
 if [ -z "$PROGRESSION_API_URL" ]
 then
-	echo -n "https://progression.dti.crosemont.quebec/api/v3"
+	echo -n "https://progression.dti.crosemont.quebec/demo/api/v1"
 else
 	echo -n $PROGRESSION_API_URL
 fi
@@ -460,10 +459,10 @@ curl() {
 export -f curl
 
 # Inscription
-/usr/bin/curl "<<get_api_url()>>/user" -X PUT --data '{"username": "jdoe", "password": "Crosemont2021!"}' -H "Content-Type: application/json" | grep -Po '(?<=Token":").*(?=")'
+/usr/bin/curl "<<get_api_url()>>/user" -X PUT --data '{"username": "jdoe"}' -H "Content-Type: application/json" | grep -Po '(?<=Token":").*(?=")'
 
 # Récupère le token
-export TOKEN=$(/usr/bin/curl "<<get_api_url()>>/user/jdoe/tokens" --data '{"identifiant": "jdoe", "password": "Crosemont2021!", "ressources": ["tout": {"url": ".*", "method": ".*"}] }' -H "Content-Type: application/json" | grep -Po '(?<=Token":").*(?=")')
+export TOKEN=$(/usr/bin/curl "<<get_api_url()>>/user/jdoe/tokens" -H 'Authorization: basic amRvZTo=' --data '{"data" : {"ressources": {"tout": {"url": ".*", "method": ".*"}}, "expiration": "+30"}}' -H "Content-Type: application/json" | grep -Po '(?<=jwt":")[^"]*')
 
 #+END_SRC
 
@@ -502,22 +501,36 @@ print( formatte_json( decode_json( decode_b64( json_str ) ) ) )
 curl "<<get_api_url()>>/"
 #+END_SRC
 
-** Authentification en tant qu’utilisateur ~jdoe~
+** Inscription en tant qu’utilisateur ~jdoe~
 
 #+NAME: AUTHENTIFICATION
-#+BEGIN_SRC bash :eval yes
-curl "<<get_api_url()>>/user/jdoe" -X PUT --data '{"identifiant": "jdoe", "courriel": "jdoe@courriel.com", "password": "Crosemont2021!"}' -H "Content-Type: application/json"
+#+BEGIN_SRC bash :eval yes :results output :exports both :post json_pretty(*this*)
+curl "<<get_api_url()>>/user/jdoe" -X PUT --data '{"username": "jdoe"}' -H "Content-Type: application/json"
 #+END_SRC
 
-#+RESULTS:
-** Authentification par courriel en tant qu’utilisateur ~jdoe~
 
-#+NAME: AUTHENTIFICATION
-#+BEGIN_SRC bash :eval yes
-curl "<<get_api_url()>>/user/jdoe/tokens" --data '{"identifiant": "jdoe@courriel.com", "password": "Crosemont2021!", "ressources": ["tout": {"url": ".*", "method": ".*"}] }' -H "Content-Type: application/json"
+** Obtenir un token pour ~jdoe~
+
+#+BEGIN_SRC bash :eval yes :session *bash* :results none :exports code
+DATA=$(cat <<EOF
+{
+  "data": {
+    "ressources": {
+      "tout": {
+        "url": ".*",
+        "method": ".*"
+      }
+    },
+    "expiration": "+30"
+  }
+}
+EOF
+)
 #+END_SRC
 
-#+RESULTS:
+#+BEGIN_SRC bash :eval yes :session *bash* :results output :exports both :post json_pretty(*this*) 
+curl "<<get_api_url()>>/user/jdoe/tokens" -H 'Authorization: basic amRvZTo=' --data "$DATA" -H "Content-Type: application/json"
+#+END_SRC
 
 ** Obtenir le profil de l’utilisateur authentifié ~jdoe~
 

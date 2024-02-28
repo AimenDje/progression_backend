@@ -26,7 +26,7 @@ variables:
   BRANCHE: $CI_COMMIT_REF_NAME
 
 .preparer_contexte: &preparer_contexte
-    - DOCKER_HOST= 
+    - DOCKER_HOST=
     - apk add ca-certificates openssh
     - mkdir ~/.ssh && cp $ID_RSA ~/.ssh/id_rsa && chmod 400 ~/.ssh/id_rsa
     - echo -e "Host *\n  StrictHostKeyChecking no" > ~/.ssh/config
@@ -41,9 +41,11 @@ variables:
 # Tests unitaires
 test_unitaires:
   stage: test
-  needs: 
+  needs:
     - job: const_image
       optional: true
+  variables:
+    ENV_FILE: env.exemple
   script:
     - docker-compose pull tests
     - docker-compose run -v $PROGRESSION_DIR/reports/:/var/www/progression/reports tests
@@ -62,6 +64,8 @@ linter:
   needs:
     - job: const_image
       optional: true
+  variables:
+    ENV_FILE: env.exemple
   script:
     - docker-compose run lint
   except:
@@ -81,12 +85,12 @@ const_image:
   stage: build_image
   before_script: *login
   variables:
-    DOCKER_BUILDKIT: 1 
+    DOCKER_BUILDKIT: 1
   script:
     - docker build --target composer --cache-from $CI_REGISTRY/$CI_PROJECT_PATH:${BRANCHE}_composer --build-arg BUILDKIT_INLINE_CACHE=1 -t $CI_REGISTRY/$CI_PROJECT_PATH:${BRANCHE}_composer -f docker/Dockerfile .
     - docker push $CI_REGISTRY/$CI_PROJECT_PATH:${BRANCHE}_composer
     - docker build --cache-from $CI_REGISTRY/$CI_PROJECT_PATH:$BRANCHE --build-arg BUILDKIT_INLINE_CACHE=1 -t $CI_REGISTRY/$CI_PROJECT_PATH:$BRANCHE -f docker/Dockerfile .
-    - docker push $CI_REGISTRY/$CI_PROJECT_PATH:$BRANCHE    
+    - docker push $CI_REGISTRY/$CI_PROJECT_PATH:$BRANCHE   
 
 
 # Stage tag
@@ -98,12 +102,12 @@ tag_latest:
     - *login
   script:
     - docker pull $CI_REGISTRY/$CI_PROJECT_PATH:$BRANCHE
-    - docker tag $CI_REGISTRY/$CI_PROJECT_PATH:$BRANCHE $CI_REGISTRY/$CI_PROJECT_PATH:latest   
+    - docker tag $CI_REGISTRY/$CI_PROJECT_PATH:$BRANCHE $CI_REGISTRY/$CI_PROJECT_PATH:latest  
     - docker push $CI_REGISTRY/$CI_PROJECT_PATH:latest
   only:
     - master
 
-    
+   
 # Stage deploy_image
 
 # Déploiement sur /dev
@@ -136,7 +140,7 @@ stop_dev:
     - dev
   when:
     manual
-    
+   
 # Déploiement sur /demo
 deploy_demo:
   stage: deploy_image
@@ -152,7 +156,7 @@ deploy_demo:
     - TAG_DEPLOY=latest docker-compose pull api
     - TAG_DEPLOY=latest docker-compose -p demo up --force-recreate -d api
   rules:
-    - if: '$CI_COMMIT_BRANCH == "master" && $CI_REGISTRY == "git.dti.crosemont.quebec:5050"'
+    - if: '$CI_COMMIT_BRANCH == "master" && $URL_DEMO'
 
 stop_demo:
   stage: deploy_image
@@ -164,7 +168,7 @@ stop_demo:
   script:
     - docker-compose -p demo stop api
   rules:
-    - if: '$CI_COMMIT_BRANCH == "master" && $CI_REGISTRY == "git.dti.crosemont.quebec:5050"'
+    - if: '$CI_COMMIT_BRANCH == "master" && $URL_DEMO'
   when:
     manual
 
@@ -183,7 +187,7 @@ deploy_staging:
     - TAG_DEPLOY=latest docker-compose pull api
     - TAG_DEPLOY=latest docker-compose -p staging up --force-recreate -d api
   rules:
-    - if: '$CI_COMMIT_BRANCH == "master" && $CI_REGISTRY == "git.dti.crosemont.quebec:5050"'
+    - if: '$CI_COMMIT_BRANCH == "master" && $URL_STAGING'
 
 stop_staging:
   stage: deploy_image
@@ -195,7 +199,7 @@ stop_staging:
   script:
     - docker-compose -p staging stop api
   rules:
-    - if: '$CI_COMMIT_BRANCH == "master" && $CI_REGISTRY == "git.dti.crosemont.quebec:5050"'
+    - if: '$CI_COMMIT_BRANCH == "master" && $URL_STAGING'
   when:
     manual
 
@@ -205,7 +209,7 @@ deploy_prod:
   needs: [tag_latest]
   environment:
     name: prod
-    url: https://progression.dti.crosemont.quebec/api/v1/
+    url: $URL_PROD
     on_stop: stop_prod
   before_script:
     - *preparer_contexte
@@ -216,7 +220,7 @@ deploy_prod:
   when:
     manual
   rules:
-    - if: '$CI_COMMIT_BRANCH == "master" && $CI_REGISTRY == "git.dti.crosemont.quebec:5050"'
+    - if: '$CI_COMMIT_BRANCH == "master" && $URL_PROD'
 
 stop_prod:
   stage: deploy_image
@@ -228,7 +232,7 @@ stop_prod:
   script:
     - docker-compose -p prod stop api db redis
   rules:
-    - if: '$CI_COMMIT_BRANCH == "master" && $CI_REGISTRY == "git.dti.crosemont.quebec:5050"'
+    - if: '$CI_COMMIT_BRANCH == "master" && $URL_PROD'
   when:
     manual
 
@@ -241,10 +245,10 @@ deploy_crosemont:
     - crosemont
   environment:
     name: crosemont
-    url: https://progression.crosemont.qc.ca/api/v1/
+    url: $URL_PROD_2
     on_stop: stop_crosemont
   before_script:
-    - export CD_HOST=progression.crosemont.qc.ca CD_PORT=22 CD_USER=updater
+    - export CD_HOST=$CD_HOST_2 CD_PORT=$CD_HOST_2 CD_USER=$CD_USER_2
     - *preparer_contexte
     - *login
   script:
@@ -253,7 +257,7 @@ deploy_crosemont:
   when:
     manual
   rules:
-    - if: '$CI_COMMIT_BRANCH == "master" && $CI_REGISTRY == "git.dti.crosemont.quebec:5050"'
+    - if: '$CI_COMMIT_BRANCH == "master" && $URL_PROD_2'
 
 stop_crosemont:
   stage: deploy_image
@@ -264,15 +268,15 @@ stop_crosemont:
     name: crosemont
     action: stop
   before_script:
-    - export CD_HOST=progression.crosemont.qc.ca CD_PORT=22 CD_USER=updater
+    - export CD_HOST=$CD_HOST_2 CD_PORT=$CD_HOST_2 CD_USER=$CD_USER_2
     - *preparer_contexte
   script:
     - docker-compose -p prod stop api db redis
   rules:
-    - if: '$CI_COMMIT_BRANCH == "master" && $CI_REGISTRY == "git.dti.crosemont.quebec:5050"'
+    - if: '$CI_COMMIT_BRANCH == "master" && $URL_PROD_2'
   when:
     manual
-    
+   
 
 # Stage build_doc
 
@@ -287,7 +291,7 @@ pages_dev:
   - mkdir -p public/dev && cp -r $PROGRESSION_DIR/progression/app/html/doc/* public/dev/
   - "! grep -c nil public/dev/api.html # Vérifie que la production de l'API n'a pas produit d'erreur"
   rules:
-    - if: '$CI_COMMIT_BRANCH == "dev" && $CI_REGISTRY == "git.dti.crosemont.quebec:5050"'
+    - if: '$CI_COMMIT_BRANCH == "dev" && $URL_DEV'
   when:
     manual
   artifacts:
@@ -331,4 +335,3 @@ pages:
     - master
   when:
     manual
-     

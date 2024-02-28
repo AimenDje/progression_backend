@@ -18,6 +18,8 @@
 
 namespace progression\domaine\entité;
 
+use progression\domaine\entité\user\User;
+
 use PHPUnit\Framework\TestCase;
 
 final class CommentaireTests extends TestCase
@@ -25,7 +27,7 @@ final class CommentaireTests extends TestCase
 	public function test_commentaire_instancié_avec_toutes_les_valeurs_des_attributs_retourne_les_bonnes_valeurs_des_attributs()
 	{
 		$messageAttendu = "Un nouveau message attendu.";
-		$créateurAttendu = "Nouveau Créateur";
+		$créateurAttendu = new User(username: "Nouveau Créateur", date_inscription: 0);
 		$dateAttendu = 20220307;
 		$numeroLigneAttendu = 15;
 

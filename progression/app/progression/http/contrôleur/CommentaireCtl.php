@@ -19,10 +19,11 @@
 namespace progression\http\contrôleur;
 
 use Illuminate\Http\{Request, JsonResponse};
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use progression\domaine\entité\Commentaire;
-use progression\domaine\interacteur\{SauvegarderCommentaireInt, IntéracteurException};
+use progression\domaine\interacteur\{SauvegarderCommentaireInt, IntéracteurException, ObtenirUserInt};
 use progression\http\transformer\CommentaireTransformer;
 use progression\http\transformer\dto\GénériqueDTO;
 use progression\util\Encodage;
@@ -41,30 +42,35 @@ class CommentaireCtl extends Contrôleur
 		if ($validateur->fails()) {
 			$réponse = $this->réponse_json(["erreur" => $validateur->errors()], 400);
 		} else {
-			$commentaireInt = new SauvegarderCommentaireInt();
+			if (isset($request->créateur) && !Gate::allows("créer-commentaire", $request->créateur)) {
+				$réponse = $this->réponse_json(["erreur" => $validateur->errors()], 403);
+			} else {
+				$user = (new ObtenirUserInt())->get_user($request->créateur ?? $username);
+				if (!$user) {
+					$réponse = $this->réponse_json(["erreur" => $validateur->errors()], 400);
+				} else {
+					$commentaireInt = new SauvegarderCommentaireInt();
+					$commentaire = $commentaireInt->sauvegarder_commentaire(
+						$username,
+						$question_uriDécodé,
+						null,
+						new Commentaire(
+							$request->message,
+							$user,
+							(new \DateTime())->getTimestamp(),
+							$request->numéro_ligne,
+						),
+					);
 
-			$commentaire = $commentaireInt->sauvegarder_commentaire(
-				$username,
-				$question_uriDécodé,
-				null,
-				new Commentaire(
-					$request->message,
-					$request->créateur,
-					(new \DateTime())->getTimestamp(),
-					$request->numéro_ligne,
-				),
-			);
-
-			if (count($commentaire) == 1) {
-				$id = array_key_first($commentaire);
-
-				$réponse = $this->valider_et_préparer_réponse(
-					$commentaire[$id],
-					$username,
-					$question_uri,
-					$timestamp,
-					$id,
-				);
+					$id = array_key_first($commentaire);
+					$réponse = $this->valider_et_préparer_réponse(
+						$commentaire[$id],
+						$username,
+						$question_uri,
+						$timestamp,
+						$id,
+					);
+				}
 			}
 		}
 
@@ -92,7 +98,7 @@ class CommentaireCtl extends Contrôleur
 			$request->all(),
 			[
 				"message" => "required",
-				"créateur" => "required",
+				"créateur" => "string",
 				"numéro_ligne" => ["required", "integer"],
 			],
 			[

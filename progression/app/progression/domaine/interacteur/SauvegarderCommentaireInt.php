@@ -24,7 +24,7 @@ use progression\dao\DAOException;
 class SauvegarderCommentaireInt extends Interacteur
 {
 	/**
-	 * @return array<Commentaire>
+	 * @return non-empty-array<Commentaire>
 	 */
 	public function sauvegarder_commentaire(
 		string $username,
@@ -34,9 +34,6 @@ class SauvegarderCommentaireInt extends Interacteur
 	): array {
 		if (empty($commentaire->message)) {
 			throw new RessourceInvalideException("Message invalide");
-		}
-		if (!$commentaire->créateur) {
-			throw new RessourceInvalideException("Créateur inexistant");
 		}
 		try {
 			$commentaire_sauvegardé = $this->source_dao

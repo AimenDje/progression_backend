@@ -946,46 +946,6 @@ parameters:
 			path: app/progression/domaine/entité/Avancement.php
 
 		-
-			message: "#^Method progression\\\\domaine\\\\entité\\\\Commentaire\\:\\:__construct\\(\\) has parameter \\$créateur with no type specified\\.$#"
-			count: 1
-			path: app/progression/domaine/entité/Commentaire.php
-
-		-
-			message: "#^Method progression\\\\domaine\\\\entité\\\\Commentaire\\:\\:__construct\\(\\) has parameter \\$date with no type specified\\.$#"
-			count: 1
-			path: app/progression/domaine/entité/Commentaire.php
-
-		-
-			message: "#^Method progression\\\\domaine\\\\entité\\\\Commentaire\\:\\:__construct\\(\\) has parameter \\$message with no type specified\\.$#"
-			count: 1
-			path: app/progression/domaine/entité/Commentaire.php
-
-		-
-			message: "#^Method progression\\\\domaine\\\\entité\\\\Commentaire\\:\\:__construct\\(\\) has parameter \\$numéro_ligne with no type specified\\.$#"
-			count: 1
-			path: app/progression/domaine/entité/Commentaire.php
-
-		-
-			message: "#^Property progression\\\\domaine\\\\entité\\\\Commentaire\\:\\:\\$créateur has no type specified\\.$#"
-			count: 1
-			path: app/progression/domaine/entité/Commentaire.php
-
-		-
-			message: "#^Property progression\\\\domaine\\\\entité\\\\Commentaire\\:\\:\\$date has no type specified\\.$#"
-			count: 1
-			path: app/progression/domaine/entité/Commentaire.php
-
-		-
-			message: "#^Property progression\\\\domaine\\\\entité\\\\Commentaire\\:\\:\\$message has no type specified\\.$#"
-			count: 1
-			path: app/progression/domaine/entité/Commentaire.php
-
-		-
-			message: "#^Property progression\\\\domaine\\\\entité\\\\Commentaire\\:\\:\\$numéro_ligne has no type specified\\.$#"
-			count: 1
-			path: app/progression/domaine/entité/Commentaire.php
-
-		-
 			message: "#^Method progression\\\\domaine\\\\entité\\\\Exécutable\\:\\:__construct\\(\\) has parameter \\$code with no type specified\\.$#"
 			count: 1
 			path: app/progression/domaine/entité/Exécutable.php

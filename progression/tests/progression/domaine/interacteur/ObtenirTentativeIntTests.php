@@ -21,6 +21,7 @@ namespace progression\domaine\interacteur;
 use progression\domaine\entité\{TentativeProg, TentativeSys};
 use progression\domaine\entité\Commentaire;
 use progression\domaine\entité\Résultat;
+use progression\domaine\entité\user\User;
 use progression\dao\DAOFactory;
 use progression\dao\tentative\TentativeDAO;
 use PHPUnit\Framework\TestCase;
@@ -47,8 +48,18 @@ final class ObtenirTentativeIntTests extends TestCase
 					code: "System.out.println();",
 					date_soumission: 1614711760,
 					commentaires: [
-						new Commentaire(99, "le 99iem message", "mock", 1615696276, 14),
-						new Commentaire(100, "le 100ieme message", "mock", 1615696888, 17),
+						new Commentaire(
+							"le 99iem message",
+							new User(username: "mock", date_inscription: 0),
+							1615696276,
+							14,
+						),
+						new Commentaire(
+							"le 100ieme message",
+							new User(username: "mock", date_inscription: 0),
+							1615696888,
+							17,
+						),
 					],
 				),
 			);
@@ -100,8 +111,8 @@ final class ObtenirTentativeIntTests extends TestCase
 
 		$résultat_attendu = new TentativeProg("java", "System.out.println();", 1614711760);
 		$résultat_attendu->commentaires = [
-			new Commentaire(99, "le 99iem message", "mock", 1615696276, 14),
-			new Commentaire(100, "le 100ieme message", "mock", 1615696888, 17),
+			new Commentaire("le 99iem message", new User(username: "mock", date_inscription: 0), 1615696276, 14),
+			new Commentaire("le 100ieme message", new User(username: "mock", date_inscription: 0), 1615696888, 17),
 		];
 
 		$this->assertEquals($résultat_attendu, $résultat_obtenu);

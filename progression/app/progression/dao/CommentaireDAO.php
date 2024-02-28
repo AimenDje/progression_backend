@@ -107,11 +107,9 @@ class CommentaireDAO extends EntitéDAO
 				continue;
 			}
 			$id = $item["id"];
-			$créateur = in_array("créateur", $includes)
-				? self::premier_élément(
-					UserDAO::construire([$item["créateur"]], self::filtrer_niveaux($includes, "commentaires")),
-				)
-				: null;
+			$créateur = self::premier_élément(
+				UserDAO::construire([$item["créateur"]], self::filtrer_niveaux($includes, "commentaires")),
+			);
 			$commentaire = new Commentaire(
 				message: $item["message"],
 				créateur: $créateur,

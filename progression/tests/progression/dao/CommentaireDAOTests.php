@@ -48,7 +48,7 @@ final class CommentaireDAOTests extends TestCase
 
 	public function test_étant_donné_un_commentaire_lorsquon_le_cherche_par_son_numero_sans_inclusion_on_obtient_le_commentaire()
 	{
-		$réponse_attendue = new Commentaire("le 1er message", null, 1615696277, 14);
+		$réponse_attendue = new Commentaire("le 1er message", $this->jdoe, 1615696277, 14);
 		$réponse_observée = (new CommentaireDAO())->get_commentaire(id: 1);
 
 		$this->assertEquals($réponse_attendue, $réponse_observée);
@@ -98,7 +98,7 @@ final class CommentaireDAOTests extends TestCase
 
 	public function test_étant_donné_un_commentaire_inexistant_lorsquon_le_sauvegarde_il_est_créé_dans_la_bd_et_on_obtient_le_commentaire()
 	{
-		$réponse_attendue = new Commentaire("le 4ième message", null, 1615696276, 11);
+		$réponse_attendue = new Commentaire("le 4ième message", $this->jdoe, 1615696276, 11);
 
 		$dao = new CommentaireDAO();
 		$réponse_observée = $dao->save(
@@ -118,7 +118,7 @@ final class CommentaireDAOTests extends TestCase
 
 	public function test_étant_donné_un_commentaire_existant_lorsquon_le_sauvegarde_on_modifie_le_commentaire_dans_la_bd()
 	{
-		$réponse_attendue = new Commentaire("le 1er message modifie", null, 1615696255, 17);
+		$réponse_attendue = new Commentaire("le 1er message modifie", $this->jdoe, 1615696255, 17);
 
 		$dao = new CommentaireDAO();
 		$réponse_observée = $dao->save(

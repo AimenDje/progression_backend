@@ -201,7 +201,12 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 		$mockTentativeDAO->shouldReceive("get_tentative")->andReturn(null);
 
 		// Commentaire
-		$commentaire = new Commentaire(99, "le 99iem message", "mock", 1615696276, 14);
+		$commentaire = new Commentaire(
+			"le 99iem message",
+			new User(username: "créateur", date_inscription: 0),
+			1615696276,
+			14,
+		);
 		$mockCommentaireDAO = Mockery::mock("progression\\dao\\CommentaireDAO");
 		$mockCommentaireDAO
 			->shouldReceive("get_commentaires_par_tentative")
