@@ -40,24 +40,24 @@ class ChargeurGIT extends Chargeur
             throw new RuntimeException("Le clonage du dépôt a échoué");
         }*/
 
-        // Define RAM disk configuration
-        $ramDiskSizeMB = 1;
-        $ramDiskMountPoint = '/tmp';
+        // Définition des caractéristique du disque
+        $taille_ram_disk_MB = 1;
+        $mount_point_ram_disk = '/tmp'; # Patrick a dit qu'on avait droit d'écrire la 
 
-        // Create RAM disk using the appropriate system command
-        $createRamDiskCommand = "sudo mount -t tmpfs -o size={$ramDiskSizeMB}M tmpfs {$ramDiskMountPoint}";
-        exec($createRamDiskCommand, $output, $returnCode);
+        // Création du RAM Disk
+        $ram_disk_commande_création = "sudo mount -t tmpfs -o size={$taille_ram_disk_MB}M tmpfs {$mount_point_ram_disk}";
+        exec($ram_disk_commande_création, $output, $code_retour);
 
-        // Check if the RAM disk creation was successful
-        if ($returnCode !== 0) {
-            throw new RuntimeException("Failed to create RAM disk. Check permissions and try again.");
+        // Vérification si la création a fonctionné
+        if ($code_retour !== 0) {
+            throw new RuntimeException("Échec de la création du disque RAM. Vérifiez les autorisations et réessayez.");
         }
 
-        // Cloning the repository into the RAM disk
-    $dépot_en_mémoire = new Repository($ramDiskMountPoint /*. '/repository'*/);
+        // Cloner le dépot
+        $dépot_en_mémoire = new Repository($mount_point_ram_disk /*. '/repository'*/); #J'ai mis en commentaitre le . '/repository' tu peux le laisser comme ça ou pas
         $dépot_en_mémoire->run('clone', [$url_du_depot, '--depth=1']);
 
-        // Check if the clone operation was successful
+        // vérification si le clonage a fonctionné
         try {
             $dépot_en_mémoire->getStatus();
         } catch (\Exception $e) {
