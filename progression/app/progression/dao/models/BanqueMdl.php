@@ -26,7 +26,7 @@ class BanqueMdl extends Model
 	public $timestamps = false;
 	
 	protected $guarded = [];
-    	
+    /**	
 	protected $appends = ["url"];
 	
 	public function getUrlAttribute(): Url
@@ -39,6 +39,7 @@ class BanqueMdl extends Model
 		$urls = array_column(Url::cases(), "value");
 		$this->attributes["url"] = array_search($url->value, $urls);
 	}	
+	**/
 }
 
 ?>
