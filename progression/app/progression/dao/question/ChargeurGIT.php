@@ -52,24 +52,3 @@
          return $dossier_temporaire;
      }
  }
-
-/*
-class ChargeurGIT extends Chargeur
-{
-	public static function cloner_depot($url_du_depot)
-	{
-		// Cloner le dépôt Git temporairement
-		$dossier_temporaire = sys_get_temp_dir() . "/" . uniqid("git_repo_");
-
-		// Cloner le dépôt dans le dossier temporaire
-		exec("git clone --depth 1 $url_du_depot $dossier_temporaire");
-
-		// Vérifier si le clonage a réussi
-		if (!is_dir($dossier_temporaire)) {
-			throw new RuntimeException("Le clonage du dépôt a échoué");
-		}
-
-		return $dossier_temporaire;
-	}
-}
-*/
