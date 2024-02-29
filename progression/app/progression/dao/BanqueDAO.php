@@ -55,11 +55,10 @@ class BanqueDAO extends EntitéDAO
             $objet = [
                 "nom" => $banque->nom,
                 "url" => $banque->url,
-                "user_id" => $banque->user_id,
             ];
 
             return $this->construire([
-                BanqueMdl::updateOrCreate(["user_id" => $user["id"]], $objet),
+                BanqueMdl::create($objet),
             ]);
         } catch (QueryException $e) {
             throw new DAOException($e);
@@ -79,10 +78,8 @@ class BanqueDAO extends EntitéDAO
 			}
             
             $banque = new Banque(
-				id: $item["id"],
-				nom: $item["nom"],
-				url: $item["url"],
-				user_id: $item["user_id"],
+				$item["nom"],
+				$item["url"]
             );
 			$banquess[$item["id"]] = $banque;
 		}

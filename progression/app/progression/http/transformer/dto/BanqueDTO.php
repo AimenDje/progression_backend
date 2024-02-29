@@ -27,4 +27,3 @@ class BanqueDTO extends GénériqueDTO
 		parent::__construct($id, $objet, $liens);
 	}
 }
-

@@ -18,16 +18,17 @@
 
 namespace progression\domaine\interacteur;
 
-use progression\domaine\entité\banque;
+use progression\domaine\entité\banque\Banque;
+use progression\domaine\entité\user\User;
 
 class AjouterBanqueInt extends interacteur
 {
-	public function ajouter_banque($nom, $url, $username): array
+	public function ajouter_banque(string $username, Banque $banque): array
     {
-        if (empty($nom)) {
+        if (empty($banque->nom)) {
             throw new RessourceInvalideException("Le nom ne peut être vide");
         }
-        if (empty($url)) {
+        if (empty($banque->url)) {
             throw new RessourceInvalideException("L'url ne peut être invalide");
         }
     
@@ -38,6 +39,6 @@ class AjouterBanqueInt extends interacteur
         }
         $dao = $this->source_dao->get_banque_dao();
     
-        return $dao->ajouter($nom, $url, $user->id);
+        return $dao->ajouter($username, $banque);
     }
 }

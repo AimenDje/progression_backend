@@ -26,20 +26,6 @@ class BanqueMdl extends Model
 	public $timestamps = false;
 	
 	protected $guarded = [];
-    /**	
-	protected $appends = ["url"];
-	
-	public function getUrlAttribute(): Url
-	{
-		$urls = array_column(Url::cases(), "value");
-		return Url::from($urls[$this->attributes["url"]]);
-	}
-	public function setUrlAttribute(Url $url): void
-	{
-		$urls = array_column(Url::cases(), "value");
-		$this->attributes["url"] = array_search($url->value, $urls);
-	}	
-	**/
 }
 
 ?>

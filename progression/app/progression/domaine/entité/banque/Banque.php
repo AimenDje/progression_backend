@@ -22,20 +22,14 @@ use InvalidArgumentException;
 
 class Banque
 {
-	public int $id;
 	public string $nom;
 	public string $url;
-	public int $user_id;
 	
 	public function __construct(
-		int $id, 
 		string $nom, 
-		string $url, 
-		int $user_id
+		string $url
 	) {
-		$this->id = $id;
 		$this->nom = $nom;
 		$this->url = $url;
-		$this->user_id = $user_id;
 	}
 }

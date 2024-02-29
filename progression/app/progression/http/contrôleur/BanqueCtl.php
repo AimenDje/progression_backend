@@ -20,7 +20,8 @@ namespace progression\http\contrôleur;
 
 use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Support\Facades\Log;
-use progression\domaine\interacteur\ObtenirBanquesInt;
+use Illuminate\Support\Facades\Validator;
+use progression\domaine\interacteur\{ObtenirBanquesInt, AjouterBanqueInt};
 use progression\http\transformer\dto\BanqueDTO;
 use progression\http\transformer\BanqueTransformer;
 use progression\util\Encodage;
@@ -40,6 +41,31 @@ class BanqueCtl extends Contrôleur
 		$réponse = $this->valider_et_préparer_réponse($banques, $username);
 
 		Log::debug("BanquesCtl.get. Retour : ", [$réponse]);
+		return $réponse;
+	}
+
+	public function post(Request $request, $username)
+	{
+		Log::debug("BanqueCtl.post. Params : ", [$request->all(), $username]);
+
+		$validateur = $this->valider_paramètres($request);
+
+		$réponse = null;
+		if ($validateur->fails()) {
+			$réponse = $this->réponse_json(["erreur" => $validateur->errors()], 400);
+		} else {
+            $ajouterBanqueInt = new AjouterBanqueInt();
+            $banque_retourné = $ajouterBanqueInt->ajouter_banque($username, $this->construire($request->banque));
+
+            $id = array_key_first($banque_retourné);
+            $réponse = $this->valider_et_préparer_réponse(
+                $banque_retourné[$id],
+                $username,
+				);
+            }
+
+		Log::debug("BanqueCtl.post. Retour : ", [$réponse]);
+
 		return $réponse;
 	}
 
@@ -97,6 +123,34 @@ class BanqueCtl extends Contrôleur
 		return [
 			"self" => "{$urlBase}/user/{$username}"
 		];
+	}
+
+    private function valider_paramètres($request)
+	{
+		$validateur = Validator::make(
+			$request->all(),
+			[
+                "banque" => [
+                    "nom" => "required",
+                    "url" => "required",
+                ],
+			],
+			[
+				"required" => "Le champ :attribute est obligatoire.",
+			],
+		);
+
+		return $validateur;
+	}
+
+    /**
+	 * @param array<string> $données
+	 */
+	private function construire(array $données):Banque
+	{
+        $banque = new Banque($données["nom"],$données["url"]);
+        
+        return $banque;
 	}
 
 }

@@ -100,4 +100,5 @@ $router->group(["middleware" => ["auth", "permissionsRessources"]], function () 
 
 	// Banque
 	$router->get("/banque/{username}", "BanqueCtl@get");
+    $router->post("/user/{username}/banque", "BanqueCtl@post");
 });
