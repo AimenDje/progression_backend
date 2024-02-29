@@ -48,6 +48,9 @@ services:
     depends_on:
       - db
       - redis
+    volumes:
+      type: tmpfs
+      target: /tmp/mem
 
   tests:
     image: $CI_REGISTRY/$CI_PROJECT_PATH:$BRANCHE
