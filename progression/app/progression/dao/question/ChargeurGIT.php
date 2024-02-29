@@ -16,56 +16,39 @@
    along with Progression.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace progression\dao\question;
+ namespace progression\dao\question;
 
-use RuntimeException, ErrorException;
-use Gitonomy\Git\Repository;
-use Illuminate\Support\Facades\Log;
+ use Illuminate\Support\Facades\Log;
 
-class ChargeurGIT extends Chargeur
-{
-	public static function cloner_depot($url_du_depot)
-	{
-		/*// Créer un dépôt en mémoire
-		/*$dépot_en_mémoire = new Repository('/tmp', ['storage' => ['type' => 'memory']]);
-        $dépot_en_mémoire = new Repository(null, ['working_dir' => '/tmp']);
-        
-		// Cloner le dépôt dans la mémoire
-		$dépot_en_mémoire->run('clone', [$url_du_depot, '--depth=1']);
-
-		// Vérifier si le clonage a réussi en vérifiant le statut du dépôt
-       try {
-            $dépot_en_mémoire->getStatus();
-        } catch (\Exception $e) {
-            throw new RuntimeException("Le clonage du dépôt a échoué");
-        }*/
-        /*
-        // Définition des caractéristique du disque
-        $taille_ram_disk_MB = 1;
-        $mount_point_ram_disk = '/tmp'; # Patrick a dit qu'on avait droit d'écrire la 
-
-        // Création du RAM Disk
-        $ram_disk_commande_création = "sudo mount -t tmpfs -o size={$taille_ram_disk_MB}M tmpfs {$mount_point_ram_disk}";
-        exec($ram_disk_commande_création, $output, $code_retour);
-
-        // Vérification si la création a fonctionné
-        if ($code_retour !== 0) {
-            throw new RuntimeException("Échec de la création du disque RAM. Vérifiez les autorisations et réessayez.");
+ use RuntimeException;
+ 
+ class ChargeurGIT extends Chargeur
+ {
+     public static function cloner_depot($url_du_depot)
+     {
+        $dossier_memoir='/tmp/memoire';
+        $dossier_memoir_absolue=realpath($dossier_memoir);
+        if (is_dir($dossier_memoir)) {
+            Log::debug("Le dossier $dossier_memoir_absolue existe.");
+        } else {
+            Log::debug("Le $dossier_memoir_absolue n'existe pas.");
         }
-        */
-        // Cloner le dépot
-        //$dépot_en_mémoire = new Repository($mount_point_ram_disk /*. '/repository'*/); #J'ai mis en commentaitre le . '/repository' tu peux le laisser comme ça ou pas
-        //$dépot_en_mémoire = new Repository('/tmp/mem/');
-        //$dépot_en_mémoire->run('clone', [$url_du_depot, '--depth=1']);
-        $dossier_temporaire = "/tmp/memoire";
-        exec("git clone --depth 1 $url_du_depot $dossier_temporaire");
-        Log::debug("chemin du depot temporaire: " . $dossier_temporaire);
-        // Vérifier si le clonage a réussi
-		if (!is_dir($dossier_temporaire)) {
-			throw new RuntimeException("Le clonage du dépôt a échoué");
-		}
 
-		return $dossier_temporaire;
-
-	}
-}
+         // Définir les chemins pour les volumes tmpfs
+         $dossier_temporaire = $dossier_memoir . '/git_repo_' . uniqid();
+         Log::debug("chemin du depot temporaire: " . $dossier_temporaire);
+         Log::debug("URL du dépot git: " . $url_du_depot);
+ 
+         // Cloner le dépôt dans les volumes tmpfs
+         exec("git clone --depth 1 $url_du_depot $dossier_temporaire 2>&1", $output, $returnCode);
+         Log::debug("Output du clonage depot git: " . implode(PHP_EOL, $output));
+         Log::debug("Code retour du clonage depot git: " . $returnCode);
+ 
+         // Vérifier si le clonage a réussi
+         if ($returnCode !== 0) {
+             throw new RuntimeException("Le clonage du dépôt a échoué");
+         }
+ 
+         return $dossier_temporaire;
+     }
+ }
