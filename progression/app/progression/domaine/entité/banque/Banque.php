@@ -27,8 +27,12 @@ class Banque
 	public string $url;
 	public int $user_id;
 	
-	public function __construct($id, $nom, $url, $user_id)
-	{
+	public function __construct(
+		int $id, 
+		string $nom, 
+		string $url, 
+		int $user_id
+	) {
 		$this->id = $id;
 		$this->nom = $nom;
 		$this->url = $url;
