@@ -18,17 +18,20 @@
 
 namespace progression\http\contrôleur;
 
-use Illuminate\Http\Request;
+use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Support\Facades\Log;
 use progression\domaine\interacteur\ObtenirBanquesInt;
 use progression\http\transformer\dto\BanqueDTO;
 use progression\http\transformer\BanqueTransformer;
 use progression\util\Encodage;
-use progression\domaine\entité\Banque;
+use progression\domaine\entité\banque\Banque;
 
 class BanqueCtl extends Contrôleur
 {
-	public function get(Request $request, $username)
+    /**
+     * @param string $username
+     */
+    public function get(Request $request, string $username) : JsonResponse
 	{
 		Log::debug("BanquesCtl.get. Params : ", [$request->all(), $username]);
 
@@ -40,8 +43,10 @@ class BanqueCtl extends Contrôleur
 		return $réponse;
 	}
 
-
-	private function obtenir_banques($username)
+    /**
+     * @return array<Banque>
+     */
+	private function obtenir_banques(string $username) : array
 	{
 		Log::debug("BanquesCtl.obtenir_banques. Params : ", [$username]);
 
@@ -52,12 +57,15 @@ class BanqueCtl extends Contrôleur
 		Log::debug("BanquesCtl.obtenir_banques. Retour : ", [$banques]);
 		return $banques;
 	}
-    
-	private function valider_et_préparer_réponse($banques, $username)
+
+    /**
+     * @param array<Banque> $banques
+     */    
+	private function valider_et_préparer_réponse(array $banques, string  $username) : JsonResponse
 	{
 		Log::debug("BanquesCtl.valider_et_préparer_réponse. Params : ", [$banques]);
 
-		if ($banques === null) {
+		if ($banques == null) {
 			$réponse = null;
 		} else {
 			$dtos = [];

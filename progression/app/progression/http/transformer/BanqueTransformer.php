@@ -18,21 +18,25 @@
 
 namespace progression\http\transformer;
 
+use Illuminate\Http\{JsonResponse, Request};
 use progression\domaine\entité\banque\Banque;
-use progression\http\transformer\dto\GénériqueDTO;
+use progression\http\transformer\dto\BanqueDTO;
 
 class BanqueTransformer extends BaseTransformer
 {
-	public $type = "banque";
-	
-	public function transform(GénériqueDTO $data_in)
+	public string $type = "banque";
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function transform(BanqueDTO $data_in) : array
 	{
 		$id = $data_in->id;
-		$banque = $data_in->banque;
+		$banque = $data_in->objet;
 		$liens = $data_in->liens;
 		
 		$data_out = [
-            "id" => banque->id,
+            "id" => $banque->id,
             "nom" => $banque->nom,
             "url" => $banque->url,
             "user_id" => $banque->user_id,

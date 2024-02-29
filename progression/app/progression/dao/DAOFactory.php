@@ -98,7 +98,7 @@ class DAOFactory
 		return new Expéditeur();
 	}
 
-    function get_banque_dao()
+    function get_banque_dao() : BanqueDAO
     {
         return new BanqueDAO($this);
     }        

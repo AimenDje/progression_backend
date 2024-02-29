@@ -28,6 +28,7 @@ class BanqueDAO extends EntitéDAO
 {
 	/**
 	 * @param array<string> $includes
+     * @return array<Banque>
 	 */
 	public function get_banques(string $username, array $includes = []): array
 	{
@@ -42,7 +43,12 @@ class BanqueDAO extends EntitéDAO
             throw new DAOException($e);
         }
     }
-    public static function construire($data, $includes = [])
+
+	/**
+     * @param array<string> $includes
+     * @return array<Banque>
+	 */    
+    public static function construire(mixed $data, $includes = []): array
 	{
 		$banques = [];
 		foreach ($data as $item) {
@@ -60,5 +66,4 @@ class BanqueDAO extends EntitéDAO
 		}
 		return $banques;
 	}
-
 }

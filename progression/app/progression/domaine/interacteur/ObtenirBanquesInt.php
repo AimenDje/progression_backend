@@ -25,6 +25,7 @@ class ObtenirBanquesInt extends Interacteur
 {
 	/**
 	 * @param mixed $includes
+     * @return array<Banque>
 	 * liste de niveaux de sous-objets à inclure; true pour inclure tous les niveaux.
 	 */
 	function get_banques(string $username = null, mixed $includes = []): array
