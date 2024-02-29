@@ -31,7 +31,7 @@ class ObtenirQuestionInt extends Interacteur
 		} catch (BadMethodCallException $e) {
 			throw new ParamètreInvalideException($e);
 		} catch (DAOException $e) {
-			throw new IntéracteurException($e, 503);
+			throw new IntéracteurException($e, 502);
 		} catch (LengthException | DomainException | ChargeurException $e) {
 			throw new RessourceInvalideException($e);
 		}
