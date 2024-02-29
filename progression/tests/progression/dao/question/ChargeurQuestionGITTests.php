@@ -22,5 +22,18 @@ use progression\TestCase;
 
 final class ChargeurQuestionGITTests extends TestCase 
 {
-    // TODO
+    public function test_étant_donné_un_dépot_git_lorsquon_clone_ce_depot_on_obtient_un_info_yml()
+    {
+      // TODO
+    }
+
+    public function test_étant_donné_un_dépot_git_qui_contient_plusieurs_info_yml_lorsquon_clone_ce_depot_on_obtient_le_premier_info_yml_trouvé()
+    {
+      // TODO
+    }
+
+    public function test_étant_donné_un_dépot_git_qui_contient_plusieurs_info_yml_dans_plusieurs_dossiers_lorsquon_clone_ce_depot_on_obtient_le_premier_info_yml_trouvé() 
+    {
+      // TODO
+    }
 }
