@@ -256,4 +256,4 @@ INSERT INTO banque(id, nom, url, user_id) VALUES(
   "Test banque de questions 6",
   "https://progression.pages.dti.crosemont.quebec/contenu/prog_1/liste_questions.html",
   6
-)
+);
