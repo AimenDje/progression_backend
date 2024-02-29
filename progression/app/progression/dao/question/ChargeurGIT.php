@@ -20,7 +20,7 @@ namespace progression\dao\question;
 
 use RuntimeException, ErrorException;
 use Gitonomy\Git\Repository;
-
+use Illuminate\Support\Facades\Log;
 
 class ChargeurGIT extends Chargeur
 {
@@ -55,16 +55,17 @@ class ChargeurGIT extends Chargeur
         */
         // Cloner le dépot
         //$dépot_en_mémoire = new Repository($mount_point_ram_disk /*. '/repository'*/); #J'ai mis en commentaitre le . '/repository' tu peux le laisser comme ça ou pas
-        $dépot_en_mémoire = new Repository('/tmp/memoire');
-        $dépot_en_mémoire->run('clone', [$url_du_depot, '--depth=1']);
+        //$dépot_en_mémoire = new Repository('/tmp/mem/');
+        //$dépot_en_mémoire->run('clone', [$url_du_depot, '--depth=1']);
+        $dossier_temporaire = "/tmp/memoire";
+        exec("git clone --depth 1 $url_du_depot $dossier_temporaire");
+        Log::debug("chemin du depot temporaire: " . $dossier_temporaire);
+        // Vérifier si le clonage a réussi
+		if (!is_dir($dossier_temporaire)) {
+			throw new RuntimeException("Le clonage du dépôt a échoué");
+		}
 
-        // vérification si le clonage a fonctionné
-        try {
-            $dépot_en_mémoire->getStatus();
-        } catch (\Exception $e) {
-            throw new RuntimeException("Le clonage du dépôt a échoué");
-        }
+		return $dossier_temporaire;
 
-		return $dépot_en_mémoire;
 	}
 }

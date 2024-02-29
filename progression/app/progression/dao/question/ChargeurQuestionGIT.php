@@ -50,7 +50,7 @@ class ChargeurQuestionGIT extends Chargeur
 		$contenu_question = $chargeur_fichier->récupérer_question($chemin_fichier_dans_depot);
 
 		// Supprimer le dépôt cloner de la mémoire
-		$dépot_en_mémoire->run('delete', []);
+		
 
 		return $contenu_question;
 	}

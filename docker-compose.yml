@@ -50,7 +50,7 @@ services:
       - redis
     volumes:
       - type: tmpfs
-        target: /tmp/mem
+        target: /tmp/memoire
 
   tests:
     image: $CI_REGISTRY/$CI_PROJECT_PATH:$BRANCHE
