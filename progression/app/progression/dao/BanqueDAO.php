@@ -19,8 +19,7 @@
 namespace progression\dao;
 
 use progression\domaine\entité\banque\Banque;
-use progression\dao\models\BanqueMdl;
-
+use progression\dao\models\{BanqueMdl, UserMdl};
 use DB;
 use Illuminate\Database\QueryException;
 
@@ -39,6 +38,29 @@ class BanqueDAO extends EntitéDAO
                                      ->get(),
                                      $includes,
             );
+        } catch (QueryException $e) {
+            throw new DAOException($e);
+        }
+    }
+
+    public function ajouter(string $username, Banque $banque): array
+    {
+        try {
+			$user = UserMdl::query()->where("username", $username)->first();
+
+            if (!$user) {
+				throw new IntégritéException("Impossible de sauvegarder la ressource; le parent n'existe pas.");
+			}
+
+            $objet = [
+                "nom" => $banque->nom,
+                "url" => $banque->url,
+                "user_id" => $banque->user_id,
+            ];
+
+            return $this->construire([
+                BanqueMdl::updateOrCreate(["user_id" => $user["id"]], $objet),
+            ]);
         } catch (QueryException $e) {
             throw new DAOException($e);
         }
