@@ -39,7 +39,7 @@ class ChargeurGIT extends Chargeur
         } catch (\Exception $e) {
             throw new RuntimeException("Le clonage du dépôt a échoué");
         }*/
-
+        /*
         // Définition des caractéristique du disque
         $taille_ram_disk_MB = 1;
         $mount_point_ram_disk = '/tmp'; # Patrick a dit qu'on avait droit d'écrire la 
@@ -52,9 +52,10 @@ class ChargeurGIT extends Chargeur
         if ($code_retour !== 0) {
             throw new RuntimeException("Échec de la création du disque RAM. Vérifiez les autorisations et réessayez.");
         }
-
+        */
         // Cloner le dépot
-        $dépot_en_mémoire = new Repository($mount_point_ram_disk /*. '/repository'*/); #J'ai mis en commentaitre le . '/repository' tu peux le laisser comme ça ou pas
+        //$dépot_en_mémoire = new Repository($mount_point_ram_disk /*. '/repository'*/); #J'ai mis en commentaitre le . '/repository' tu peux le laisser comme ça ou pas
+        $dépot_en_mémoire = new Repository('/tmp/memoire');
         $dépot_en_mémoire->run('clone', [$url_du_depot, '--depth=1']);
 
         // vérification si le clonage a fonctionné
