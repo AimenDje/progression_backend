@@ -18,7 +18,8 @@
 
 namespace progression\dao\question;
 
-use RuntimeException, ErrorException;
+use RuntimeException, ErrorException, Exception;
+use RessourceInvalideException;
 
 use Illuminate\Support\Facades\Log;
 
@@ -56,11 +57,15 @@ class ChargeurGIT extends Chargeur
 	{
 		$liste_info_yml = null;
 		$code_de_retour = null;
-
-		exec("find $dossier_temporaire -name 'info.yml'", $liste_info_yml, $code_de_retour);
+		try {
+			exec("find $dossier_temporaire -name 'info.yml'", $liste_info_yml, $code_de_retour);
+		}
+		catch(Exception $e){
+			throw new RunTimeException("Erreur inconnue.");
+		}
 
 		if ($code_de_retour !== 0 || !$liste_info_yml) {
-			throw new RunTimeException("Fichier info.yml inexistant.");
+			throw new ChargeurException("Fichier info.yml inexistant.");
 		}
 		
 		if (in_array("./info.yml", $liste_info_yml))
