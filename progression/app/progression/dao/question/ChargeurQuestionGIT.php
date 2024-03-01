@@ -34,7 +34,8 @@ class ChargeurQuestionGIT extends Chargeur
 		$liste_info_yml = null;
 		$code_de_retour = null;
 		exec("find $dossier_temporaire -name 'info.yml'", $liste_info_yml, $code_de_retour);
-		$chemin_fichier_dans_depot = $liste_info_yml[0];
+		$chemin_fichier_dans_depot = $liste_info_yml[count($liste_info_yml) -1];
+		//Log::debug("Liste info.yml" . implode(PHP_EOL, $liste_info_yml));
 		Log::debug("chemin du depot" . $chemin_fichier_dans_depot);
 
 		// Créer une instance du chargeur de fichiers
