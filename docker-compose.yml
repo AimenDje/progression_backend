@@ -40,14 +40,19 @@ services:
     ports:
       - 127.0.0.1:$INSTANCE_PORT:80
     #En développement, monte les source dans le conteneur
-    #volumes:
-    #  - "./progression/app/:/var/www/progression/app/"
+    volumes:
+      #- "./progression/app/:/var/www/progression/app/"
+      - type: tmpfs
+        target: /tmp/memoire
     restart: always
     networks:
       - progression_net
     depends_on:
       - db
       - redis
+    volumes:
+      - type: tmpfs
+        target: /tmp/memoire
 
   tests:
     image: $CI_REGISTRY/$CI_PROJECT_PATH:$BRANCHE

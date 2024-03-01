@@ -18,7 +18,8 @@
 
 namespace progression\dao\question;
 
-use RuntimeException, ErrorException;
+use progression\dao\DAOException;
+use ErrorException;
 
 class ChargeurHTTP extends Chargeur
 {
@@ -38,11 +39,11 @@ class ChargeurHTTP extends Chargeur
 		try {
 			$entêtes = get_headers($url, true, $context);
 		} catch (ErrorException $erreur) {
-			throw new ChargeurException("Impossible de récupérer la question");
+			throw new DAOException("Impossible de récupérer la question");
 		}
 
 		if ($entêtes === false) {
-			throw new ChargeurException("Impossible de récupérer les entêtes de l'URL {$url}");
+			throw new DAOException("Impossible de récupérer les entêtes de l'URL {$url}");
 		}
 
 		return $entêtes;
