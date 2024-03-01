@@ -58,11 +58,11 @@ class BanqueCtl extends Contrôleur
             $banque_retourné = $ajouterBanqueInt->ajouter_banque($username, $request->banque["nom"], $request->banque["url"]);
 
             $id = array_key_first($banque_retourné);
-                                                                 $réponse = $this->valider_et_préparer_réponse(
-                $banque_retourné[$id],
+            $réponse = $this->valider_et_préparer_réponse(
+                $banque_retourné,
                 $username,
-				);
-            }
+                );
+        }
 
 		Log::debug("BanqueCtl.post. Retour : ", [$réponse]);
 
@@ -100,7 +100,7 @@ class BanqueCtl extends Contrôleur
 					$dtos,
 					new BanqueDTO(
 						id: $id,
-						objet: $banque,
+                        objet: $banque,
 						liens: BanqueCtl::get_liens($username),
 					),
 				);

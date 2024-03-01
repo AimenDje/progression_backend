@@ -36,10 +36,10 @@ class BanqueTransformer extends BaseTransformer
 		$liens = $data_in->liens;
 		
 		$data_out = [
-            "id" => $banque->id,
+            "id" => $id,
             "nom" => $banque->nom,
             "url" => $banque->url,
-            "user_id" => $banque->user_id,
+            "user" => $banque->user,
             "links" => $liens,
 		];
 		return $data_out;
