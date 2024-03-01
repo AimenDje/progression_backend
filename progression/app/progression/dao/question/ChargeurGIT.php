@@ -62,7 +62,11 @@ class ChargeurGIT extends Chargeur
 		if (!$liste_info_yml) {
 			throw new RunTimeException("Fichier info.yml inexistant");
 		}
-
+		
+		if (in_array("./info.yml", $liste_info_yml))
+  		{
+			array_unshift($liste_info_yml, "./info.yml");
+		}
 		$chemin_fichier_dans_depot = $liste_info_yml[count($liste_info_yml) - 1];
 
 		Log::debug("Liste info.yml" . implode(PHP_EOL, $liste_info_yml));
