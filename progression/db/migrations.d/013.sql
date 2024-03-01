@@ -11,7 +11,7 @@ DELIMITER &&
 		
 
 		  CREATE TABLE `banque` (
-			`id`				int(11) NOT NULL,
+			`id`				int(11) NOT NULL AUTO_INCREMENT,
 			`nom` 				varchar(255) NOT NULL,
 			`url`			 	varchar(255) NOT NULL,
 			`user_id`      	 	        int(11) NOT NULL,
