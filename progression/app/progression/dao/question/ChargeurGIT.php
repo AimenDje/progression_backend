@@ -46,7 +46,7 @@ class ChargeurGIT extends Chargeur
 
 		// Vérifier si le clonage a réussi
 		if ($returnCode !== 0) {
-			throw new RuntimeException("Le clonage du dépôt a échoué");
+			throw new RuntimeException("Le clonage du dépôt a échoué : votre dépôt est privé ou n'existe pas.");
 		}
 
 		return $dossier_temporaire;
@@ -60,7 +60,7 @@ class ChargeurGIT extends Chargeur
 		exec("find $dossier_temporaire -name 'info.yml'", $liste_info_yml, $code_de_retour);
 
 		if ($code_de_retour !== 0 || !$liste_info_yml) {
-			throw new RunTimeException("Fichier info.yml inexistant");
+			throw new RunTimeException("Fichier info.yml inexistant.");
 		}
 		
 		if (in_array("./info.yml", $liste_info_yml))
