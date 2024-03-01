@@ -19,6 +19,7 @@
 namespace progression\dao\question;
 
 use RuntimeException, ErrorException;
+
 use Illuminate\Support\Facades\Log;
 
 class ChargeurGIT extends Chargeur
@@ -33,7 +34,7 @@ class ChargeurGIT extends Chargeur
 
 		// Vérifier si le clonage a réussi
 		if (!is_dir($dossier_temporaire)) {
-			throw new RuntimeException("Le clonage du dépôt a échoué");
+			throw new RuntimeException("Clonage échoué : il est possible que votre dépôt est privé", 500);
 		}
 
 		return $dossier_temporaire;
@@ -46,10 +47,13 @@ class ChargeurGIT extends Chargeur
 
 		exec("find $dossier_temporaire -name 'info.yml'", $liste_info_yml, $code_de_retour);
 
+		if (!$liste_info_yml) {
+			throw new RunTimeException("Fichier info.yml inexistant");
+		}
+
 		$chemin_fichier_dans_depot = $liste_info_yml[0];
 		Log::debug("chemin du depot" . $chemin_fichier_dans_depot);
 
 		return $chemin_fichier_dans_depot;
 	}
-
 }

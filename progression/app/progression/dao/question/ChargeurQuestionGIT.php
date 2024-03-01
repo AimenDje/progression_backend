@@ -20,28 +20,28 @@ namespace progression\dao\question;
 class ChargeurQuestionGIT extends Chargeur
 {
 	public static function récupérer_question($url_du_depot)
-    {
-        // Obtenir l'instance de ChargeurFactory
-        $chargeurFactory = ChargeurFactory::get_instance();
+	{
+		// Obtenir l'instance de ChargeurFactory
+		$chargeurFactory = ChargeurFactory::get_instance();
 
-        // Obtenir le chargeur GIT de ChargeurFactory
-        $chargeurGIT = $chargeurFactory->get_chargeur_git();
+		// Obtenir le chargeur GIT de ChargeurFactory
+		$chargeurGIT = $chargeurFactory->get_chargeur_git();
 
-        // Cloner le dépôt Git temporairement
-        $dossier_temporaire = $chargeurGIT->cloner_depot($url_du_depot);
+		// Cloner le dépôt Git temporairement
+		$dossier_temporaire = $chargeurGIT->cloner_depot($url_du_depot);
 
-        // Récupérer le chemin complet du fichier info.yml dans le dépôt cloné
-        $chemin_fichier_dans_depot = $chargeurGIT->chercher_info($dossier_temporaire);
+		// Récupérer le chemin complet du fichier info.yml dans le dépôt cloné
+		$chemin_fichier_dans_depot = $chargeurGIT->chercher_info($dossier_temporaire);
 
-        // Utiliser ChargeurFactory pour obtenir le chargeur de fichiers
-        $chargeurFichier = $chargeurFactory->get_chargeur_question_fichier();
+		// Utiliser ChargeurFactory pour obtenir le chargeur de fichiers
+		$chargeurFichier = $chargeurFactory->get_chargeur_question_fichier();
 
-        // Lire le contenu du fichier info.yml depuis le dépôt cloné en utilisant le chargeur de fichiers
-        $contenu_question = $chargeurFichier->récupérer_question($chemin_fichier_dans_depot);
+		// Lire le contenu du fichier info.yml depuis le dépôt cloné en utilisant le chargeur de fichiers
+		$contenu_question = $chargeurFichier->récupérer_question($chemin_fichier_dans_depot);
 
-        // Supprimer le répertoire temporaire du dépôt cloné
-        exec("rm -rf $dossier_temporaire");
+		// Supprimer le répertoire temporaire du dépôt cloné
+		exec("rm -rf $dossier_temporaire");
 
-        return $contenu_question;
-    }
+		return $contenu_question;
+	}
 }
