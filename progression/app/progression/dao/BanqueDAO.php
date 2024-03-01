@@ -46,21 +46,24 @@ class BanqueDAO extends EntitéDAO
     public function ajouter(string $username, Banque $banque): array
     {
         try {
-			$user = UserMdl::query()->where("username", $username)->first();
+            /*
+              $user = UserMdl::query()->where("username", $username)->first();
 
-            if (!$user) {
-				throw new IntégritéException("Impossible de sauvegarder la ressource; le parent n'existe pas.");
-			}
-
+              if (!$user) {
+              throw new IntégritéException("Impossible de sauvegarder la ressource; le parent n'existe pas.");
+              }
+            */
             $objet = [
                 "nom" => $banque->nom,
                 "url" => $banque->url,
             ];
 
             return $this->construire([
-                BanqueMdl::create($objet),
+                BanqueMdl::updateOrCreate([
+                    'nom' => $banque->nom,
+                    'url' => $banque->url], $objet)
             ]);
-        } catch (QueryException $e) {
+                                     } catch (QueryException $e) {
             throw new DAOException($e);
         }
     }

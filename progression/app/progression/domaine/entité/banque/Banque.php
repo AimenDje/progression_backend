@@ -24,12 +24,12 @@ class Banque
 {
 	public string $nom;
 	public string $url;
-	
-	public function __construct(
-		string $nom, 
-		string $url
-	) {
-		$this->nom = $nom;
-		$this->url = $url;
-	}
+    
+    public function __construct(
+        string $nom, 
+        string $url
+    ) {
+        $this->nom = $nom;
+        $this->url = $url;
+    }
 }

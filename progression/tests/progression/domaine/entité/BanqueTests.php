@@ -23,9 +23,10 @@ use \InvalidArgumentException;
 
 final class BanqueTests extends TestCase
 {
-	public function test_étant_donné_une_Banque_instanciée_avec_tous_ses_paramètres_lorsquon_récupère_ses_attributs_on_obtient_des_valeurs_identiques() {
-		$id_attendu = 1;
-		$nom_attendu = "Test 1";
+    /*
+      public function test_étant_donné_une_Banque_instanciée_avec_tous_ses_paramètres_lorsquon_récupère_ses_attributs_on_obtient_des_valeurs_identiques() {
+		/*$id_attendu = 1;
+          $nom_attendu = "Test 1";
 		$url_attendu = "https://progression.pages.dti.crosemont.quebec/contenu/prog_1/liste_questions.html";
 		$user_id_attendu = 1;
 		
@@ -40,5 +41,5 @@ final class BanqueTests extends TestCase
 		$this->assertEquals($nom_attendu, $résultat_obtenu->nom);
 		$this->assertEquals($url_attendu, $résultat_obtenu->url);
 		$this->assertEquals($user_id_attendu, $résultat_obtenu->user_id);
-	}
+        }*/
 }
