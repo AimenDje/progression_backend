@@ -55,10 +55,10 @@ class BanqueCtl extends Contrôleur
 			$réponse = $this->réponse_json(["erreur" => $validateur->errors()], 400);
 		} else {
             $ajouterBanqueInt = new AjouterBanqueInt();
-            $banque_retourné = $ajouterBanqueInt->ajouter_banque($username, $this->construire($request->banque));
+            $banque_retourné = $ajouterBanqueInt->ajouter_banque($username, $request->banque["nom"], $request->banque["url"]);
 
             $id = array_key_first($banque_retourné);
-            $réponse = $this->valider_et_préparer_réponse(
+                                                                 $réponse = $this->valider_et_préparer_réponse(
                 $banque_retourné[$id],
                 $username,
 				);
@@ -142,15 +142,4 @@ class BanqueCtl extends Contrôleur
 
 		return $validateur;
 	}
-
-    /**
-	 * @param array<string> $données
-	 */
-	private function construire(array $données):Banque
-	{
-        $banque = new Banque($données["nom"],$données["url"]);
-        
-        return $banque;
-	}
-
 }
