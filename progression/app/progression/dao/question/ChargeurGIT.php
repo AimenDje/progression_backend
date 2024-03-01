@@ -19,6 +19,8 @@
 namespace progression\dao\question;
 
 use RuntimeException, ErrorException;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 
 class ChargeurGIT extends Chargeur
 {
@@ -32,12 +34,7 @@ class ChargeurGIT extends Chargeur
 
 		// Vérifier si le clonage a réussi
 		if (!is_dir($dossier_temporaire)) {
-			throw new RuntimeException("Clonage échoué : il est possible que votre dépôt est privé");
-		}
-	
-		$chemin_fichier_dans_depot = "$dossier_temporaire/info.yml";
-		if (!file_exists($chemin_fichier_dans_depot)) {
-			throw new RuntimeException("Clonage échoué : fichier info.yml inexistant");
+			throw new RuntimeException("Clonage échoué : il est possible que votre dépôt est privé", 500);
 		}
 	
 		return $dossier_temporaire;

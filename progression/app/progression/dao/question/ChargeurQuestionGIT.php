@@ -19,6 +19,7 @@ namespace progression\dao\question;
 
 use Gitonomy\Git\Repository;
 use Illuminate\Support\Facades\Log;
+use RuntimeException;
 
 class ChargeurQuestionGIT extends Chargeur
 {
@@ -34,10 +35,15 @@ class ChargeurQuestionGIT extends Chargeur
 		$liste_info_yml = null;
 		$code_de_retour = null;
 		exec("find $dossier_temporaire -name 'info.yml'", $liste_info_yml, $code_de_retour);
+		Log::debug($code_de_retour);
+		if (!$liste_info_yml) {
+			throw new RunTimeException("Fichier info.yml inexistant");
+			
+		}
 		$chemin_fichier_dans_depot = $liste_info_yml[0];
 		Log::debug("chemin du depot" . $chemin_fichier_dans_depot);
-
-		// Créer une instance du chargeur de fichiers
+        
+		// Créer une instance du char geur de fichiers
 		$chargeur_fichier = new ChargeurQuestionFichier();
 
 		// Lire le contenu du fichier info.yml depuis le dépôt cloné en utilisant le chargeur de fichiers
