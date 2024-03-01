@@ -19,6 +19,7 @@
 namespace progression\dao\question;
 
 use RuntimeException, ErrorException;
+use Illuminate\Support\Facades\Log;
 
 class ChargeurGIT extends Chargeur
 {
@@ -37,4 +38,18 @@ class ChargeurGIT extends Chargeur
 
 		return $dossier_temporaire;
 	}
+
+	public static function chercher_info($dossier_temporaire)
+	{
+		$liste_info_yml = null;
+		$code_de_retour = null;
+
+		exec("find $dossier_temporaire -name 'info.yml'", $liste_info_yml, $code_de_retour);
+
+		$chemin_fichier_dans_depot = $liste_info_yml[0];
+		Log::debug("chemin du depot" . $chemin_fichier_dans_depot);
+
+		return $chemin_fichier_dans_depot;
+	}
+
 }

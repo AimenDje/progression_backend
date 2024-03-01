@@ -17,35 +17,31 @@
  */
 namespace progression\dao\question;
 
-use Gitonomy\Git\Repository;
-use Illuminate\Support\Facades\Log;
-
 class ChargeurQuestionGIT extends Chargeur
 {
 	public static function récupérer_question($url_du_depot)
-	{
-		// Créer une instance du chargeur de depot git
-		$chargeur_depot = new ChargeurGIT();
+    {
+        // Obtenir l'instance de ChargeurFactory
+        $chargeurFactory = ChargeurFactory::get_instance();
 
-		// Cloner le dépôt Git temporairement
-		$dossier_temporaire = $chargeur_depot->cloner_depot($url_du_depot);
+        // Obtenir le chargeur GIT de ChargeurFactory
+        $chargeurGIT = $chargeurFactory->get_chargeur_git();
 
-		// Récupérer le chemin complet du fichier info.yml dans le dépôt cloné
-		$liste_info_yml = null;
-		$code_de_retour = null;
-		exec("find $dossier_temporaire -name 'info.yml'", $liste_info_yml, $code_de_retour);
-		$chemin_fichier_dans_depot = $liste_info_yml[0];
-		Log::debug("chemin du depot" . $chemin_fichier_dans_depot);
+        // Cloner le dépôt Git temporairement
+        $dossier_temporaire = $chargeurGIT->cloner_depot($url_du_depot);
 
-		// Créer une instance du chargeur de fichiers
-		$chargeur_fichier = new ChargeurQuestionFichier();
+        // Récupérer le chemin complet du fichier info.yml dans le dépôt cloné
+        $chemin_fichier_dans_depot = $chargeurGIT->chercher_info($dossier_temporaire);
 
-		// Lire le contenu du fichier info.yml depuis le dépôt cloné en utilisant le chargeur de fichiers
-		$contenu_question = $chargeur_fichier->récupérer_question($chemin_fichier_dans_depot);
+        // Utiliser ChargeurFactory pour obtenir le chargeur de fichiers
+        $chargeurFichier = $chargeurFactory->get_chargeur_question_fichier();
 
-		// Supprimer le répertoire temporaire du dépôt cloné
-		exec("rm -rf $dossier_temporaire");
+        // Lire le contenu du fichier info.yml depuis le dépôt cloné en utilisant le chargeur de fichiers
+        $contenu_question = $chargeurFichier->récupérer_question($chemin_fichier_dans_depot);
 
-		return $contenu_question;
-	}
+        // Supprimer le répertoire temporaire du dépôt cloné
+        exec("rm -rf $dossier_temporaire");
+
+        return $contenu_question;
+    }
 }
