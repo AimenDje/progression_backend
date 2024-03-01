@@ -34,9 +34,11 @@ class ChargeurGIT extends Chargeur
 
 		// Vérifier si le clonage a réussi
 		if (!is_dir($dossier_temporaire)) {
+
 			throw new RuntimeException("Clonage échoué : il est possible que votre dépôt est privé", 500);
+
 		}
-	
+		
 		return $dossier_temporaire;
 	}
 }
