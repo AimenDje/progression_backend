@@ -26,15 +26,27 @@ class ChargeurGIT extends Chargeur
 {
 	public static function cloner_depot($url_du_depot)
 	{
-		// Cloner le dépôt Git temporairement
-		$dossier_temporaire = sys_get_temp_dir() . "/" . uniqid("git_repo_");
+		$dossier_memoir = "/tmp/memoire";
+		$dossier_memoir_absolue = realpath($dossier_memoir);
+		if (is_dir($dossier_memoir)) {
+			Log::debug("Le dossier $dossier_memoir_absolue existe.");
+		} else {
+			Log::debug("Le $dossier_memoir_absolue n'existe pas.");
+		}
 
-		// Cloner le dépôt dans le dossier temporaire
-		exec("git clone --depth 1 $url_du_depot $dossier_temporaire");
+		// Définir les chemins pour les volumes tmpfs
+		$dossier_temporaire = $dossier_memoir . "/git_repo_" . uniqid();
+		Log::debug("chemin du depot temporaire: " . $dossier_temporaire);
+		Log::debug("URL du dépot git: " . $url_du_depot);
+
+		// Cloner le dépôt dans les volumes tmpfs
+		exec("git clone --depth 1 $url_du_depot $dossier_temporaire 2>&1", $output, $returnCode);
+		Log::debug("Output du clonage depot git: " . implode(PHP_EOL, $output));
+		Log::debug("Code retour du clonage depot git: " . $returnCode);
 
 		// Vérifier si le clonage a réussi
-		if (!is_dir($dossier_temporaire)) {
-			throw new RuntimeException("Clonage échoué : il est possible que votre dépôt est privé", 500);
+		if ($returnCode !== 0) {
+			throw new RuntimeException("Le clonage du dépôt a échoué");
 		}
 
 		return $dossier_temporaire;
@@ -51,7 +63,9 @@ class ChargeurGIT extends Chargeur
 			throw new RunTimeException("Fichier info.yml inexistant");
 		}
 
-		$chemin_fichier_dans_depot = $liste_info_yml[0];
+		$chemin_fichier_dans_depot = $liste_info_yml[count($liste_info_yml) - 1];
+
+		Log::debug("Liste info.yml" . implode(PHP_EOL, $liste_info_yml));
 		Log::debug("chemin du depot" . $chemin_fichier_dans_depot);
 
 		return $chemin_fichier_dans_depot;
