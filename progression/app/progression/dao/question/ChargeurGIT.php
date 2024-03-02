@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Log;
 
 class ChargeurGIT extends Chargeur
 {
-	public static function cloner_depot($url_du_depot)
+	public static function cloner_depot(string $url_du_depot): string
 	{
 		$dossier_memoir = "/tmp/memoire";
 		$dossier_memoir_absolue = realpath($dossier_memoir);
@@ -46,13 +46,13 @@ class ChargeurGIT extends Chargeur
 
 		// Vérifier si le clonage a réussi
 		if ($returnCode !== 0) {
-			throw new RuntimeException("Le clonage du dépôt a échoué");
+			throw new RuntimeException("Il est possible que votre dépôt est privé ou inexistant!");
 		}
 
 		return $dossier_temporaire;
 	}
 
-	public static function chercher_info($dossier_temporaire)
+	public static function chercher_info(string $dossier_temporaire): string
 	{
 		$liste_info_yml = null;
 		$code_de_retour = null;

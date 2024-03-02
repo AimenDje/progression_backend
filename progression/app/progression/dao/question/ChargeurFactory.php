@@ -44,10 +44,10 @@ class ChargeurFactory
 		return new ChargeurHTTP($this);
 	}
 
-	function get_chargeur_git()
-	{
-		return new ChargeurGIT($this);
-	}
+	function get_chargeur_git(): ChargeurGIT
+    {
+        return new ChargeurGIT($this);
+    }
 
 	function get_chargeur_question_fichier()
 	{
@@ -64,8 +64,8 @@ class ChargeurFactory
 		return new ChargeurQuestionHTTP($this);
 	}
 
-	function get_chargeur_question_git()
-	{
-		return new ChargeurQuestionGIT($this);
-	}
+    function get_chargeur_question_git(): ChargeurQuestionGIT
+    {
+        return new ChargeurQuestionGIT($this);
+    }
 }
