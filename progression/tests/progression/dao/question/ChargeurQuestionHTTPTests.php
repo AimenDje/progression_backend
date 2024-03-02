@@ -64,8 +64,7 @@ final class ChargeurQuestionHTTPTests extends TestCase
 		$mockChargeurFactory = Mockery::mock("progression\\dao\\question\\ChargeurFactory");
 		$mockChargeurFactory->shouldReceive("get_chargeur_http")->andReturn($mockChargeurHTTP);
 		$mockChargeurFactory->shouldReceive("get_chargeur_question_fichier")->andReturn($mockChargeurFichier);
-		
-		
+
 		$this->assertEquals(
 			$résultat_attendu,
 			(new ChargeurQuestionHTTP($mockChargeurFactory))->récupérer_question(

@@ -59,17 +59,15 @@ class ChargeurGIT extends Chargeur
 		$code_de_retour = null;
 		try {
 			exec("find $dossier_temporaire -name 'info.yml'", $liste_info_yml, $code_de_retour);
-		}
-		catch(Exception $e){
+		} catch (Exception $e) {
 			throw new RunTimeException("Erreur inconnue.");
 		}
 
 		if ($code_de_retour !== 0 || !$liste_info_yml) {
 			throw new ChargeurException("Fichier info.yml inexistant.");
 		}
-		
-		if (in_array("./info.yml", $liste_info_yml))
-  		{
+
+		if (in_array("./info.yml", $liste_info_yml)) {
 			array_unshift($liste_info_yml, "./info.yml");
 		}
 		$chemin_fichier_dans_depot = $liste_info_yml[count($liste_info_yml) - 1];

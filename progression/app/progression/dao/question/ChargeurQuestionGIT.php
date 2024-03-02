@@ -20,7 +20,7 @@ use progression\domaine\entité\question\QuestionProg;
 
 class ChargeurQuestionGIT extends Chargeur
 {
-	public  function récupérer_question(string $url_du_depot): QuestionProg
+	public function récupérer_question(string $url_du_depot): QuestionProg
 	{
 		// Obtenir l'instance de ChargeurFactory
 
