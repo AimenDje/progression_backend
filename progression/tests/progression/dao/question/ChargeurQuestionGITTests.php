@@ -70,7 +70,8 @@ final class ChargeurQuestionGITTests extends TestCase
 		$mockChargeurFactory->shouldReceive("get_chargeur_git")->andReturn($mockChargeurGIT);
 		$mockChargeurFactory->shouldReceive("get_chargeur_question_fichier")->andReturn($mockChargeurFichier);
 
-		Log::debug(
+		//ChargeurFactory::set_instance($mockChargeurFactory);
+		print_r(
 			"retour chemin fichier test " .
 				json_encode(
 					$mockChargeurFichier->récupérer_question(
