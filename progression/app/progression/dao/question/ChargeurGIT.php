@@ -64,7 +64,7 @@ class ChargeurGIT extends Chargeur
 		}
 
 		if ($code_de_retour !== 0 || !$liste_info_yml) {
-			throw new ChargeurException("Fichier info.yml inexistant");
+			throw new ChargeurException("Fichier info.yml inexistant.");
 		}
 
 		if (in_array("./info.yml", $liste_info_yml)) {
