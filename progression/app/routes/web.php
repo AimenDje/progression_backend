@@ -99,6 +99,6 @@ $router->group(["middleware" => ["auth", "permissionsRessources"]], function () 
 	$router->get("/user/{username}/relationships/avancements", "NotImplementedCtl@get");
 
 	// Banque
-	$router->get("/banque/{username}", "BanqueCtl@get");
+	$router->get("/user/{username}/banques", "BanqueCtl@get");
     $router->post("/user/{username}/banque", "BanqueCtl@post");
 });

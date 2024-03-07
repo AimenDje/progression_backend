@@ -18,22 +18,18 @@
 
 namespace progression\domaine\entité\banque;
 
-use progression\domaine\entité\user\User;
 use InvalidArgumentException;
 
 class Banque
 {
 	public string $nom;
 	public string $url;
-    public User $user;
     
     public function __construct(
         string $nom, 
         string $url,
-        User $user
     ) {
         $this->nom = $nom;
         $this->url = $url;
-        $this->user = $user;
     }
 }

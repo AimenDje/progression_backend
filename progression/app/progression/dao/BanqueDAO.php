@@ -80,15 +80,10 @@ class BanqueDAO extends EntitéDAO
             if ($item == null) {
                 continue;
             }
-
-            $user = self::premier_élément(
-                UserDAO::construire([$item["user"]], self::filtrer_niveaux($includes, "banque")),
-            );
             
             $banque = new Banque(
 				$item["nom"],
-				$item["url"],
-                $user,
+				$item["url"]
             );
 			$banques[$item["id"]] = $banque;
             }
