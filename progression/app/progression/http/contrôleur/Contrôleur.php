@@ -105,15 +105,12 @@ class Contrôleur extends BaseController
 		int $âge_max = 3600,
 	): Cookie {
 		return Cookie::create(
-			$nom,
-			$valeur,
-			$expiration ?? Carbon::now()->getTimestamp() + $âge_max,
-			null,
-			null,
-			null,
-			true,
-			false,
-			"strict",
+			name: $nom,
+			value: $valeur,
+			expire: $expiration ?? Carbon::now()->getTimestamp() + $âge_max,
+			secure: config("app.mode") == "prod",
+			httpOnly: true,
+			sameSite: "strict",
 		);
 	}
 
