@@ -19,7 +19,7 @@
 namespace progression\http\contrôleur;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\{Log, App};
 use Laravel\Lumen\Routing\Controller as BaseController;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Collection;
@@ -105,15 +105,12 @@ class Contrôleur extends BaseController
 		int $âge_max = 3600,
 	): Cookie {
 		return Cookie::create(
-			$nom,
-			$valeur,
-			$expiration ?? Carbon::now()->getTimestamp() + $âge_max,
-			null,
-			null,
-			null,
-			true,
-			false,
-			"strict",
+			name: $nom,
+			value: $valeur,
+			expire: $expiration ?? Carbon::now()->getTimestamp() + $âge_max,
+			secure: App::environment(["prod", "staging"]) !== false,
+			httpOnly: true,
+			sameSite: "strict",
 		);
 	}
 
