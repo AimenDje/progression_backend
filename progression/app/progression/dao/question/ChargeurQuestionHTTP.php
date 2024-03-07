@@ -18,6 +18,7 @@
 
 namespace progression\dao\question;
 
+use progression\dao\DAOException;
 use RuntimeException;
 
 class ChargeurQuestionHTTP extends Chargeur
@@ -28,7 +29,7 @@ class ChargeurQuestionHTTP extends Chargeur
 
 		$code = self::get_entête($entêtes, "0");
 		if (!self::vérifier_code_http($code)) {
-			return null;
+			throw new DAOException("Impossible de récupérer les entêtes");
 		}
 
 		$taille = self::get_entête($entêtes, "content-length");
