@@ -49,14 +49,16 @@ final class ChargeurQuestionGITTests extends TestCase
 		$questionAttendue->titre = "Question de test";
 
 		// Mock du ChargeurGIT
-		$mockChargeurGIT = Mockery::mock("overload:progression\\dao\\question\\ChargeurGIT");
+		$mockChargeurGIT = Mockery::mock("progression\\dao\\question\\ChargeurGIT");
 		$mockChargeurGIT
 			->shouldReceive("cloner_depot")
 			->with("url_du_depot_git")
 			->andReturn("/chemin/depot_temporaire")
 			->shouldReceive("chercher_info")
 			->with("/chemin/depot_temporaire")
-			->andReturn("/chemin/depot_temporaire/info.yml");
+			->andReturn("/chemin/depot_temporaire/info.yml")
+			->shouldReceive("supprimer_dossier_temporaire")
+			->with("/chemin/depot_temporaire");
 
 		// Mock du ChargeurQuestionFichier
 		$mockChargeurFichier = Mockery::mock("progression\\dao\\question\\ChargeurQuestionFichier");
@@ -87,21 +89,46 @@ final class ChargeurQuestionGITTests extends TestCase
 		);
 	}
 
-	public function test_étant_donné_un_dépot_git_qui_contient_plusieurs_info_yml_lorsquon_clone_ce_depot_on_obtient_le_premier_info_yml_trouvé()
+	public function test_étant_donné_un_url_depot_git_privé_lorsquon_charge_la_question_on_obtient_une_exception_avec_un_message()
+	{
+		// Mock du ChargeurGIT
+		$mockChargeurGIT = Mockery::mock("progression\\dao\\question\\ChargeurGIT");
+		$mockChargeurGIT
+			->shouldReceive("cloner_depot")
+			->with("url_du_depot_git_privé")
+			->andThrow(new \RuntimeException("Le clonage du dépôt a échoué : votre dépôt est privé ou n'existe pas."));
+
+		// Mock du ChargeurFactory
+		$mockChargeurFactory = Mockery::mock("progression\\dao\\question\\ChargeurFactory");
+		$mockChargeurFactory->shouldReceive("get_chargeur_git")->andReturn($mockChargeurGIT);
+
+		// initialisation chargeur question Git
+		$chargeurQuestionGIT = new ChargeurQuestionGIT($mockChargeurFactory);
+
+		// Utilisation l'assertion exception
+		$this->expectException(\RuntimeException::class);
+		$this->expectExceptionMessage("Le clonage du dépôt a échoué : votre dépôt est privé ou n'existe pas.");
+
+		// Appeler la méthode qui devrait lever l'exception
+		$chargeurQuestionGIT->récupérer_question("url_du_depot_git_privé");
+	}
+
+
+    public function test_étant_donné_un_dépot_git_qui_contient_plusieurs_info_yml_dans_plusieurs_dossiers_lorsquon_clone_ce_depot_on_obtient_le_premier_info_yml_trouvé() 
     {
-		// Créer un objet Question attendu
+      		// Créer un objet Question attendu
     	$questionAttendue = new QuestionProg();
     	$questionAttendue->titre = "Question de test";
 
     	// Mock du ChargeurGIT
-    	$mockChargeurGIT = Mockery::mock("overload:progression\\dao\\question\\ChargeurGIT");
+    	$mockChargeurGIT = Mockery::mock("progression\\dao\\question\\ChargeurGIT");
     	$mockChargeurGIT
 			->shouldReceive("cloner_depot")
 			->with("url_du_depot_git")
 			->andReturn("/chemin/depot_temporaire")
 			->shouldReceive("chercher_info")
 			->with("/chemin/depot_temporaire")
-			->andReturn(["/chemin/depot_temporaire/dossier_temporaire_1/info.yml", "/chemin/depot_temporaire/dossier_temporaire_2/info.yml"]);
+			->andReturn(["/chemin/depot_temporaire/dossier_temporaire_1/info.yml", "/chemin/depot_temporaire/dossier_temporaire_2/info.yml", "/chemin/depot_temporaire/dossier_temporaire_3/info.yml"]);
 
 		// Mock du ChargeurQuestionFichier
 		$mockChargeurFichier = Mockery::mock("progression\\dao\\question\\ChargeurQuestionFichier");
@@ -116,16 +143,12 @@ final class ChargeurQuestionGITTests extends TestCase
 		$mockChargeurFactory = Mockery::mock("progression\\dao\\question\\ChargeurFactory");
 		$mockChargeurFactory->shouldReceive("get_chargeur_git")->andReturn($mockChargeurGIT);
 		$mockChargeurFactory->shouldReceive("get_chargeur_question_fichier")->andReturn($mockChargeurFichier);
-
+		
 		// Vérifier que l'objet retourné est bien le même que l'objet attendu
 		$this->assertEquals(
 			$questionAttendue,
 			(new ChargeurQuestionGIT($mockChargeurFactory))->récupérer_question("url_du_depot_git"),
 		);
-    }
 
-    public function test_étant_donné_un_dépot_git_qui_contient_plusieurs_info_yml_dans_plusieurs_dossiers_lorsquon_clone_ce_depot_on_obtient_le_premier_info_yml_trouvé() 
-    {
-      // TODO
     }
 }
