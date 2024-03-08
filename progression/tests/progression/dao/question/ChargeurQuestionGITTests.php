@@ -89,7 +89,39 @@ final class ChargeurQuestionGITTests extends TestCase
 
 	public function test_étant_donné_un_dépot_git_qui_contient_plusieurs_info_yml_lorsquon_clone_ce_depot_on_obtient_le_premier_info_yml_trouvé()
     {
-      // TODO
+		// Créer un objet Question attendu
+    	$questionAttendue = new QuestionProg();
+    	$questionAttendue->titre = "Question de test";
+
+    	// Mock du ChargeurGIT
+    	$mockChargeurGIT = Mockery::mock("overload:progression\\dao\\question\\ChargeurGIT");
+    	$mockChargeurGIT
+			->shouldReceive("cloner_depot")
+			->with("url_du_depot_git")
+			->andReturn("/chemin/depot_temporaire")
+			->shouldReceive("chercher_info")
+			->with("/chemin/depot_temporaire")
+			->andReturn(["/chemin/depot_temporaire/dossier_temporaire_1/info.yml", "/chemin/depot_temporaire/dossier_temporaire_2/info.yml"]);
+
+		// Mock du ChargeurQuestionFichier
+		$mockChargeurFichier = Mockery::mock("progression\\dao\\question\\ChargeurQuestionFichier");
+		$mockChargeurFichier
+			->shouldReceive("récupérer_question")
+			->withArgs(function ($path_du_fichier) {
+				return is_array($path_du_fichier) && in_array("/chemin/depot_temporaire/dossier_temporaire_1/info.yml", $path_du_fichier);
+			})
+			->andReturn($questionAttendue); // Retourne l'objet Question attendu
+
+		// Mock du ChargeurFactory
+		$mockChargeurFactory = Mockery::mock("progression\\dao\\question\\ChargeurFactory");
+		$mockChargeurFactory->shouldReceive("get_chargeur_git")->andReturn($mockChargeurGIT);
+		$mockChargeurFactory->shouldReceive("get_chargeur_question_fichier")->andReturn($mockChargeurFichier);
+
+		// Vérifier que l'objet retourné est bien le même que l'objet attendu
+		$this->assertEquals(
+			$questionAttendue,
+			(new ChargeurQuestionGIT($mockChargeurFactory))->récupérer_question("url_du_depot_git"),
+		);
     }
 
     public function test_étant_donné_un_dépot_git_qui_contient_plusieurs_info_yml_dans_plusieurs_dossiers_lorsquon_clone_ce_depot_on_obtient_le_premier_info_yml_trouvé() 
