@@ -128,8 +128,6 @@ final class ChargeurQuestionGITTests extends TestCase
 			->with("/chemin/depot_temporaire")
 			->andThrow(new ChargeurException("Fichier info.yml inexistant."));
 			
-
-			
 		// Mock du ChargeurFactory
 		$mockChargeurFactory = Mockery::mock("progression\\dao\\question\\ChargeurFactory");
 		$mockChargeurFactory->shouldReceive("get_chargeur_git")->andReturn($mockChargeurGIT);
