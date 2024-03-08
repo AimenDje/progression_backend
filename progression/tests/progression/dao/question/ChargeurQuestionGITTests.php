@@ -60,8 +60,6 @@ final class ChargeurQuestionGITTests extends TestCase
 			->shouldReceive("supprimer_dossier_temporaire")
 			->with("/chemin/depot_temporaire");
 
-			
-
 		// Mock du ChargeurQuestionFichier
 		$mockChargeurFichier = Mockery::mock("progression\\dao\\question\\ChargeurQuestionFichier");
 		$mockChargeurFichier
@@ -94,13 +92,12 @@ final class ChargeurQuestionGITTests extends TestCase
 	public function test_étant_donné_un_url_depot_git_privé_lorsquon_charge_la_question_on_obtient_une_exception_avec_un_message()
 	{
 		// Mock du ChargeurGIT
-		$mockChargeurGIT = Mockery::mock("progression\\dao\\question\\ChargeurGIT");   
+		$mockChargeurGIT = Mockery::mock("progression\\dao\\question\\ChargeurGIT");
 		$mockChargeurGIT
 			->shouldReceive("cloner_depot")
 			->with("url_du_depot_git_privé")
 			->andThrow(new \RuntimeException("Le clonage du dépôt a échoué : votre dépôt est privé ou n'existe pas."));
 
-			
 		// Mock du ChargeurFactory
 		$mockChargeurFactory = Mockery::mock("progression\\dao\\question\\ChargeurFactory");
 		$mockChargeurFactory->shouldReceive("get_chargeur_git")->andReturn($mockChargeurGIT);
@@ -108,12 +105,12 @@ final class ChargeurQuestionGITTests extends TestCase
 		// initialisation chargeur question Git
 		$chargeurQuestionGIT = new ChargeurQuestionGIT($mockChargeurFactory);
 
-        // Utilisation l'assertion exception
-        $this->expectException(\RuntimeException::class);  
-        $this->expectExceptionMessage("Le clonage du dépôt a échoué : votre dépôt est privé ou n'existe pas.");
+		// Utilisation l'assertion exception
+		$this->expectException(\RuntimeException::class);
+		$this->expectExceptionMessage("Le clonage du dépôt a échoué : votre dépôt est privé ou n'existe pas.");
 
-        // Appeler la méthode qui devrait lever l'exception
-        $chargeurQuestionGIT->récupérer_question("url_du_depot_git_privé");
+		// Appeler la méthode qui devrait lever l'exception
+		$chargeurQuestionGIT->récupérer_question("url_du_depot_git_privé");
 	}
 
 	public function test_étant_donné_un_url_depot_git_dans_lequel_le_fichier_infoYml_est_inexistant_lorsquon_charge_la_question_on_obtient_une_exception_avec_un_message()
