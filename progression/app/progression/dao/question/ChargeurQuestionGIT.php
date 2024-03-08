@@ -40,7 +40,7 @@ class ChargeurQuestionGIT extends Chargeur
 		$contenu_question = $chargeurFichier->récupérer_question($chemin_fichier_dans_depot);
 
 		// Supprimer le répertoire temporaire du dépôt cloné
-		exec("rm -rf $dossier_temporaire");
+		$chargeurGIT->supprimer_dossier_temporaire($dossier_temporaire);
 
 		return $contenu_question;
 	}
