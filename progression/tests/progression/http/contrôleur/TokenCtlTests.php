@@ -18,7 +18,7 @@ along with Progression.  If not, see <https://www.gnu.org/licenses/>.
 
 use progression\ContrôleurTestCase;
 
-use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\{Config, App};
 use progression\dao\DAOFactory;
 use progression\http\contrôleur\GénérateurAléatoire;
 use progression\domaine\entité\user\{User, Rôle, État};
@@ -238,8 +238,12 @@ final class TokenCtlTests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_contexte_lorsquon_génère_un_token_avec_expiration_spécifique_on_reçoit_le_hash_du_contexte_et_un_cookie_sécure_expirant_en_même_temps()
 	{
+		App::shouldReceive("environment")
+			->with(["prod", "staging"])
+			->andReturn(true);
 		Config::set("app.version", "1.2.3");
 		Config::set("jwt.secret", "secret");
+		Config::set("app.mode", "prod");
 
 		$résultat_obtenu = $this->actingAs($this->user)->call("POST", "user/utilisateur_lambda/tokens", [
 			"data" => ["données" => "une autre donnée"],
@@ -261,6 +265,7 @@ final class TokenCtlTests extends ContrôleurTestCase
 		);
 		$this->assertEquals("contexte_token", $résultat_obtenu->headers->getCookies()[0]->getName());
 		$this->assertEquals(1685831340, $résultat_obtenu->headers->getCookies()[0]->getExpiresTime());
+		$this->assertTrue($résultat_obtenu->headers->getCookies()[0]->isSecure());
 		$this->assertJsonStringEqualsJsonFile(
 			__DIR__ . "/résultats_attendus/token_avec_contexte_expiration_spécifique.json",
 			$résultat_observé->getContent(),
