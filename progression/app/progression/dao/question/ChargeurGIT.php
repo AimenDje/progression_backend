@@ -77,4 +77,11 @@ class ChargeurGIT extends Chargeur
 
 		return $chemin_fichier_dans_depot;
 	}
+
+	public function supprimer_dossier_temporaire(string $dossier_temporaire): void
+	{
+
+		exec("rm -rf $dossier_temporaire");
+
+	}
 }

@@ -56,7 +56,11 @@ final class ChargeurQuestionGITTests extends TestCase
 			->andReturn("/chemin/depot_temporaire")
 			->shouldReceive("chercher_info")
 			->with("/chemin/depot_temporaire")
-			->andReturn("/chemin/depot_temporaire/info.yml");
+			->andReturn("/chemin/depot_temporaire/info.yml")
+			->shouldReceive("supprimer_dossier_temporaire")
+			->with("/chemin/depot_temporaire");
+
+			
 
 		// Mock du ChargeurQuestionFichier
 		$mockChargeurFichier = Mockery::mock("progression\\dao\\question\\ChargeurQuestionFichier");
