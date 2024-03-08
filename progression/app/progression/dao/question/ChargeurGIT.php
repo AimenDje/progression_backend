@@ -25,7 +25,7 @@ use Illuminate\Support\Facades\Log;
 
 class ChargeurGIT extends Chargeur
 {
-	public static function cloner_depot(string $url_du_depot): string
+	public function cloner_depot(string $url_du_depot): string
 	{
 		$dossier_memoir = "/tmp/memoire";
 		$dossier_memoir_absolue = realpath($dossier_memoir);
@@ -53,7 +53,7 @@ class ChargeurGIT extends Chargeur
 		return $dossier_temporaire;
 	}
 
-	public static function chercher_info(string $dossier_temporaire): string
+	public function chercher_info(string $dossier_temporaire): string
 	{
 		$liste_info_yml = null;
 		$code_de_retour = null;
@@ -80,8 +80,6 @@ class ChargeurGIT extends Chargeur
 
 	public function supprimer_dossier_temporaire(string $dossier_temporaire): void
 	{
-
 		exec("rm -rf $dossier_temporaire");
-
 	}
 }
