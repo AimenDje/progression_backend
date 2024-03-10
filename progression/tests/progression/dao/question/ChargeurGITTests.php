@@ -25,8 +25,8 @@ use Illuminate\Support\Facades\Log;
 
 final class ChargeurGITTests extends TestCase
 {
-
-	public function test_étant_donnée_un_dossier_en_mémoire_lorsque_on_clone_un_dépôt_git_on_obtient_un_dépôt_git_placer_dans_le_dossier_en_mémoire(){
+	public function test_étant_donnée_un_dossier_en_mémoire_lorsque_on_clone_un_dépôt_git_on_obtient_un_dépôt_git_placer_dans_le_dossier_en_mémoire()
+	{
 		$résultat_attendu = "/tmp/memoire/git";
 		// Mock du ChargeurGIT
 		$mockChargeurGIT = Mockery::mock("progression\\dao\\question\\ChargeurGIT");
@@ -49,9 +49,6 @@ final class ChargeurGITTests extends TestCase
 		$résultat_obtenue = substr($résultat_obtenue, 0, 16);
 
 		// Utilisation l'assertion exception
-		$this->assertEquals(
-			$résultat_attendu,
-			$résultat_obtenue
-		);
+		$this->assertEquals($résultat_attendu, $résultat_obtenue);
 	}
 }
