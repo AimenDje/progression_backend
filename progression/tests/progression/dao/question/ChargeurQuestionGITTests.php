@@ -112,4 +112,31 @@ final class ChargeurQuestionGITTests extends TestCase
 		// Appeler la méthode qui devrait lever l'exception
 		$chargeurQuestionGIT->récupérer_question("url_du_depot_git_privé");
 	}
+
+	public function test_étant_donné_un_url_depot_git_dans_lequel_le_fichier_infoYml_est_inexistant_lorsquon_charge_la_question_on_obtient_une_exception_avec_un_message()
+	{
+		// Mock du ChargeurGIT
+		$mockChargeurGIT = Mockery::mock("progression\\dao\\question\\ChargeurGIT");
+		$mockChargeurGIT
+			->shouldReceive("cloner_depot")
+			->with("url_du_depot_git_sans_info.yml")
+			->andReturn("/chemin/depot_temporaire")
+			->shouldReceive("chercher_info")
+			->with("/chemin/depot_temporaire")
+			->andThrow(new ChargeurException("Fichier info.yml inexistant."));
+
+		// Mock du ChargeurFactory
+		$mockChargeurFactory = Mockery::mock("progression\\dao\\question\\ChargeurFactory");
+		$mockChargeurFactory->shouldReceive("get_chargeur_git")->andReturn($mockChargeurGIT);
+
+		// initialisation chargeur question Git
+		$chargeurQuestionGIT = new ChargeurQuestionGIT($mockChargeurFactory);
+
+		// Utilisation l'assertion exception
+		$this->expectException(ChargeurException::class);
+		$this->expectExceptionMessage("Fichier info.yml inexistant.");
+
+		// Appeler la méthode qui devrait lever l'exception
+		$chargeurQuestionGIT->récupérer_question("url_du_depot_git_sans_info.yml");
+	}
 }
