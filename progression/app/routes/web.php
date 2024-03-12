@@ -97,4 +97,8 @@ $router->group(["middleware" => ["auth", "permissionsRessources"]], function () 
 	$router->get("/user/{username}", "UserCtl@get");
 	$router->patch("/user/{username}", "UserModificationCtl@patch");
 	$router->get("/user/{username}/relationships/avancements", "NotImplementedCtl@get");
+
+	// Banque
+	$router->get("/user/{username}/banques", "BanqueCtl@get");
+    $router->post("/user/{username}/banque", "BanqueCtl@post");
 });

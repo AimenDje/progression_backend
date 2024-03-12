@@ -4,6 +4,7 @@ DELETE FROM avancement;
 DELETE FROM sauvegarde;
 DELETE FROM cle;
 DELETE FROM user;
+DELETE FROM banque;
 
 INSERT INTO user(id, courriel, username, password, etat, role, date_inscription) VALUES (
   1,
@@ -223,4 +224,36 @@ INSERT INTO commentaire(tentative_id, message, date, créateur_id, numéro_ligne
   1615696279,
   4,
   14
+);
+
+INSERT INTO banque(id, nom, url, user_id) VALUES(
+  1,
+  "Test banque de question 1",
+  "https://progression.pages.dti.crosemont.quebec/contenu/prog_1/liste_questions.html",
+  1
+), (
+  2,
+  "Test banque de questions 2",
+  "https://progression.pages.dti.crosemont.quebec/contenu/prog_1/liste_questions.html",
+  2
+), (
+  3,
+  "Test banque de questions 3",
+  "https://progression.pages.dti.crosemont.quebec/contenu/prog_1/liste_questions.html",
+  3
+), (
+  4,
+  "Test banque de questions 4",
+  "https://progression.pages.dti.crosemont.quebec/contenu/prog_1/liste_questions.html",
+  4
+), (
+  5,
+  "Test banque de questions 5",
+  "https://progression.pages.dti.crosemont.quebec/contenu/prog_1/liste_questions.html",
+  5
+), (
+  6,
+  "Test banque de questions 6",
+  "https://progression.pages.dti.crosemont.quebec/contenu/prog_1/liste_questions.html",
+  6
 );
