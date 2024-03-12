@@ -19,7 +19,7 @@
 namespace progression\http\contrôleur;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\{Log, App};
 use Laravel\Lumen\Routing\Controller as BaseController;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Collection;
@@ -108,7 +108,7 @@ class Contrôleur extends BaseController
 			name: $nom,
 			value: $valeur,
 			expire: $expiration ?? Carbon::now()->getTimestamp() + $âge_max,
-			secure: config("app.mode") == "prod",
+			secure: App::environment(["prod", "staging"]) !== false,
 			httpOnly: true,
 			sameSite: "strict",
 		);

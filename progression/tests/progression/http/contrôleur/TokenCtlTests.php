@@ -18,7 +18,7 @@ along with Progression.  If not, see <https://www.gnu.org/licenses/>.
 
 use progression\ContrôleurTestCase;
 
-use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\{Config, App};
 use progression\dao\DAOFactory;
 use progression\http\contrôleur\GénérateurAléatoire;
 use progression\domaine\entité\user\{User, Rôle, État};
@@ -238,6 +238,9 @@ final class TokenCtlTests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_contexte_lorsquon_génère_un_token_avec_expiration_spécifique_on_reçoit_le_hash_du_contexte_et_un_cookie_sécure_expirant_en_même_temps()
 	{
+		App::shouldReceive("environment")
+			->with(["prod", "staging"])
+			->andReturn(true);
 		Config::set("app.version", "1.2.3");
 		Config::set("jwt.secret", "secret");
 		Config::set("app.mode", "prod");
