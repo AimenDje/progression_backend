@@ -16,30 +16,28 @@
    along with Progression.  If not, see <https://www.gnu.org/licenses/>.
  */
 namespace progression\dao\question;
-use progression\domaine\entité\question\QuestionProg;
+
+use progression\domaine\entité\question\Question;
 
 class ChargeurQuestionGIT extends Chargeur
 {
-	public function récupérer_question(string $url_du_depot): QuestionProg
-	{
-		// Obtenir l'instance de ChargeurFactory
+	/**
+	 * @param string $url_du_depot
+	 * @return array<mixed>
+	 */
 
-		// Obtenir le chargeur GIT de ChargeurFactory
+	public function récupérer_question(string $url_du_depot): array
+	{
 		$chargeurGIT = $this->source->get_chargeur_git();
 
-		// Cloner le dépôt Git temporairement
 		$dossier_temporaire = $chargeurGIT->cloner_depot($url_du_depot);
 
-		// Récupérer le chemin complet du fichier info.yml dans le dépôt cloné
 		$chemin_fichier_dans_depot = $chargeurGIT->chercher_info($dossier_temporaire);
 
-		// Utiliser ChargeurFactory pour obtenir le chargeur de fichiers
 		$chargeurFichier = $this->source->get_chargeur_question_fichier();
 
-		// Lire le contenu du fichier info.yml depuis le dépôt cloné en utilisant le chargeur de fichiers
 		$contenu_question = $chargeurFichier->récupérer_question($chemin_fichier_dans_depot);
 
-		// Supprimer le répertoire temporaire du dépôt cloné
 		$chargeurGIT->supprimer_dossier_temporaire($dossier_temporaire);
 
 		return $contenu_question;

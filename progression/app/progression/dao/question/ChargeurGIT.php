@@ -35,17 +35,14 @@ class ChargeurGIT extends Chargeur
 			Log::debug("Le $dossier_memoir_absolue n'existe pas.");
 		}
 
-		// Définir les chemins pour les volumes tmpfs
 		$dossier_temporaire = $dossier_memoir . "/git_repo_" . uniqid();
 		Log::debug("chemin du depot temporaire: " . $dossier_temporaire);
 		Log::debug("URL du dépot git: " . $url_du_depot);
 
-		// Cloner le dépôt dans les volumes tmpfs
 		exec("git clone --depth 1 $url_du_depot $dossier_temporaire 2>&1", $output, $returnCode);
 		Log::debug("Output du clonage depot git: " . implode(PHP_EOL, $output));
 		Log::debug("Code retour du clonage depot git: " . $returnCode);
 
-		// Vérifier si le clonage a réussi
 		if ($returnCode !== 0) {
 			throw new RuntimeException("Le clonage du dépôt a échoué : votre dépôt est privé ou n'existe pas.");
 		}
