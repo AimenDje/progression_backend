@@ -25,7 +25,7 @@ use Illuminate\Support\Facades\Log;
 
 class ChargeurGIT extends Chargeur
 {
-	public function cloner_depot(string $url_du_depot): string
+	public function cloner_dépôt(string $url_du_dépôt): string
 	{
 		$code_de_retour = null;
 		$code_de_retour_réussi = 0;
@@ -39,9 +39,9 @@ class ChargeurGIT extends Chargeur
 
 		$dossier_temporaire = $dossier_memoir . "/git_repo_" . uniqid();
 		Log::debug("Chemin du dépôt temporaire: " . $dossier_temporaire);
-		Log::debug("URL du dépôt git: " . $url_du_depot);
+		Log::debug("URL du dépôt git: " . $url_du_dépôt);
 
-		exec("git clone --depth 1 $url_du_depot $dossier_temporaire 2>&1", $output, $code_de_retour);
+		exec("git clone --depth 1 $url_du_dépôt $dossier_temporaire 2>&1", $output, $code_de_retour);
 		Log::debug("Sortie du clonage du dépôt git: " . implode(PHP_EOL, $output));
 		Log::debug("Code de retour du clonage du dépôt git: " . $code_de_retour);
 
@@ -72,12 +72,12 @@ class ChargeurGIT extends Chargeur
 		if (in_array("./info.yml", $liste_info_yml)) {
 			array_unshift($liste_info_yml, "./info.yml");
 		}
-		$chemin_fichier_dans_depot = $liste_info_yml[count($liste_info_yml) - 1];
+		$chemin_fichier_dans_dépôt = $liste_info_yml[count($liste_info_yml) - 1];
 
 		Log::debug("Liste des info.yml" . implode(PHP_EOL, $liste_info_yml));
-		Log::debug("Chemin du dépôt" . $chemin_fichier_dans_depot);
+		Log::debug("Chemin du dépôt" . $chemin_fichier_dans_dépôt);
 
-		return $chemin_fichier_dans_depot;
+		return $chemin_fichier_dans_dépôt;
 	}
 
 	public function supprimer_dossier_temporaire(string $dossier_temporaire): void
