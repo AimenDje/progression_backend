@@ -85,7 +85,11 @@ final class ChargeurQuestionGITTests extends TestCase
 		$mockChargeurGIT
 			->shouldReceive("cloner_depot")
 			->with("url_du_depot_git_privé")
-			->andThrow(new \RuntimeException("Le clonage du dépôt git a échoué! Ce dépôt est peut-être privé ou n'existe pas."));
+			->andThrow(
+				new \RuntimeException(
+					"Le clonage du dépôt git a échoué! Ce dépôt est peut-être privé ou n'existe pas.",
+				),
+			);
 
 		$mockChargeurFactory = Mockery::mock("progression\\dao\\question\\ChargeurFactory");
 		$mockChargeurFactory->shouldReceive("get_chargeur_git")->andReturn($mockChargeurGIT);
@@ -93,7 +97,9 @@ final class ChargeurQuestionGITTests extends TestCase
 		$chargeurQuestionGIT = new ChargeurQuestionGIT($mockChargeurFactory);
 
 		$this->expectException(\RuntimeException::class);
-		$this->expectExceptionMessage("Le clonage du dépôt git a échoué! Ce dépôt est peut-être privé ou n'existe pas.");
+		$this->expectExceptionMessage(
+			"Le clonage du dépôt git a échoué! Ce dépôt est peut-être privé ou n'existe pas.",
+		);
 
 		$chargeurQuestionGIT->récupérer_question("url_du_depot_git_privé");
 	}

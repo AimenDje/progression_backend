@@ -46,7 +46,9 @@ class ChargeurGIT extends Chargeur
 		Log::debug("Code de retour du clonage du dépôt git: " . $code_de_retour);
 
 		if ($code_de_retour !== $code_de_retour_réussi) {
-			throw new RuntimeException("Le clonage du dépôt git a échoué! Ce dépôt est peut-être privé ou n'existe pas.");
+			throw new RuntimeException(
+				"Le clonage du dépôt git a échoué! Ce dépôt est peut-être privé ou n'existe pas.",
+			);
 		}
 
 		return $dossier_temporaire;
