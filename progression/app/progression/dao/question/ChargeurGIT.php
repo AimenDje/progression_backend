@@ -27,6 +27,8 @@ class ChargeurGIT extends Chargeur
 {
 	public function cloner_depot(string $url_du_depot): string
 	{
+		$code_de_retour = null;
+		$code_de_retour_réussi = 0;
 		$dossier_memoir = "/tmp/memoire";
 		$dossier_memoir_absolue = realpath($dossier_memoir);
 		if (is_dir($dossier_memoir)) {
@@ -36,15 +38,15 @@ class ChargeurGIT extends Chargeur
 		}
 
 		$dossier_temporaire = $dossier_memoir . "/git_repo_" . uniqid();
-		Log::debug("chemin du depot temporaire: " . $dossier_temporaire);
-		Log::debug("URL du dépot git: " . $url_du_depot);
+		Log::debug("Chemin du dépôt temporaire: " . $dossier_temporaire);
+		Log::debug("URL du dépôt git: " . $url_du_depot);
 
-		exec("git clone --depth 1 $url_du_depot $dossier_temporaire 2>&1", $output, $returnCode);
-		Log::debug("Output du clonage depot git: " . implode(PHP_EOL, $output));
-		Log::debug("Code retour du clonage depot git: " . $returnCode);
+		exec("git clone --depth 1 $url_du_depot $dossier_temporaire 2>&1", $output, $code_de_retour);
+		Log::debug("Sortie du clonage du dépôt git: " . implode(PHP_EOL, $output));
+		Log::debug("Code de retour du clonage du dépôt git: " . $code_de_retour);
 
-		if ($returnCode !== 0) {
-			throw new RuntimeException("Le clonage du dépôt a échoué : votre dépôt est privé ou n'existe pas.");
+		if ($code_de_retour !== $code_de_retour_réussi) {
+			throw new RuntimeException("Le clonage du dépôt git a échoué! Ce dépôt est peut-être privé ou n'existe pas.");
 		}
 
 		return $dossier_temporaire;
@@ -54,13 +56,14 @@ class ChargeurGIT extends Chargeur
 	{
 		$liste_info_yml = null;
 		$code_de_retour = null;
+		$code_de_retour_réussi = 0;
 		try {
 			exec("find $dossier_temporaire -name 'info.yml'", $liste_info_yml, $code_de_retour);
 		} catch (Exception $e) {
 			throw new RunTimeException("Erreur inconnue.");
 		}
 
-		if ($code_de_retour !== 0 || !$liste_info_yml) {
+		if ($code_de_retour !== $code_de_retour_réussi || !$liste_info_yml) {
 			throw new ChargeurException("Fichier info.yml inexistant.");
 		}
 
@@ -69,8 +72,8 @@ class ChargeurGIT extends Chargeur
 		}
 		$chemin_fichier_dans_depot = $liste_info_yml[count($liste_info_yml) - 1];
 
-		Log::debug("Liste info.yml" . implode(PHP_EOL, $liste_info_yml));
-		Log::debug("chemin du depot" . $chemin_fichier_dans_depot);
+		Log::debug("Liste des info.yml" . implode(PHP_EOL, $liste_info_yml));
+		Log::debug("Chemin du dépôt" . $chemin_fichier_dans_depot);
 
 		return $chemin_fichier_dans_depot;
 	}

@@ -20,8 +20,6 @@ namespace progression\dao\question;
 
 use progression\TestCase;
 use Mockery;
-use progression\domaine\entité\question\QuestionProg;
-use Illuminate\Support\Facades\Log;
 
 final class ChargeurQuestionGITTests extends TestCase
 {
@@ -87,7 +85,7 @@ final class ChargeurQuestionGITTests extends TestCase
 		$mockChargeurGIT
 			->shouldReceive("cloner_depot")
 			->with("url_du_depot_git_privé")
-			->andThrow(new \RuntimeException("Le clonage du dépôt a échoué : votre dépôt est privé ou n'existe pas."));
+			->andThrow(new \RuntimeException("Le clonage du dépôt git a échoué! Ce dépôt est peut-être privé ou n'existe pas."));
 
 		$mockChargeurFactory = Mockery::mock("progression\\dao\\question\\ChargeurFactory");
 		$mockChargeurFactory->shouldReceive("get_chargeur_git")->andReturn($mockChargeurGIT);
@@ -95,7 +93,7 @@ final class ChargeurQuestionGITTests extends TestCase
 		$chargeurQuestionGIT = new ChargeurQuestionGIT($mockChargeurFactory);
 
 		$this->expectException(\RuntimeException::class);
-		$this->expectExceptionMessage("Le clonage du dépôt a échoué : votre dépôt est privé ou n'existe pas.");
+		$this->expectExceptionMessage("Le clonage du dépôt git a échoué! Ce dépôt est peut-être privé ou n'existe pas.");
 
 		$chargeurQuestionGIT->récupérer_question("url_du_depot_git_privé");
 	}
@@ -121,49 +119,4 @@ final class ChargeurQuestionGITTests extends TestCase
 
 		$chargeurQuestionGIT->récupérer_question("url_du_depot_git_sans_info.yml");
 	}
-
-	/*
-
-	NOTE TO SELF: CE TEST MARCHE MAIS COMME IL FAIT PAS CE QUE LE TEST DIT
-
-    public function test_étant_donné_un_dépot_git_qui_contient_plusieurs_info_yml_dans_plusieurs_dossiers_lorsquon_clone_ce_depot_on_obtient_le_premier_info_yml_trouvé() 
-    {
-		// Créer un objet Question attendu
-		$questionAttendue = new QuestionProg();
-		$questionAttendue->titre = "Question de test";
-
-		// Mock du ChargeurGIT
-		$mockChargeurGIT = Mockery::mock("progression\\dao\\question\\ChargeurGIT");
-		$mockChargeurGIT
-			->shouldReceive("cloner_depot")
-			->with("url_du_depot_git")
-			->andReturn("/chemin/depot_temporaire")
-			->shouldReceive("chercher_info")
-			->with("/chemin/depot_temporaire")
-			->andReturn("/chemin/depot_temporaire/dossier_temporaire_1/info.yml")
-			->shouldReceive("supprimer_dossier_temporaire")
-			->with("/chemin/depot_temporaire");
-
-		// Mock du ChargeurQuestionFichier
-		$mockChargeurFichier = Mockery::mock("progression\\dao\\question\\ChargeurQuestionFichier");
-		$mockChargeurFichier
-			->shouldReceive("récupérer_question")
-			->withArgs(function ($path_du_fichier) {
-				return $path_du_fichier === "/chemin/depot_temporaire/dossier_temporaire_1/info.yml";
-			})
-			->andReturn($questionAttendue); // Retourne l'objet Question attendu
-
-		// Mock du ChargeurFactory
-		$mockChargeurFactory = Mockery::mock("progression\\dao\\question\\ChargeurFactory");
-		$mockChargeurFactory->shouldReceive("get_chargeur_git")->andReturn($mockChargeurGIT);
-		$mockChargeurFactory->shouldReceive("get_chargeur_question_fichier")->andReturn($mockChargeurFichier);
-
-		// Vérifier que l'objet retourné est bien le même que l'objet attendu
-		$this->assertEquals(
-			$questionAttendue,
-			(new ChargeurQuestionGIT($mockChargeurFactory))->récupérer_question("url_du_depot_git"),
-		);
-
-    }
-	*/
 }
