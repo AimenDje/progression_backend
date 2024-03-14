@@ -20,8 +20,6 @@ namespace progression\dao\question;
 
 use progression\TestCase;
 use Mockery;
-use progression\domaine\entité\question\QuestionProg;
-use Illuminate\Support\Facades\Log;
 
 final class ChargeurGITTests extends TestCase
 {
