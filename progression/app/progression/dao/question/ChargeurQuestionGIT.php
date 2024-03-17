@@ -22,21 +22,21 @@ use progression\domaine\entité\question\Question;
 class ChargeurQuestionGIT extends Chargeur
 {
 	/**
-	 * @param string $url_du_depot
+	 * @param string $url_du_dépôt
 	 * @return array<mixed>
 	 */
 
-	public function récupérer_question(string $url_du_depot): array
+	public function récupérer_question(string $url_du_dépôt): array
 	{
 		$chargeurGIT = $this->source->get_chargeur_git();
 
-		$dossier_temporaire = $chargeurGIT->cloner_depot($url_du_depot);
+		$dossier_temporaire = $chargeurGIT->cloner_dépôt($url_du_dépôt);
 
-		$chemin_fichier_dans_depot = $chargeurGIT->chercher_info($dossier_temporaire);
+		$chemin_fichier_dans_dépôt = $chargeurGIT->chercher_info($dossier_temporaire);
 
 		$chargeurFichier = $this->source->get_chargeur_question_fichier();
 
-		$contenu_question = $chargeurFichier->récupérer_question($chemin_fichier_dans_depot);
+		$contenu_question = $chargeurFichier->récupérer_question($chemin_fichier_dans_dépôt);
 
 		$chargeurGIT->supprimer_dossier_temporaire($dossier_temporaire);
 
