@@ -20,8 +20,6 @@ namespace progression\dao\question;
 
 use progression\TestCase;
 use Mockery;
-use progression\domaine\entité\question\QuestionProg;
-use Illuminate\Support\Facades\Log;
 
 final class ChargeurGITTests extends TestCase
 {
@@ -31,7 +29,7 @@ final class ChargeurGITTests extends TestCase
 
 		$mockChargeurGIT = Mockery::mock("progression\\dao\\question\\ChargeurGIT");
 		$mockChargeurGIT
-			->shouldReceive("cloner_depot")
+			->shouldReceive("cloner_dépôt")
 			->with("https://git.dti.crosemont.quebec/progression/contenu/prog_1.git")
 			->andReturn("/tmp/memoire/git_repo_");
 
@@ -39,7 +37,7 @@ final class ChargeurGITTests extends TestCase
 		$mockChargeurFactory->shouldReceive("get_chargeur_git")->andReturn($mockChargeurGIT);
 
 		$chargeurGIT = new ChargeurGIT($mockChargeurFactory);
-		$résultat_obtenue = $chargeurGIT->cloner_depot(
+		$résultat_obtenue = $chargeurGIT->cloner_dépôt(
 			"https://git.dti.crosemont.quebec/progression/contenu/prog_1.git",
 		);
 
