@@ -18,6 +18,7 @@
 
 namespace progression\dao\question;
 
+use Illuminate\Support\Facades\Log;
 use DomainException, RuntimeException;
 
 class ChargeurQuestionFichier extends Chargeur
@@ -28,7 +29,11 @@ class ChargeurQuestionFichier extends Chargeur
 		$err_code = null;
 
 		//Les limites doivent être suffisamment basses pour empêcher les «abus» (inclusion récursive, fichiers volumineux, etc.)
-		exec("ulimit -s 256 && ulimit -t 3 && python3 -m progression_qc $uri 2>/dev/null", $output, $err_code);
+		exec(
+			"ulimit -s 256 && ulimit -t 3 && python3 -m progression_qc " . escapeshellarg($uri) . " 2>/dev/null",
+			$output,
+			$err_code,
+		);
 
 		if ($err_code == Chargeur::ERR_CHARGEMENT) {
 			return null;
