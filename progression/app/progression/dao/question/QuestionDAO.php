@@ -20,7 +20,6 @@ namespace progression\dao\question;
 
 use DomainException;
 use BadMethodCallException;
-use Illuminate\Support\Facades\Log;
 use progression\dao\EntitéDAO;
 use progression\domaine\entité\question\{QuestionProg, QuestionSys};
 
@@ -30,17 +29,14 @@ class QuestionDAO extends EntitéDAO
 	{
 		$scheme = parse_url($uri, PHP_URL_SCHEME);
 		$extension = pathinfo($uri, PATHINFO_EXTENSION);
-		Log::debug("Extension:" . $extension);
 
 		if ($scheme == "file") {
 			$infos_question = ChargeurFactory::get_instance()
 				->get_chargeur_question_fichier()
 				->récupérer_question($uri);
 		} elseif ($extension == "git") {
-			Log::debug("GIT");
 			$infos_question = ChargeurFactory::get_instance()->get_chargeur_question_git()->récupérer_question($uri);
 		} elseif ($scheme == "https") {
-			Log::debug("HTTP");
 			$infos_question = ChargeurFactory::get_instance()->get_chargeur_question_http()->récupérer_question($uri);
 		} else {
 			throw new BadMethodCallException("Schéma d'URI invalide");
