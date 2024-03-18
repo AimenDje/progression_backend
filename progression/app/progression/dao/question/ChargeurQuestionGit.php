@@ -69,11 +69,11 @@ class ChargeurQuestionGit extends Chargeur
 		return $dossier_temporaire;
 	}
 
-	private function chercher_info(string $dossier_temporaire): string
+	private function chercher_info(string $répertoire_temporaire): string
 	{
-		if (file_exists($répertoire_temporaire . "/info.yml")){
+		if (file_exists($répertoire_temporaire . "/info.yml")) {
 			$cheminRecherche = $répertoire_temporaire . "/info.yml";
-		}else {
+		} else {
 			$cheminRecherche = $répertoire_temporaire . "/**/info.yml";
 		}
 		$fichiers = glob($cheminRecherche, GLOB_BRACE);
