@@ -22,7 +22,7 @@
  use RuntimeException;
  use Illuminate\Support\Facades\Log;
  
- class ChargeurGIT extends Chargeur
+ class ChargeurGit extends Chargeur
  {
 	 public function cloner_dépôt(string $url_du_dépôt): string
 	 {

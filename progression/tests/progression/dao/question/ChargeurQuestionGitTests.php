@@ -21,7 +21,7 @@ namespace progression\dao\question;
 use progression\TestCase;
 use Mockery;
 
-final class ChargeurQuestionGITTests extends TestCase
+final class ChargeurQuestionGitTests extends TestCase
 {
 	private $contenu_tmp;
 
@@ -43,8 +43,8 @@ final class ChargeurQuestionGITTests extends TestCase
 	{
 		$questionAttendue = [];
 
-		$mockChargeurGIT = Mockery::mock("progression\\dao\\question\\ChargeurGIT");
-		$mockChargeurGIT
+		$mockChargeurGit = Mockery::mock("progression\\dao\\question\\ChargeurGit");
+		$mockChargeurGit
 			->shouldReceive("cloner_dépôt")
 			->with("url_du_dépôt_git")
 			->andReturn("/chemin/dépôt_temporaire")
@@ -61,28 +61,28 @@ final class ChargeurQuestionGITTests extends TestCase
 			->andReturn($questionAttendue);
 
 		$mockChargeurFactory = Mockery::mock("progression\\dao\\question\\ChargeurFactory");
-		$mockChargeurFactory->shouldReceive("get_chargeur_git")->andReturn($mockChargeurGIT);
+		$mockChargeurFactory->shouldReceive("get_chargeur_git")->andReturn($mockChargeurGit);
 		$mockChargeurFactory->shouldReceive("get_chargeur_question_fichier")->andReturn($mockChargeurFichier);
 
 		print_r(
 			"retour chemin fichier test " .
 				json_encode(
 					$mockChargeurFichier->récupérer_question(
-						$mockChargeurGIT->chercher_info("/chemin/dépôt_temporaire"),
+						$mockChargeurGit->chercher_info("/chemin/dépôt_temporaire"),
 					),
 				),
 		);
 
 		$this->assertEquals(
 			$questionAttendue,
-			(new ChargeurQuestionGIT($mockChargeurFactory))->récupérer_question("url_du_dépôt_git"),
+			(new ChargeurQuestionGit($mockChargeurFactory))->récupérer_question("url_du_dépôt_git"),
 		);
 	}
 
 	public function test_étant_donné_un_url_dépôt_git_privé_lorsquon_charge_la_question_on_obtient_une_exception_avec_un_message()
 	{
-		$mockChargeurGIT = Mockery::mock("progression\\dao\\question\\ChargeurGIT");
-		$mockChargeurGIT
+		$mockChargeurGit = Mockery::mock("progression\\dao\\question\\ChargeurGit");
+		$mockChargeurGit
 			->shouldReceive("cloner_dépôt")
 			->with("url_du_dépôt_git_privé")
 			->andThrow(
@@ -92,22 +92,22 @@ final class ChargeurQuestionGITTests extends TestCase
 			);
 
 		$mockChargeurFactory = Mockery::mock("progression\\dao\\question\\ChargeurFactory");
-		$mockChargeurFactory->shouldReceive("get_chargeur_git")->andReturn($mockChargeurGIT);
+		$mockChargeurFactory->shouldReceive("get_chargeur_git")->andReturn($mockChargeurGit);
 
-		$chargeurQuestionGIT = new ChargeurQuestionGIT($mockChargeurFactory);
+		$chargeurQuestionGit = new ChargeurQuestionGIT($mockChargeurFactory);
 
 		$this->expectException(\RuntimeException::class);
 		$this->expectExceptionMessage(
 			"Le clonage du dépôt git a échoué! Ce dépôt est peut-être privé ou n'existe pas.",
 		);
 
-		$chargeurQuestionGIT->récupérer_question("url_du_dépôt_git_privé");
+		$chargeurQuestionGit->récupérer_question("url_du_dépôt_git_privé");
 	}
 
 	public function test_étant_donné_un_url_dépôt_git_dans_lequel_le_fichier_infoYml_est_inexistant_lorsquon_charge_la_question_on_obtient_une_exception_avec_un_message()
 	{
-		$mockChargeurGIT = Mockery::mock("progression\\dao\\question\\ChargeurGIT");
-		$mockChargeurGIT
+		$mockChargeurGit = Mockery::mock("progression\\dao\\question\\ChargeurGit");
+		$mockChargeurGit
 			->shouldReceive("cloner_dépôt")
 			->with("url_du_dépôt_git_sans_info.yml")
 			->andReturn("/chemin/dépôt_temporaire")
@@ -116,13 +116,13 @@ final class ChargeurQuestionGITTests extends TestCase
 			->andThrow(new ChargeurException("Fichier info.yml inexistant."));
 
 		$mockChargeurFactory = Mockery::mock("progression\\dao\\question\\ChargeurFactory");
-		$mockChargeurFactory->shouldReceive("get_chargeur_git")->andReturn($mockChargeurGIT);
+		$mockChargeurFactory->shouldReceive("get_chargeur_git")->andReturn($mockChargeurGit);
 
-		$chargeurQuestionGIT = new ChargeurQuestionGIT($mockChargeurFactory);
+		$chargeurQuestionGit = new ChargeurQuestionGit($mockChargeurFactory);
 
 		$this->expectException(ChargeurException::class);
 		$this->expectExceptionMessage("Fichier info.yml inexistant.");
 
-		$chargeurQuestionGIT->récupérer_question("url_du_dépôt_git_sans_info.yml");
+		$chargeurQuestionGit->récupérer_question("url_du_dépôt_git_sans_info.yml");
 	}
 }
