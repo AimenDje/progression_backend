@@ -21,23 +21,23 @@ namespace progression\dao\question;
 use progression\TestCase;
 use Mockery;
 
-final class ChargeurGITTests extends TestCase
+final class ChargeurGitTests extends TestCase
 {
 	public function test_étant_donnée_un_dossier_en_mémoire_lorsque_on_clone_un_dépôt_git_on_obtient_un_dépôt_git_placer_dans_le_dossier_en_mémoire()
 	{
 		$résultat_attendu = "/tmp/memoire/git";
 
-		$mockChargeurGIT = Mockery::mock("progression\\dao\\question\\ChargeurGIT");
-		$mockChargeurGIT
+		$mockChargeurGit = Mockery::mock("progression\\dao\\question\\ChargeurGit");
+		$mockChargeurGit
 			->shouldReceive("cloner_dépôt")
 			->with("https://git.dti.crosemont.quebec/progression/contenu/prog_1.git")
 			->andReturn("/tmp/memoire/git_repo_");
 
 		$mockChargeurFactory = Mockery::mock("progression\\dao\\question\\ChargeurFactory");
-		$mockChargeurFactory->shouldReceive("get_chargeur_git")->andReturn($mockChargeurGIT);
+		$mockChargeurFactory->shouldReceive("get_chargeur_git")->andReturn($mockChargeurGit);
 
-		$chargeurGIT = new ChargeurGIT($mockChargeurFactory);
-		$résultat_obtenue = $chargeurGIT->cloner_dépôt(
+		$chargeurGit = new ChargeurGit($mockChargeurFactory);
+		$résultat_obtenue = $chargeurGit->cloner_dépôt(
 			"https://git.dti.crosemont.quebec/progression/contenu/prog_1.git",
 		);
 
