@@ -17,6 +17,10 @@
  */
 namespace progression\dao\question;
 
+use Gitonomy\Git\Admin;
+use RuntimeException;
+use Illuminate\Support\Facades\Log;
+
 class ChargeurQuestionGit extends Chargeur
 {
 	/**
@@ -26,18 +30,70 @@ class ChargeurQuestionGit extends Chargeur
 
 	public function récupérer_question(string $uri): array
 	{
-		$chargeurGit = $this->source->get_chargeur_git();
+		$répertoire_temporaire = $this->cloner_dépôt($uri);
 
-		$répertoire_temporaire = $chargeurGit->cloner_dépôt($uri);
-
-		$chemin_fichier_dans_dépôt = $chargeurGit->chercher_info($répertoire_temporaire);
+		$chemin_fichier_dans_dépôt = $this->chercher_info($répertoire_temporaire);
 
 		$chargeurFichier = $this->source->get_chargeur_question_fichier();
 
 		$contenu_question = $chargeurFichier->récupérer_question($chemin_fichier_dans_dépôt);
 
-		$chargeurGit->supprimer_répertoire_temporaire($répertoire_temporaire);
+		$this->supprimer_répertoire_temporaire($répertoire_temporaire);
 
 		return $contenu_question;
+	}
+
+	private function cloner_dépôt(string $url_du_dépôt): string
+	{
+		$dossier_memoir = "/tmp/memoire";
+		$dossier_temporaire = $dossier_memoir . "/git_repo_" . uniqid();
+
+		if (!is_dir($dossier_memoir)) {
+			mkdir($dossier_memoir, 0777, true);
+			Log::debug("Création du dossier mémoire : $dossier_memoir");
+		}
+
+		Log::debug("Chemin du dépôt temporaire: " . $dossier_temporaire);
+		Log::debug("URL du dépôt git: " . $url_du_dépôt);
+
+		try {
+			Admin::cloneTo($dossier_temporaire, $url_du_dépôt, false);
+			Log::debug("Dépôt cloné avec succès à : $dossier_temporaire");
+		} catch (ChargeurException $e) {
+			Log::error("Erreur lors du clonage du dépôt : " . $e->getMessage());
+			throw new ChargeurException(
+				"Le clonage du dépôt git a échoué! Ce dépôt est peut-être privé ou n'existe pas.",
+			);
+		}
+
+		return $dossier_temporaire;
+	}
+
+	public function chercher_info(string $répertoire_temporaire): string
+	{
+		if (file_exists($répertoire_temporaire . "/info.yml")){
+			$chemin_fichier_dans_dépôt = $répertoire_temporaire . "/info.yml";
+			
+		}else {
+			$cheminRecherche = $répertoire_temporaire . "/**/info.yml";
+			$chemin_fichier_dans_dépôt = glob($cheminRecherche, GLOB_BRACE)[0];
+		}
+		
+		if (empty($chemin_fichier_dans_dépôt)) {
+			throw new RuntimeException("Fichier info.yml inexistant dans le dépôt.");
+		}
+
+		Log::debug("Fichier info.yml trouvé : " . $chemin_fichier_dans_dépôt);
+
+		return $chemin_fichier_dans_dépôt;
+	}
+
+
+	private function supprimer_répertoire_temporaire(string $dossier_temporaire): void
+	{
+		if (is_dir($dossier_temporaire)) {
+			system("rm -rf " . escapeshellarg($dossier_temporaire));
+			Log::debug("Dossier temporaire supprimé : $dossier_temporaire");
+		}
 	}
 }
