@@ -36,6 +36,35 @@ variables:
 .login: &login
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
+
+# Stage verifications
+
+version_check:
+  stage: verifications
+  needs: []
+  script:
+    - docker run -v $PWD:/progression_backend bitnami/git bash -c 'git config --global --add safe.directory /progression_backend && cd /progression_backend && VERSION_PREV=$(git show HEAD^:VERSION|cut -d "=" -f 2); VERSION_ACT=$(git show HEAD:VERSION|cut -d "=" -f 2); echo Version: $VERSION_PREV  → $VERSION_ACT; dpkg --compare-versions "$VERSION_ACT" "gt" "$VERSION_PREV" || ( echo ERREUR la version n’a pas avancé && exit 1 )'
+  allow_failure: true
+  only:
+  - master
+
+
+# Stage build_image
+
+# Construction de l'image
+const_image:
+  stage: build_image
+  needs: []
+  before_script: *login
+  variables:
+    DOCKER_BUILDKIT: 1
+  script:
+    - docker build --target composer --cache-from $CI_REGISTRY/$CI_PROJECT_PATH:${BRANCHE}_composer --build-arg BUILDKIT_INLINE_CACHE=1 -t $CI_REGISTRY/$CI_PROJECT_PATH:${BRANCHE}_composer -f docker/Dockerfile .
+    - docker push $CI_REGISTRY/$CI_PROJECT_PATH:${BRANCHE}_composer
+    - docker build --cache-from $CI_REGISTRY/$CI_PROJECT_PATH:$BRANCHE --build-arg BUILDKIT_INLINE_CACHE=1 -t $CI_REGISTRY/$CI_PROJECT_PATH:$BRANCHE -f docker/Dockerfile .
+    - docker push $CI_REGISTRY/$CI_PROJECT_PATH:$BRANCHE
+
+
 # Stage test
 
 # Tests unitaires
@@ -55,8 +84,6 @@ test_unitaires:
       coverage_report:
         coverage_format: cobertura
         path: $PROGRESSION_DIR/reports/coverage.xml
-  except:
-    - master
 
 # Linter
 linter:
@@ -68,46 +95,23 @@ linter:
     ENV_FILE: env.exemple
   script:
     - docker-compose run lint
-  except:
-    - master
-
-# Stage build_image
-
-version_check:
-  stage: verifications
-  script:
-    - docker run -v $PWD:/progression_backend bitnami/git bash -c 'git config --global --add safe.directory /progression_backend && cd /progression_backend && VERSION_PREV=$(git show HEAD^:VERSION|cut -d "=" -f 2); VERSION_ACT=$(git show HEAD:VERSION|cut -d "=" -f 2); echo Version: $VERSION_PREV  → $VERSION_ACT; dpkg --compare-versions "$VERSION_ACT" "gt" "$VERSION_PREV" || ( echo ERREUR la version n’a pas avancé && exit 1 )'
-  only:
-  - master
-
-# Construction de l'image
-const_image:
-  stage: build_image
-  before_script: *login
-  variables:
-    DOCKER_BUILDKIT: 1
-  script:
-    - docker build --target composer --cache-from $CI_REGISTRY/$CI_PROJECT_PATH:${BRANCHE}_composer --build-arg BUILDKIT_INLINE_CACHE=1 -t $CI_REGISTRY/$CI_PROJECT_PATH:${BRANCHE}_composer -f docker/Dockerfile .
-    - docker push $CI_REGISTRY/$CI_PROJECT_PATH:${BRANCHE}_composer
-    - docker build --cache-from $CI_REGISTRY/$CI_PROJECT_PATH:$BRANCHE --build-arg BUILDKIT_INLINE_CACHE=1 -t $CI_REGISTRY/$CI_PROJECT_PATH:$BRANCHE -f docker/Dockerfile .
-    - docker push $CI_REGISTRY/$CI_PROJECT_PATH:$BRANCHE   
 
 
 # Stage tag
 
 tag_latest:
   stage: tag_image
-  needs: [const_image]
+  needs: [ version_check, const_image, test_unitaires, linter ]
   before_script:
     - *login
   script:
     - docker pull $CI_REGISTRY/$CI_PROJECT_PATH:$BRANCHE
-    - docker tag $CI_REGISTRY/$CI_PROJECT_PATH:$BRANCHE $CI_REGISTRY/$CI_PROJECT_PATH:latest  
+    - docker tag $CI_REGISTRY/$CI_PROJECT_PATH:$BRANCHE $CI_REGISTRY/$CI_PROJECT_PATH:latest
     - docker push $CI_REGISTRY/$CI_PROJECT_PATH:latest
   only:
     - master
 
-   
+
 # Stage deploy_image
 
 # Déploiement sur /dev
@@ -140,7 +144,7 @@ stop_dev:
     - dev
   when:
     manual
-   
+
 # Déploiement sur /demo
 deploy_demo:
   stage: deploy_image
@@ -203,7 +207,7 @@ stop_staging:
   when:
     manual
 
-# Déploiement sur progression.dti.crosemont.quebec
+# Déploiement sur le serveur de prod #1
 deploy_prod:
   stage: deploy_image
   needs: [tag_latest]
@@ -236,7 +240,7 @@ stop_prod:
   when:
     manual
 
-# Déploiement sur progression.crosemont.qc.ca/
+# Déploiement sur le serveur de prod #2
 deploy_crosemont:
   stage: deploy_image
   needs: [tag_latest]
@@ -276,45 +280,24 @@ stop_crosemont:
     - if: '$CI_COMMIT_BRANCH == "master" && $URL_PROD_2'
   when:
     manual
-   
+
 
 # Stage build_doc
-
-# Production de la documentation dev
-pages_dev:
-  stage: build_doc
-  needs: [deploy_dev]
-  variables:
-    PROGRESSION_API_URL: $URL_DEV
-  script:
-  - docker run -e PROGRESSION_API_URL=$PROGRESSION_API_URL -v "$PROGRESSION_DIR/:/tmp/" $CI_REGISTRY/progression/dev:latest emacs --batch --load ~/.emacs.el --load /tmp/doc/publish.el --funcall org-publish-all
-  - mkdir -p public/dev && cp -r $PROGRESSION_DIR/progression/app/html/doc/* public/dev/
-  - "! grep -c nil public/dev/api.html # Vérifie que la production de l'API n'a pas produit d'erreur"
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "dev" && $URL_DEV'
-  when:
-    manual
-  artifacts:
-    paths:
-    - public
 
 # Production de la documentation master
 pages_master:
   stage: build_doc
   needs:
-    - job: deploy_staging
+    - job: deploy_demo
       optional: true
   variables:
     PROGRESSION_API_URL: $URL_DEMO
   script:
-  - docker run -e PROGRESSION_API_URL=$PROGRESSION_API_URL -v "$PROGRESSION_DIR/:/tmp/" $CI_REGISTRY/$CI_PROJECT_NAMESPACE/dev:latest emacs --batch --load ~/.emacs.el --load /tmp/doc/publish.el --funcall org-publish-all
+  - docker run -e PROGRESSION_API_URL=$PROGRESSION_API_URL -v "$PROGRESSION_DIR/:/tmp/" $CI_REGISTRY/progression/dev:latest emacs --batch --load ~/.emacs.el --load /tmp/doc/publish.el --funcall org-publish-all
   - mkdir public && cp -r $PROGRESSION_DIR/progression/app/html/doc/* public/
   - "! grep -c nil public/api.html # Vérifie que la production de l'API n'a pas produit d'erreur"
-  only:
-    - dev
-    - master
-  when:
-    manual
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master" && $URL_DEMO'
   artifacts:
     paths:
     - public
@@ -325,13 +308,13 @@ pages_master:
 # Déploiement de la doc
 pages:
   stage: deploy_doc
+  needs:
+    - job: pages_master
+      optional: true
   script:
     - echo OK #apparemment nécessaire...
   artifacts:
     paths:
     - public
-  only:
-    - dev
-    - master
-  when:
-    manual
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master" && $URL_DEMO'
