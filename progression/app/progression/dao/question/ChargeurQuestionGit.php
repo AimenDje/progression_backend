@@ -17,8 +17,6 @@
  */
 namespace progression\dao\question;
 
-use progression\domaine\entité\question\Question;
-
 class ChargeurQuestionGit extends Chargeur
 {
 	/**
@@ -30,15 +28,15 @@ class ChargeurQuestionGit extends Chargeur
 	{
 		$chargeurGit = $this->source->get_chargeur_git();
 
-		$dossier_temporaire = $chargeurGit->cloner_dépôt($url_du_dépôt);
+		$répertoire_temporaire = $chargeurGit->cloner_dépôt($url_du_dépôt);
 
-		$chemin_fichier_dans_dépôt = $chargeurGit->chercher_info($dossier_temporaire);
+		$chemin_fichier_dans_dépôt = $chargeurGit->chercher_info($répertoire_temporaire);
 
 		$chargeurFichier = $this->source->get_chargeur_question_fichier();
 
 		$contenu_question = $chargeurFichier->récupérer_question($chemin_fichier_dans_dépôt);
 
-		$chargeurGit->supprimer_dossier_temporaire($dossier_temporaire);
+		$chargeurGit->supprimer_répertoire_temporaire($répertoire_temporaire);
 
 		return $contenu_question;
 	}
