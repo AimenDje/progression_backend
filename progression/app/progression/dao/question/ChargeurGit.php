@@ -22,37 +22,37 @@ use Gitonomy\Git\Admin;
 use RuntimeException;
 use Illuminate\Support\Facades\Log;
 
-class ChargeurGIT extends Chargeur
+class ChargeurGit extends Chargeur
 {
-	public function cloner_dépôt(string $url_du_dépôt): string
+	public function cloner_dépôt(string $uri): string
 	{
 		$dossier_memoir = "/tmp/memoire";
-		$dossier_temporaire = $dossier_memoir . "/git_repo_" . uniqid();
+		$répertoire_temporaire = $dossier_memoir . "/git_repo_" . uniqid();
 
 		if (!is_dir($dossier_memoir)) {
 			mkdir($dossier_memoir, 0777, true);
 			Log::debug("Création du dossier mémoire : $dossier_memoir");
 		}
 
-		Log::debug("Chemin du dépôt temporaire: " . $dossier_temporaire);
-		Log::debug("URL du dépôt git: " . $url_du_dépôt);
+		Log::debug("Chemin du dépôt temporaire: " . $répertoire_temporaire);
+		Log::debug("URL du dépôt git: " . $uri);
 
 		try {
-			Admin::cloneTo($dossier_temporaire, $url_du_dépôt, false);
-			Log::debug("Dépôt cloné avec succès à : $dossier_temporaire");
-		} catch (ChargeurException $e) {
+			Admin::cloneTo($répertoire_temporaire, $uri, false);
+			Log::debug("Dépôt cloné avec succès à : $répertoire_temporaire");
+		} catch (\Exception $e) {
 			Log::error("Erreur lors du clonage du dépôt : " . $e->getMessage());
-			throw new ChargeurException(
+			throw new RuntimeException(
 				"Le clonage du dépôt git a échoué! Ce dépôt est peut-être privé ou n'existe pas.",
 			);
 		}
 
-		return $dossier_temporaire;
+		return $répertoire_temporaire;
 	}
 
-	public function chercher_info(string $dossier_temporaire): string
+	public function chercher_info(string $répertoire_temporaire): string
 	{
-		$cheminRecherche = $dossier_temporaire . "/**/info.yml";
+		$cheminRecherche = $répertoire_temporaire . "/**/info.yml";
 		$fichiers = glob($cheminRecherche, GLOB_BRACE);
 
 		if (empty($fichiers)) {
@@ -65,11 +65,11 @@ class ChargeurGIT extends Chargeur
 		return $chemin_fichier_dans_dépôt;
 	}
 
-	public function supprimer_dossier_temporaire(string $dossier_temporaire): void
+	public function supprimer_répertoire_temporaire(string $répertoire_temporaire): void
 	{
-		if (is_dir($dossier_temporaire)) {
-			system("rm -rf " . escapeshellarg($dossier_temporaire));
-			Log::debug("Dossier temporaire supprimé : $dossier_temporaire");
+		if (is_dir($répertoire_temporaire)) {
+			system("rm -rf " . escapeshellarg($répertoire_temporaire));
+			Log::debug("Répertoire temporaire supprimé : $répertoire_temporaire");
 		}
 	}
 }
