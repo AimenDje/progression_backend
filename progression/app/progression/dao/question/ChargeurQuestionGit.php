@@ -69,24 +69,25 @@ class ChargeurQuestionGit extends Chargeur
 		return $dossier_temporaire;
 	}
 
-	private function chercher_info(string $répertoire_temporaire): string
+	public function chercher_info(string $répertoire_temporaire): string
 	{
 		if (file_exists($répertoire_temporaire . "/info.yml")){
-			$cheminRecherche = $répertoire_temporaire . "/info.yml";
+			$chemin_fichier_dans_dépôt = $répertoire_temporaire . "/info.yml";
+			
 		}else {
 			$cheminRecherche = $répertoire_temporaire . "/**/info.yml";
+			$chemin_fichier_dans_dépôt = glob($cheminRecherche, GLOB_BRACE)[0];
 		}
-		$fichiers = glob($cheminRecherche, GLOB_BRACE);
-
-		if (empty($fichiers)) {
+		
+		if (empty($chemin_fichier_dans_dépôt)) {
 			throw new RuntimeException("Fichier info.yml inexistant dans le dépôt.");
 		}
 
-		$chemin_fichier_dans_dépôt = $fichiers[0];
 		Log::debug("Fichier info.yml trouvé : " . $chemin_fichier_dans_dépôt);
 
 		return $chemin_fichier_dans_dépôt;
 	}
+
 
 	private function supprimer_répertoire_temporaire(string $dossier_temporaire): void
 	{
