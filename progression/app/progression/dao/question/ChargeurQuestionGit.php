@@ -45,7 +45,7 @@ class ChargeurQuestionGit extends Chargeur
 
 	private function cloner_dépôt(string $url_du_dépôt): string
 	{
-		$dossier_memoir = "/tmp/memoire";
+		$dossier_memoir = $_ENV["REP_LOCALISATION"];
 		$dossier_temporaire = $dossier_memoir . "/git_repo_" . uniqid();
 
 		if (!is_dir($dossier_memoir)) {
@@ -71,14 +71,19 @@ class ChargeurQuestionGit extends Chargeur
 
 	public function chercher_info(string $répertoire_temporaire): string
 	{
-		if (file_exists($répertoire_temporaire . "/info.yml")){
-			$chemin_fichier_dans_dépôt = $répertoire_temporaire . "/info.yml";
-			
-		}else {
+		$cheminDirect = $répertoire_temporaire . "/info.yml";
+
+		if (file_exists($cheminDirect)) {
+			$chemin_fichier_dans_dépôt = $cheminDirect;
+		} else {
 			$cheminRecherche = $répertoire_temporaire . "/**/info.yml";
-			$chemin_fichier_dans_dépôt = glob($cheminRecherche, GLOB_BRACE)[0];
+			$fichiers = glob($cheminRecherche, GLOB_BRACE);
+
+			if (is_array($fichiers) && $fichiers) {
+				$chemin_fichier_dans_dépôt = $fichiers[0];
+			}
 		}
-		
+
 		if (empty($chemin_fichier_dans_dépôt)) {
 			throw new RuntimeException("Fichier info.yml inexistant dans le dépôt.");
 		}
@@ -87,7 +92,6 @@ class ChargeurQuestionGit extends Chargeur
 
 		return $chemin_fichier_dans_dépôt;
 	}
-
 
 	private function supprimer_répertoire_temporaire(string $dossier_temporaire): void
 	{
