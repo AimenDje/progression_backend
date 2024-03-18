@@ -26,7 +26,7 @@ class ChargeurGit extends Chargeur
 {
 	public function cloner_dépôt(string $uri): string
 	{
-		$dossier_memoir = "/tmp/memoire";
+		$dossier_memoir = $_ENV["REP_LOCALISATION"];
 		$répertoire_temporaire = $dossier_memoir . "/git_repo_" . uniqid();
 
 		if (!is_dir($dossier_memoir)) {
@@ -53,7 +53,7 @@ class ChargeurGit extends Chargeur
 	public function chercher_info(string $répertoire_temporaire): string
 	{
 		if (file_exists($répertoire_temporaire . "/info.yml")){
-			$cheminRecherche = $répertoire_temporaire . "/info.yml"
+			$cheminRecherche = $répertoire_temporaire . "/info.yml";
 		}else {
 			$cheminRecherche = $répertoire_temporaire . "/**/info.yml";
 		}
