@@ -76,7 +76,9 @@ class ChargeurQuestionGit extends Chargeur
 			
 		}else {
 			$cheminRecherche = $répertoire_temporaire . "/**/info.yml";
-			$chemin_fichier_dans_dépôt = glob($cheminRecherche, GLOB_BRACE)[0];
+			if (glob($cheminRecherche, GLOB_BRACE)[0]){
+				$chemin_fichier_dans_dépôt = glob($cheminRecherche, GLOB_BRACE)[0];
+			}
 		}
 		
 		if (empty($chemin_fichier_dans_dépôt)) {
