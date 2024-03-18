@@ -1,4 +1,4 @@
-<?php
+cd <?php
 /*
    This file is part of Progression.
 
@@ -40,9 +40,9 @@ class ChargeurGit extends Chargeur
 		try {
 			Admin::cloneTo($répertoire_temporaire, $uri, false);
 			Log::debug("Dépôt cloné avec succès à : $répertoire_temporaire");
-		} catch (\Exception $e) {
+		} catch (ChargeurException $e) {
 			Log::error("Erreur lors du clonage du dépôt : " . $e->getMessage());
-			throw new RuntimeException(
+			throw new ChargeurException(
 				"Le clonage du dépôt git a échoué! Ce dépôt est peut-être privé ou n'existe pas.",
 			);
 		}
@@ -52,12 +52,7 @@ class ChargeurGit extends Chargeur
 
 	public function chercher_info(string $répertoire_temporaire): string
 	{
-		if (file_exists($répertoire_temporaire . "/info.yml")){
-			$cheminRecherche = $répertoire_temporaire . "/info.yml";
-		}else {
-			$cheminRecherche = $répertoire_temporaire . "/**/info.yml";
-		}
-		
+		$cheminRecherche = $répertoire_temporaire . "/**/info.yml";
 		$fichiers = glob($cheminRecherche, GLOB_BRACE);
 
 		if (empty($fichiers)) {
