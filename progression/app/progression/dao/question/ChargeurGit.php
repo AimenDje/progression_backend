@@ -24,7 +24,7 @@
  
  class ChargeurGit extends Chargeur
  {
-	 public function cloner_dépôt(string $url_du_dépôt): string
+	 public function cloner_dépôt(string $uri): string
 	 {
 		 $dossier_memoir = "/tmp/memoire";
 		 $répertoire_temporaire = $dossier_memoir . "/git_repo_" . uniqid();
@@ -35,10 +35,10 @@
 		 }
  
 		 Log::debug("Chemin du dépôt temporaire: " . $répertoire_temporaire);
-		 Log::debug("URL du dépôt git: " . $url_du_dépôt);
+		 Log::debug("URL du dépôt git: " . $uri);
  
 		 try {
-			 Admin::cloneTo($répertoire_temporaire, $url_du_dépôt, false);
+			 Admin::cloneTo($répertoire_temporaire, $uri, false);
 			 Log::debug("Dépôt cloné avec succès à : $répertoire_temporaire");
 		 } catch (\Exception $e) {
 			 Log::error("Erreur lors du clonage du dépôt : " . $e->getMessage());

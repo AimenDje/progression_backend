@@ -20,15 +20,15 @@ namespace progression\dao\question;
 class ChargeurQuestionGit extends Chargeur
 {
 	/**
-	 * @param string $url_du_dépôt
+	 * @param string $uri
 	 * @return array<mixed>
 	 */
 
-	public function récupérer_question(string $url_du_dépôt): array
+	public function récupérer_question(string $uri): array
 	{
 		$chargeurGit = $this->source->get_chargeur_git();
 
-		$répertoire_temporaire = $chargeurGit->cloner_dépôt($url_du_dépôt);
+		$répertoire_temporaire = $chargeurGit->cloner_dépôt($uri);
 
 		$chemin_fichier_dans_dépôt = $chargeurGit->chercher_info($répertoire_temporaire);
 
