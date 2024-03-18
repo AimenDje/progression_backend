@@ -53,7 +53,7 @@ class ChargeurGit extends Chargeur
 	public function chercher_info(string $répertoire_temporaire): string
 	{
 		if (file_exists($répertoire_temporaire . "/info.yml")){
-			$cheminRecherche = $répertoire_temporaire . "/info.yml"
+			$cheminRecherche = $répertoire_temporaire . "/info.yml";
 		}else {
 			$cheminRecherche = $répertoire_temporaire . "/**/info.yml";
 		}
