@@ -53,7 +53,7 @@ $app->configure("version");
 $app->configure("database");
 $app->configure("jwt");
 $app->configure("logging");
-$app->configure("limites");
+$app->configure("params");
 $app->configure("mail");
 $app->configure("ldap");
 $app->configure("exécuteur");
