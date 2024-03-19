@@ -45,12 +45,12 @@ class ChargeurQuestionGit extends Chargeur
 
 	private function cloner_dépôt(string $url_du_dépôt): string
 	{
-		$dossier_memoir = config('params.repertoire_temporaire');
-		$dossier_temporaire = $dossier_memoir . "/git_repo_" . uniqid();
+		$répertoire_cible = config('params.repertoire_temporaire');
+		$dossier_temporaire = $répertoire_cible . "/git_repo_" . uniqid();
 
-		if (!is_dir($dossier_memoir)) {
-			mkdir($dossier_memoir, 0777, true);
-			Log::debug("Création du dossier mémoire : $dossier_memoir");
+		if (!is_dir($répertoire_cible)) {
+			mkdir($répertoire_cible, 0777, true);
+			Log::debug("Création du dossier mémoire : $répertoire_cible");
 		}
 
 		Log::debug("Chemin du dépôt temporaire: " . $dossier_temporaire);
