@@ -50,15 +50,7 @@ class ChargeurQuestionGit extends ChargeurQuestion
 	public function est_modifié(string $uri, $hash_cache): bool
 	{
 		$remote_hash = $this-­>obtenir_hash_dernier_commit($uri);
-		if($hash_cache == $remote_hash)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-		
+		return $hash_cache === $remote_hash;	
 	}
 
 	/**
