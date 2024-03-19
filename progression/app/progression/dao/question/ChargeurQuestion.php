@@ -19,11 +19,11 @@
 namespace progression\dao\question;
 
 abstract class ChargeurQuestion extends Chargeur
-{	
-	 /**
-     * @param string $uri 
-     * @return array<mixed> 
-     */
+{
+	/**
+	 * @param string $uri
+	 * @return array<mixed>
+	 */
 	abstract public function récupérer_question(string $uri): array;
 
 	abstract public function est_modifié(string $uri, int|string $cle): bool;

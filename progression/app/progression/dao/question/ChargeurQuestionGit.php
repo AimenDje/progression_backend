@@ -57,10 +57,10 @@ class ChargeurQuestionGit extends ChargeurQuestion
 	 */
 	private function cloner_dépôt(string $url_du_dépôt): string
 	{
-		$dossier_memoir = "/tmp/memoire";
-		$dossier_temporaire = $dossier_memoir . "/git_repo_" . uniqid();
+		$répertoire_cible = config("params.repertoire_temporaire");
+		$dossier_temporaire = $répertoire_cible . "/git_repo_" . uniqid();
 
-		$this->gestionFichiers->creerDossier($dossier_memoir);
+		$this->gestionFichiers->creerDossier($répertoire_cible);
 
 		Log::debug("Chemin du dépôt temporaire: " . $dossier_temporaire);
 		Log::debug("URL du dépôt git: " . $url_du_dépôt);
@@ -74,7 +74,6 @@ class ChargeurQuestionGit extends ChargeurQuestion
 				"Le clonage du dépôt git a échoué! Ce dépôt est peut-être privé ou n'existe pas.",
 			);
 		}
-
 		return $dossier_temporaire;
 	}
 
