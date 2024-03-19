@@ -57,7 +57,7 @@ class ChargeurQuestionGit extends ChargeurQuestion
 	 */
 	private function cloner_dépôt(string $url_du_dépôt): string
 	{
-		$répertoire_cible = config("params.repertoire_temporaire");
+		$répertoire_cible = sys_get_temp_dir();
 		$dossier_temporaire = $répertoire_cible . "/git_repo_" . uniqid();
 
 		$this->gestionFichiers->creerDossier($répertoire_cible);
