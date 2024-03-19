@@ -18,6 +18,7 @@
 namespace progression\dao\question;
 
 use Gitonomy\Git\Admin;
+use Gitonomy\Git\Repository;
 use Illuminate\Support\Facades\Log;
 
 class ChargeurQuestionGit extends ChargeurQuestion
@@ -46,9 +47,45 @@ class ChargeurQuestionGit extends ChargeurQuestion
 	 * @param int|string $cle
 	 * @return bool
 	 */
-	public function est_modifié(string $uri, $cle): bool
+	public function est_modifié(string $uri, $hash_cache): bool
 	{
-		return true;
+		$remote_hash = $this-­>obtenir_hash_dernier_commit($uri);
+		if($hash_cache == $remote_hash)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+		
+	}
+
+	/**
+	 * @param string $uri
+	 * @return string
+	 */
+	public function obtenir_hash_dernier_commit(string $uri):string
+	{
+		 try {
+        	$répertoire_temporaire = Repository::createTemporary();
+        
+        	$répertoire_temporaire->addRemote('origin', $uri);
+
+        	$répertoire_temporaire->run('fetch', ['origin']);
+
+			$brancheParDefaut = $répertoire_temporaire->getDefaultBranch();
+
+        	$latestCommitHash = $répertoire_temporaire->run('rev-parse', ["origin/$brancheParDefaut"]);
+
+        	return trim($latestCommitHash);
+    	} catch (Exception $e) {
+
+			Log::error("Erreur lors de l'obtention du hash du dernier commit : " . $e->getMessage());
+			throw new ChargeurException(
+				"L'obtention du hash du dernier commit a échoué! Ce dépôt est peut-être privé ou n'existe pas.",
+			);
+    	}
 	}
 
 	/**
