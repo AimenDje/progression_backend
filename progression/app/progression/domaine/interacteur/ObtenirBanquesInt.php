@@ -31,7 +31,7 @@ class ObtenirBanquesInt extends Interacteur
 	function get_banques(string $username = null, mixed $includes = []): array
 	{
 		$dao = $this->source_dao->get_banque_dao();
-		$banques = $dao->get_banques( $username, $includes);
+		$banques = $dao->get_tous( $username, $includes);
 
 		return $banques;
 	}

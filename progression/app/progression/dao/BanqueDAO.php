@@ -30,7 +30,7 @@ class BanqueDAO extends EntitéDAO
 	 * @param array<string> $includes
      * @return array<Banque>
 	 */
-	public function get_banques(string $username, array $includes = []): array
+	public function get_tous(string $username, array $includes = []): array
 	{
 		try {
 			return $this->construire(BanqueMdl::select("banque.*")
@@ -44,7 +44,7 @@ class BanqueDAO extends EntitéDAO
         }
     }
 
-    public function ajouter(string $username, Banque $banque): array
+    public function save(string $username, Banque $banque): array
     {
         try {
             

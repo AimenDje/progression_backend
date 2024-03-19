@@ -21,9 +21,9 @@ namespace progression\domaine\interacteur;
 use progression\domaine\entité\banque\Banque;
 use progression\domaine\entité\user\User;
 
-class AjouterBanqueInt extends interacteur
+class SauvegarderBanqueInt extends interacteur
 {
-	public function ajouter_banque(string $username, string $nom, string $url): array
+	public function sauvegarder(string $username, string $nom, string $url): array
     {
         if (empty($nom)) {
             throw new RessourceInvalideException("Le nom ne peut être vide");
@@ -44,6 +44,6 @@ class AjouterBanqueInt extends interacteur
             $url,
             $user
         );
-        return $dao->ajouter($username, $banque);
+        return $dao->save($username, $banque);
     }
 }
