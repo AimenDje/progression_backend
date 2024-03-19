@@ -49,10 +49,10 @@ class ChargeurQuestionGit extends Chargeur
 		$dossier_temporaire = $répertoire_cible . "/git_repo_" . uniqid();
 
 		if (!is_dir($répertoire_cible)) {
-			mkdir($répertoire_cible, 0777, true);
-			Log::debug("Création du dossier mémoire : $répertoire_cible");
+			throw new ChargeurException(
+				"Le répertoire cible où le clone est sensé se faire n'existe pas",
+			);
 		}
-
 		Log::debug("Chemin du dépôt temporaire: " . $dossier_temporaire);
 		Log::debug("URL du dépôt git: " . $url_du_dépôt);
 
@@ -65,7 +65,6 @@ class ChargeurQuestionGit extends Chargeur
 				"Le clonage du dépôt git a échoué! Ce dépôt est peut-être privé ou n'existe pas.",
 			);
 		}
-
 		return $dossier_temporaire;
 	}
 
