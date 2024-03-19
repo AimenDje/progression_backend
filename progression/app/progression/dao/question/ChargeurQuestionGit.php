@@ -18,7 +18,9 @@
 namespace progression\dao\question;
 
 use Gitonomy\Git\Admin;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use RuntimeException;
 
 class ChargeurQuestionGit extends ChargeurQuestion
 {
@@ -60,7 +62,10 @@ class ChargeurQuestionGit extends ChargeurQuestion
 		$répertoire_cible = sys_get_temp_dir();
 		$dossier_temporaire = $répertoire_cible . "/git_repo_" . uniqid();
 
-		$this->gestionFichiers->creerDossier($répertoire_cible);
+		if (!File::isDirectory($répertoire_cible)) {
+			File::makeDirectory($répertoire_cible, 0777, true);
+			Log::debug("Dossier créé : $répertoire_cible");
+		}
 
 		Log::debug("Chemin du dépôt temporaire: " . $dossier_temporaire);
 		Log::debug("URL du dépôt git: " . $url_du_dépôt);
@@ -85,7 +90,12 @@ class ChargeurQuestionGit extends ChargeurQuestion
 	{
 		$cheminDirect = $répertoire_temporaire . "/info.yml";
 
-		return $this->gestionFichiers->verifierExistenceFichier($cheminDirect);
+		if (File::exists($cheminDirect)) {
+			Log::debug("Fichier trouvé : " . $cheminDirect);
+			return $cheminDirect;
+		}
+
+		throw new RuntimeException("Fichier info.yml inexistant dans le dépôt.");
 	}
 
 	/**
@@ -93,7 +103,9 @@ class ChargeurQuestionGit extends ChargeurQuestion
 	 */
 	private function supprimer_répertoire_temporaire(string $dossier_temporaire): void
 	{
-		$this->gestionFichiers->supprimerDossier($dossier_temporaire);
-		Log::debug("Dossier temporaire supprimé : $dossier_temporaire");
+		if (File::isDirectory($dossier_temporaire)) {
+			File::deleteDirectory($dossier_temporaire);
+			Log::debug("Dossier temporaire supprimé : $dossier_temporaire");
+		}
 	}
 }
