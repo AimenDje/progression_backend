@@ -45,7 +45,7 @@ class ChargeurQuestionGit extends Chargeur
 
 	private function cloner_dépôt(string $url_du_dépôt): string
 	{
-		$dossier_memoir = $_ENV["REP_LOCALISATION"];
+		$dossier_memoir = config('params.repertoire_temporaire');
 		$dossier_temporaire = $dossier_memoir . "/git_repo_" . uniqid();
 
 		if (!is_dir($dossier_memoir)) {
