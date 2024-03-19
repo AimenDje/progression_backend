@@ -23,6 +23,7 @@ class Chargeur
 	const ERR_CHARGEMENT = 255;
 
 	protected $source = null;
+	protected GestionFichiers $gestionFichiers;
 
 	public function __construct($source = null)
 	{
@@ -31,5 +32,6 @@ class Chargeur
 		} else {
 			$this->source = $source;
 		}
+		$this->gestionFichiers = GestionFichiers::getInstance();
 	}
 }

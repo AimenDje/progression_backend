@@ -43,16 +43,13 @@ services:
     volumes:
       #- "./progression/app/:/var/www/progression/app/"
       - type: tmpfs
-        target: /tmp/memoire
+        target: /tmp
     restart: always
     networks:
       - progression_net
     depends_on:
       - db
       - redis
-    volumes:
-      - type: tmpfs
-        target: /tmp/memoire
 
   tests:
     image: $CI_REGISTRY/$CI_PROJECT_PATH:$BRANCHE
