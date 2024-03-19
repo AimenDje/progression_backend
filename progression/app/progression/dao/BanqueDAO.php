@@ -22,6 +22,7 @@ use progression\domaine\entité\banque\Banque;
 use progression\dao\models\{BanqueMdl, UserMdl};
 use DB;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Log;
 
 class BanqueDAO extends EntitéDAO
 {
@@ -32,7 +33,7 @@ class BanqueDAO extends EntitéDAO
 	public function get_banques(string $username, array $includes = []): array
 	{
 		try {
-			return $this->construire(BanqueMdl::query()
+			return $this->construire(BanqueMdl::select("banque.*")
                                      ->join("user", "banque.user_id", "=", "user.id")
                                      ->where("user.username", $username)
                                      ->get(),
@@ -87,6 +88,7 @@ class BanqueDAO extends EntitéDAO
             );
 			$banques[$item["id"]] = $banque;
             }
-		return $banques;
+        Log::Debug($banques);
+        return $banques;
 	}
 }
