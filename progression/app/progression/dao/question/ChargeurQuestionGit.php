@@ -49,35 +49,34 @@ class ChargeurQuestionGit extends ChargeurQuestion
 	 */
 	public function est_modifié(string $uri, $hash_cache): bool
 	{
-		$remote_hash = $this-­>obtenir_hash_dernier_commit($uri);
-		return $hash_cache === $remote_hash;	
+		$remote_hash = $this - ­ > obtenir_hash_dernier_commit($uri);
+		return $hash_cache === $remote_hash;
 	}
 
 	/**
 	 * @param string $uri
 	 * @return string
 	 */
-	public function obtenir_hash_dernier_commit(string $uri):string
+	public function obtenir_hash_dernier_commit(string $uri): string
 	{
-		 try {
-        	$répertoire_temporaire = Repository::createTemporary();
-        
-        	$répertoire_temporaire->addRemote('origin', $uri);
+		try {
+			$répertoire_temporaire = Repository::createTemporary();
 
-        	$répertoire_temporaire->run('fetch', ['origin']);
+			$répertoire_temporaire->addRemote("origin", $uri);
+
+			$répertoire_temporaire->run("fetch", ["origin"]);
 
 			$brancheParDefaut = $répertoire_temporaire->getDefaultBranch();
 
-        	$latestCommitHash = $répertoire_temporaire->run('rev-parse', ["origin/$brancheParDefaut"]);
+			$latestCommitHash = $répertoire_temporaire->run("rev-parse", ["origin/$brancheParDefaut"]);
 
-        	return trim($latestCommitHash);
-    	} catch (Exception $e) {
-
+			return trim($latestCommitHash);
+		} catch (Exception $e) {
 			Log::error("Erreur lors de l'obtention du hash du dernier commit : " . $e->getMessage());
 			throw new ChargeurException(
 				"L'obtention du hash du dernier commit a échoué! Ce dépôt est peut-être privé ou n'existe pas.",
 			);
-    	}
+		}
 	}
 
 	/**
