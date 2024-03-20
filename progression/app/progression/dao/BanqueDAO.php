@@ -34,11 +34,11 @@ class BanqueDAO extends EntitéDAO
 	 * @param array<string> $includes
      * @return array<Banque>
 	 */
-	public function get_banques(string $username, array $includes = []): array
+	public function get_tous(string $username, array $includes = []): array
 	{
         
 		try {
-			return $this->construire(BanqueMdl::query()
+			return $this->construire(BanqueMdl::select("banque.*")
                                      ->join("user", "banque.user_id", "=", "user.id")
                                      ->where("user.username", $username)
                                      ->get(),
@@ -78,7 +78,7 @@ class BanqueDAO extends EntitéDAO
         */
     }
 
-    public function ajouter(string $username, Banque $banque): array
+    public function save(string $username, Banque $banque): array
     {
         try {
             
@@ -122,6 +122,7 @@ class BanqueDAO extends EntitéDAO
             );
 			$banques[$item["id"]] = $banque;
             }
-		return $banques;
+        Log::Debug($banques);
+        return $banques;
 	}
 }

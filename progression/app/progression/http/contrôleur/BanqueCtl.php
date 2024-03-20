@@ -21,7 +21,7 @@ namespace progression\http\contrôleur;
 use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-use progression\domaine\interacteur\{ObtenirBanquesInt, AjouterBanqueInt};
+use progression\domaine\interacteur\{ObtenirBanquesInt, SauvegarderBanqueInt};
 use progression\http\transformer\dto\BanqueDTO;
 use progression\http\transformer\BanqueTransformer;
 use progression\util\Encodage;
@@ -54,8 +54,8 @@ class BanqueCtl extends Contrôleur
 		if ($validateur->fails()) {
 			$réponse = $this->réponse_json(["erreur" => $validateur->errors()], 400);
 		} else {
-            $ajouterBanqueInt = new AjouterBanqueInt();
-            $banque_retourné = $ajouterBanqueInt->ajouter_banque($username, $request->banque["nom"], $request->banque["url"]);
+            $sauvegarderBanqueInt = new SauvegarderBanqueInt();
+            $banque_retourné = $sauvegarderBanqueInt->sauvegarder($username, $request->banque["nom"], $request->banque["url"]);
 
             $id = array_key_first($banque_retourné);
             $réponse = $this->valider_et_préparer_réponse(
@@ -141,5 +141,14 @@ class BanqueCtl extends Contrôleur
 		);
 
 		return $validateur;
+	}
+
+    protected function préparer_réponse($réponse, $code = 200)
+	{
+		$request = app(Request::class);
+		
+        Log::info("({$request->ip()}) - {$request->method()} {$request->path()} (" . get_class($this) . ")");
+			return $this->réponse_json($réponse, $code);
+		
 	}
 }
