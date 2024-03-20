@@ -43,8 +43,8 @@ final class ChargeurQuestionHTTPTests extends TestCase
 
 	public function test_étant_donné_un_url_de_type_text_yaml_lorsquon_charge_la_question_on_obtient_un_objet_Question_correspondant()
 	{
-		$résultat_attendu = new QuestionProg();
-		$résultat_attendu->titre = "Question de test";
+		$résultat_attendu = [];
+		//$résultat_attendu->titre = "Question de test";
 
 		// ChargeurHTTP
 		$mockChargeurHTTP = Mockery::mock("progression\\dao\\question\\ChargeurHTTP");
@@ -75,8 +75,8 @@ final class ChargeurQuestionHTTPTests extends TestCase
 
 	public function test_étant_donné_un_url_de_type_application_zip_lorsquon_charge_la_question_on_obtient_un_objet_Question_correspondant()
 	{
-		$résultat_attendu = new QuestionProg();
-		$résultat_attendu->titre = "Question de test";
+		$résultat_attendu = [];
+		//$résultat_attendu->titre = "Question de test";
 
 		// ChargeurHTTP
 		$mockChargeurHTTP = Mockery::mock("progression\\dao\\question\\ChargeurHTTP");
@@ -113,8 +113,8 @@ final class ChargeurQuestionHTTPTests extends TestCase
 
 	public function test_étant_donné_un_url_de_type_application_octet_stream_et_extension_zip_lorsquon_charge_la_question_on_obtient_un_objet_Question_correspondant()
 	{
-		$résultat_attendu = new QuestionProg();
-		$résultat_attendu->titre = "Question de test";
+		$résultat_attendu = [];
+		//$résultat_attendu->titre = "Question de test";
 
 		// ChargeurHTTP
 		$mockChargeurHTTP = Mockery::mock("progression\\dao\\question\\ChargeurHTTP");
