@@ -24,6 +24,7 @@ class Banque
 {
 	public string $nom;
 	public string $url;
+	public $questions;
     
     public function __construct(
         string $nom, 
@@ -31,5 +32,35 @@ class Banque
     ) {
         $this->nom = $nom;
         $this->url = $url;
+		$this->questions = array();
     }
+
+	public function ajouterQuestionsBanque(QuestionBanque $questions) {
+		
+		$this->questions[] = $questions;
+	}
+
+	public function getQuestions() {
+        return $this->questions;
+    }
+
+    public function getQuestionParNom($nom) {
+        foreach ($this->questions as $question) {
+            if ($question->nom === $nom) {
+                return $question;
+            }
+        }
+        return null; 
+    }
+}
+
+class QuestionBanque
+{
+	public string $nom;
+	public string $url;
+
+	public function __construct(string $nom, string $url) {
+		$this->nom = $nom;
+		$this->url = $url;
+	}
 }
