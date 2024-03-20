@@ -50,7 +50,7 @@ class ChargeurQuestionGit extends Chargeur
 
 		if (!is_dir($répertoire_cible)) {
 			throw new ChargeurException(
-				"Le répertoire cible où le clone est sensé se faire n'existe pas",
+				"Le répertoire cible où le clone est sensé se faire n'existe pas"
 			);
 		}
 		Log::debug("Chemin du dépôt temporaire: " . $dossier_temporaire);
