@@ -60,4 +60,9 @@ class ChargeurFactoryBanque
 	{
 		return new ChargeurBanqueHTTP($this);
 	}
+
+	function get_chargeur_banque_question()
+	{
+		return new ChargeurBanqueQuestion($this);
+	}
 }

@@ -27,6 +27,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
 use DomainException;
 use BadMethodCallException;
+use progression\domaine\entité\banque\QuestionBanque;
 
 class BanqueDAO extends EntitéDAO
 {
@@ -38,12 +39,16 @@ class BanqueDAO extends EntitéDAO
 	{
         
 		try {
-			return $this->construire(BanqueMdl::select("banque.*")
+            Log::Debug("ALLOOOOOOOOOOOOOOOOOOOOO123");
+
+			return $this->construireBanqueQuestion(BanqueMdl::select("banque.*")
                                      ->join("user", "banque.user_id", "=", "user.id")
                                      ->where("user.username", $username)
                                      ->get(),
                                      $includes,
             );
+            Log::Debug("ALLOOOOOOOOOOOOOOOOOOOOO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
         } catch (QueryException $e) {
             throw new DAOException($e);
         }
@@ -104,11 +109,33 @@ class BanqueDAO extends EntitéDAO
         }
     }
 
+    public static function construire(mixed $data, $includes = []): array
+	{
+        Log::Debug("BYEEEEEEEEEEEEEEE123");
+
+		$banques = [];
+		foreach ($data as $item) {
+            if ($item == null) {
+                continue;
+            }
+            
+            $banque = new Banque(
+				$item["nom"],
+				$item["url"],
+            );
+
+			$banques[$item["id"]] = $banque;
+            }
+            Log::Debug("BYEEEEEEEEEEEEEEE!!!!!!!!!!!!!!!!");
+
+        return $banques;
+	}
+
 	/**
      * @param array<string> $includes
      * @return array<Banque>
 	 */    
-    public static function construire(mixed $data, $includes = []): array
+    public static function construireBanqueQuestion(mixed $data, $includes = []): array
 	{
 		$banques = [];
 		foreach ($data as $item) {
@@ -118,11 +145,37 @@ class BanqueDAO extends EntitéDAO
             
             $banque = new Banque(
 				$item["nom"],
-				$item["url"]
+				$item["url"],
             );
+            //Log::Debug("ALLOOOOOOOOOOOOOOOOOOOOO");
+
+            $contenu = ChargeurFactoryBanque::get_instance()->get_chargeur_http()->get_url($banque->url);
+            //Log::Debug("CONTENU FICHIER: ", ['content' => $contenu]);
+
+            $info = yaml_parse($contenu);
+
+            //$infoQuestion = ChargeurFactoryBanque::get_instance()->get_chargeur_banque_http()->télécharger_fichier($banque->url);
+
+            //Log::Debug("INFO QUESTION: ", $info);
+
+
+            foreach ($info['questions'] as $question) {
+
+                //Log::Debug("Nom: ", $question['nom'], "URL: ", $question['url']);
+
+                $questionBanque = new QuestionBanque (
+
+                    $question['nom'],
+                    $question['url'],
+                );
+
+                $banque->ajouterQuestionsBanque($questionBanque);
+                //Log::Debug("Après avoir ajouté des questions: ", $banque);
+
+            }
+
 			$banques[$item["id"]] = $banque;
             }
-        Log::Debug($banques);
         return $banques;
 	}
 }

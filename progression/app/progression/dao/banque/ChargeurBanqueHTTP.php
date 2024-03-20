@@ -155,7 +155,7 @@ class ChargeurBanqueHTTP extends ChargeurBanque
 		}
 	}
 
-	private function télécharger_fichier($uri)
+	public function télécharger_fichier($uri)
 	{
 		$nomUnique = uniqid("archive_", true);
 		$chemin = sys_get_temp_dir() . "/$nomUnique.arc";
