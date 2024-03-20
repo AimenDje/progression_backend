@@ -16,14 +16,16 @@
    along with Progression.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace progression\dao\question;
+namespace progression\dao\banque;
 
 use Illuminate\Support\Facades\Log;
 use DomainException, RuntimeException;
+use progression\dao\question\ChargeurException;
 
-class ChargeurQuestionFichier extends Chargeur
+
+class ChargeurBanqueFichier extends ChargeurBanque
 {
-	public function récupérer_question($uri)
+	public function récupérer_banque($uri)
 	{
 		$output = null;
 		$err_code = null;
@@ -35,7 +37,7 @@ class ChargeurQuestionFichier extends Chargeur
 			$err_code,
 		);
 
-		if ($err_code == Chargeur::ERR_CHARGEMENT) {
+		if ($err_code == ChargeurBanque::ERR_CHARGEMENT) {
 			return null;
 		}
 

@@ -16,44 +16,20 @@
    along with Progression.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace progression\dao;
+namespace progression\dao\banque;
 
-class EntitéDAO
+class ChargeurBanque
 {
+	const ERR_CHARGEMENT = 255;
+
 	protected $source = null;
 
 	public function __construct($source = null)
 	{
 		if ($source == null) {
-			$this->source = DAOFactory::getInstance();
+			$this->source = ChargeurBanqueFactory::get_instance();
 		} else {
 			$this->source = $source;
 		}
-	}
-
-	public static function filtrer_niveaux(mixed $includes, string $niveau): mixed
-	{
-		$sous_includes = [];
-
-		foreach ($includes as $include) {
-			if ($include != $niveau) {
-				$sous_includes[] = str_starts_with($include, $niveau . ".")
-					? substr($include, strlen($niveau) + 1)
-					: $include;
-			}
-		}
-
-		return $sous_includes;
-	}
-
-	/**
-	 * @param array<mixed> $array
-	 */
-	public static function premier_élément(array $array): mixed
-	{
-		if (count($array) == 0) {
-			return null;
-		}
-		return array_values($array)[0];
 	}
 }

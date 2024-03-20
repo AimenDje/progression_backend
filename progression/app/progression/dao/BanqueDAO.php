@@ -19,10 +19,14 @@
 namespace progression\dao;
 
 use progression\domaine\entité\banque\Banque;
+use progression\dao\EntitéDAO;
+use progression\dao\banque\ChargeurFactoryBanque;
 use progression\dao\models\{BanqueMdl, UserMdl};
 use DB;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
+use DomainException;
+use BadMethodCallException;
 
 class BanqueDAO extends EntitéDAO
 {
@@ -32,6 +36,7 @@ class BanqueDAO extends EntitéDAO
 	 */
 	public function get_tous(string $username, array $includes = []): array
 	{
+        
 		try {
 			return $this->construire(BanqueMdl::select("banque.*")
                                      ->join("user", "banque.user_id", "=", "user.id")
@@ -42,6 +47,35 @@ class BanqueDAO extends EntitéDAO
         } catch (QueryException $e) {
             throw new DAOException($e);
         }
+    }
+
+    public function get_banque($uri)
+    {
+        $scheme = parse_url($uri, PHP_URL_SCHEME);
+
+		if ($scheme == "file") {
+			$infos_banque = ChargeurFactoryBanque::get_instance()
+				->get_chargeur_banque_fichier()
+				->récupérer_banque($uri);
+		} elseif ($scheme == "https") {
+			$infos_banque = ChargeurFactoryBanque::get_instance()->get_chargeur_banque_http()->récupérer_banque($uri);
+		} else {
+			throw new BadMethodCallException("Schéma d'URI invalide");
+		}
+
+		if ($infos_banque === null) {
+			return null;
+		}
+/*
+		$type = $infos_question["type"] ?? ($type = "prog");
+		if ($type == "prog") {
+			return DécodeurQuestionProg::load(new QuestionProg(), $infos_question);
+		} elseif ($type == "sys") {
+			return DécodeurQuestionSys::load(new QuestionSys(), $infos_question);
+		} else {
+			throw new DomainException("Le fichier ne peut pas être décodé. Type inconnu");
+		}
+        */
     }
 
     public function save(string $username, Banque $banque): array
