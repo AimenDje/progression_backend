@@ -18,16 +18,16 @@
 namespace progression\dao\question;
 
 use Gitonomy\Git\Admin;
-use RuntimeException;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use RuntimeException;
 
-class ChargeurQuestionGit extends Chargeur
+class ChargeurQuestionGit extends ChargeurQuestion
 {
 	/**
 	 * @param string $uri
 	 * @return array<mixed>
 	 */
-
 	public function récupérer_question(string $uri): array
 	{
 		$répertoire_temporaire = $this->cloner_dépôt($uri);
@@ -43,16 +43,31 @@ class ChargeurQuestionGit extends Chargeur
 		return $contenu_question;
 	}
 
+	/**
+	 * @param string $uri
+	 * @param int|string $cle
+	 * @return bool
+	 */
+	public function est_modifié(string $uri, $cle): bool
+	{
+		return true;
+	}
+
+	/**
+	 * @param string $url_du_dépôt
+	 * @return string
+	 */
 	private function cloner_dépôt(string $url_du_dépôt): string
 	{
-		$répertoire_cible = config('params.repertoire_temporaire');
+		$répertoire_cible = sys_get_temp_dir();
 		$dossier_temporaire = $répertoire_cible . "/git_repo_" . uniqid();
 
-		if (!is_dir($répertoire_cible)) {
+		if (!File::isDirectory($répertoire_cible)) {
 			throw new ChargeurException(
 				"Le répertoire cible où le clone est sensé se faire n'existe pas"
 			);
 		}
+
 		Log::debug("Chemin du dépôt temporaire: " . $dossier_temporaire);
 		Log::debug("URL du dépôt git: " . $url_du_dépôt);
 
@@ -68,34 +83,29 @@ class ChargeurQuestionGit extends Chargeur
 		return $dossier_temporaire;
 	}
 
+	/**
+	 * @param string $répertoire_temporaire
+	 * @return string
+	 */
 	public function chercher_info(string $répertoire_temporaire): string
 	{
 		$cheminDirect = $répertoire_temporaire . "/info.yml";
 
-		if (file_exists($cheminDirect)) {
-			$chemin_fichier_dans_dépôt = $cheminDirect;
-		} else {
-			$cheminRecherche = $répertoire_temporaire . "/**/info.yml";
-			$fichiers = glob($cheminRecherche, GLOB_BRACE);
-
-			if (is_array($fichiers) && $fichiers) {
-				$chemin_fichier_dans_dépôt = $fichiers[0];
-			}
+		if (File::exists($cheminDirect)) {
+			Log::debug("Fichier trouvé : " . $cheminDirect);
+			return $cheminDirect;
 		}
 
-		if (empty($chemin_fichier_dans_dépôt)) {
-			throw new RuntimeException("Fichier info.yml inexistant dans le dépôt.");
-		}
-
-		Log::debug("Fichier info.yml trouvé : " . $chemin_fichier_dans_dépôt);
-
-		return $chemin_fichier_dans_dépôt;
+		throw new RuntimeException("Fichier info.yml inexistant dans le dépôt.");
 	}
 
+	/**
+	 * @param string $dossier_temporaire
+	 */
 	private function supprimer_répertoire_temporaire(string $dossier_temporaire): void
 	{
-		if (is_dir($dossier_temporaire)) {
-			system("rm -rf " . escapeshellarg($dossier_temporaire));
+		if (File::isDirectory($dossier_temporaire)) {
+			File::deleteDirectory($dossier_temporaire);
 			Log::debug("Dossier temporaire supprimé : $dossier_temporaire");
 		}
 	}

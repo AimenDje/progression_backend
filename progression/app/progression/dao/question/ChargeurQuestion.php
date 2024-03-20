@@ -18,27 +18,13 @@
 
 namespace progression\dao\question;
 
-use BadMethodCallException;
-
-class ChargeurQuestion extends Chargeur
+abstract class ChargeurQuestion extends Chargeur
 {
-	public function récupérer_question($uri)
-	{
-		$scheme = parse_url(strtolower($uri), PHP_URL_SCHEME);
-		$extension = pathinfo($uri, PATHINFO_EXTENSION);
+	/**
+	 * @param string $uri
+	 * @return array<mixed>
+	 */
+	abstract public function récupérer_question(string $uri): array;
 
-		if ($scheme == "file") {
-			$sortie = $this->source->get_chargeur_question_fichier()->récupérer_question($uri);
-		} elseif ($extension == "git") {
-			$sortie = $this->source->get_chargeur_question_git()->récupérer_question($uri);
-		} elseif ($scheme == "https") {
-			$sortie = $this->source->get_chargeur_question_http()->récupérer_question($uri);
-		} else {
-			throw new BadMethodCallException("Schéma d'URI invalide");
-		}
-
-		$sortie["uri"] = $uri;
-
-		return $sortie;
-	}
+	abstract public function est_modifié(string $uri, int|string $cle): bool;
 }

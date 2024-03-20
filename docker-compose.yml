@@ -43,7 +43,7 @@ services:
     volumes:
       #- "./progression/app/:/var/www/progression/app/"
       - type: tmpfs
-        target: /tmp/memoire
+        target: /tmp
     restart: always
     networks:
       - progression_net
