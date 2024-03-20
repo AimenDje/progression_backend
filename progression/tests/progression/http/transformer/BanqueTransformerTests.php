@@ -19,10 +19,27 @@
 namespace progression\http\transformer;
 
 use progression\domaine\entité\banque\Banque;
+use progression\http\transformer\dto\BanqueDTO;
 use progression\http\transformer\dto\GénériqueDTO;
 use progression\TestCase;
 
 final class BanqueTransformerTests extends TestCase
 {
-    
+    public function test_étant_donné_une_banque_instanciée_lorsquon_récupère_son_transformer_on_obtient_un_array_identique()
+    {
+      $banque = new Banque();
+
+      $banqueTransformer = new $banqueTransformer("jdoe");
+      $résultats_obtenus = $banqueTransformer->transform(
+          new BanqueDTO(
+                id: "jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcm9nZXIvcXVlc3Rpb25zX3Byb2cvZm9uY3Rpb25zMDEvYXBwZWxlcl91bmVfZm9uY3Rpb24",
+                objet: $banque,
+                liens: [],
+          ),
+
+        );
+        $this->assertJsonStringEqualsJsonFile(
+          __DIR__ . "/résultats_attendus/banqueTransformerTest.json",
+          json_encode($résultats_obtenus),
+        )
 }
