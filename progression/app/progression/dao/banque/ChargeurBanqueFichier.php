@@ -32,7 +32,7 @@ class ChargeurBanqueFichier extends ChargeurBanque
 
 		//Les limites doivent être suffisamment basses pour empêcher les «abus» (inclusion récursive, fichiers volumineux, etc.)
 		exec(
-			"ulimit -s 256 && ulimit -t 3 && python3 -m progression_qc " . escapeshellarg($uri) . " 2>/dev/null",
+			"ulimit -s 256 && ulimit -t 3" . escapeshellarg($uri) . " 2>/dev/null",
 			$output,
 			$err_code,
 		);

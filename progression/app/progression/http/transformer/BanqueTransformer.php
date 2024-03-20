@@ -39,6 +39,7 @@ class BanqueTransformer extends BaseTransformer
             "id" => $id,
             "nom" => $banque->nom,
             "url" => $banque->url,
+            "questions" => $banque->questions,
             "links" => $liens,
 		];
 		return $data_out;
