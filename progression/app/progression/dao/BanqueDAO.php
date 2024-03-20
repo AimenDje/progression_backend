@@ -28,7 +28,8 @@ use Illuminate\Support\Facades\Log;
 use DomainException;
 use BadMethodCallException;
 use progression\domaine\entité\banque\QuestionBanque;
-
+use Progression\dao\question\ChargeurException;
+use RuntimeException;
 class BanqueDAO extends EntitéDAO
 {
 	/**
@@ -39,48 +40,15 @@ class BanqueDAO extends EntitéDAO
 	{
         
 		try {
-            Log::Debug("ALLOOOOOOOOOOOOOOOOOOOOO123");
-
 			return $this->construireBanqueQuestion(BanqueMdl::select("banque.*")
                                      ->join("user", "banque.user_id", "=", "user.id")
                                      ->where("user.username", $username)
                                      ->get(),
                                      $includes,
             );
-            Log::Debug("ALLOOOOOOOOOOOOOOOOOOOOO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-
         } catch (QueryException $e) {
             throw new DAOException($e);
         }
-    }
-
-    public function get_banque($uri)
-    {
-        $scheme = parse_url($uri, PHP_URL_SCHEME);
-
-		if ($scheme == "file") {
-			$infos_banque = ChargeurFactoryBanque::get_instance()
-				->get_chargeur_banque_fichier()
-				->récupérer_banque($uri);
-		} elseif ($scheme == "https") {
-			$infos_banque = ChargeurFactoryBanque::get_instance()->get_chargeur_banque_http()->récupérer_banque($uri);
-		} else {
-			throw new BadMethodCallException("Schéma d'URI invalide");
-		}
-
-		if ($infos_banque === null) {
-			return null;
-		}
-/*
-		$type = $infos_question["type"] ?? ($type = "prog");
-		if ($type == "prog") {
-			return DécodeurQuestionProg::load(new QuestionProg(), $infos_question);
-		} elseif ($type == "sys") {
-			return DécodeurQuestionSys::load(new QuestionSys(), $infos_question);
-		} else {
-			throw new DomainException("Le fichier ne peut pas être décodé. Type inconnu");
-		}
-        */
     }
 
     public function save(string $username, Banque $banque): array
@@ -99,6 +67,11 @@ class BanqueDAO extends EntitéDAO
                 "user_id" => $user->id,
             ];
 
+            //Vérification contenu.yml, doit avoir une liste commençant par "questions" et avoir au minimum un élément qui contient "nom" et "url".
+            if (!$this->vérificationContenu($objet["url"])) {
+                throw new RuntimeException("Le fichier {$objet["url"]} ne peut pas être décodé. Le format produit est invalide.");
+            }
+            
             return $this->construire([
                 BanqueMdl::updateOrCreate([
                     'url' => $banque->url,],
@@ -109,10 +82,33 @@ class BanqueDAO extends EntitéDAO
         }
     }
 
+    public static function vérificationContenu(string $uri) : bool {
+        try {
+            $contenu = ChargeurFactoryBanque::get_instance()->get_chargeur_http()->get_url($uri);
+
+            $info = yaml_parse($contenu);
+
+            if ($info === false) {
+                throw new RuntimeException("Le fichier {$uri} ne peut pas être décodé. Le format produit est invalide.");
+            }
+
+            $estValide = false;
+
+            foreach ($info['questions'] as $question) {
+                if (isset($question['nom']) && isset($question['url'])) {
+                    $estValide = true;
+                }
+            }
+
+            return $estValide;
+            
+        }catch (\Throwable $e) {
+            throw new BadMethodCallException("Schéma d'URI invalide");
+        }
+    }
+    
     public static function construire(mixed $data, $includes = []): array
 	{
-        Log::Debug("BYEEEEEEEEEEEEEEE123");
-
 		$banques = [];
 		foreach ($data as $item) {
             if ($item == null) {
@@ -126,8 +122,6 @@ class BanqueDAO extends EntitéDAO
 
 			$banques[$item["id"]] = $banque;
             }
-            Log::Debug("BYEEEEEEEEEEEEEEE!!!!!!!!!!!!!!!!");
-
         return $banques;
 	}
 
@@ -147,21 +141,12 @@ class BanqueDAO extends EntitéDAO
 				$item["nom"],
 				$item["url"],
             );
-            //Log::Debug("ALLOOOOOOOOOOOOOOOOOOOOO");
 
             $contenu = ChargeurFactoryBanque::get_instance()->get_chargeur_http()->get_url($banque->url);
-            //Log::Debug("CONTENU FICHIER: ", ['content' => $contenu]);
 
             $info = yaml_parse($contenu);
 
-            //$infoQuestion = ChargeurFactoryBanque::get_instance()->get_chargeur_banque_http()->télécharger_fichier($banque->url);
-
-            //Log::Debug("INFO QUESTION: ", $info);
-
-
             foreach ($info['questions'] as $question) {
-
-                //Log::Debug("Nom: ", $question['nom'], "URL: ", $question['url']);
 
                 $questionBanque = new QuestionBanque (
 
@@ -170,8 +155,6 @@ class BanqueDAO extends EntitéDAO
                 );
 
                 $banque->ajouterQuestionsBanque($questionBanque);
-                //Log::Debug("Après avoir ajouté des questions: ", $banque);
-
             }
 
 			$banques[$item["id"]] = $banque;
