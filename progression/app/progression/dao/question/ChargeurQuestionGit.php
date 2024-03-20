@@ -95,10 +95,11 @@ class ChargeurQuestionGit extends ChargeurQuestion
 		return $répertoire_temporaire;
 	}
 
-	private function getIdDernierCommit(string $répertoire): string {
+	private function getIdDernierCommit(string $répertoire): string
+	{
 		$repository = new Repository($répertoire);
 		$commit = $repository->getHeadCommit();
-	
+
 		if ($commit !== null) {
 			Log::debug("Voici le dernier commit: " . $commit->getHash());
 			return $commit->getHash();
