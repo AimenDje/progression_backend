@@ -39,6 +39,8 @@ final class BanqueDAOTests extends TestCase
 	{
 		$résultat_observé = (new BanqueDAO())->get_tous("joe");
 
-		$this->assertNull($résultat_observé);
+        $résultats_attendu = [];
+        
+        $this->assertEquals($résultats_attendu, $résultat_observé);
 	}
 }
