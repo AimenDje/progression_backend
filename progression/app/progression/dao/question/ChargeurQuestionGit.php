@@ -79,14 +79,12 @@ class ChargeurQuestionGit extends ChargeurQuestion
 			$liste_commits = [];
 			exec($commande_remote, $liste_commits);
 			$latestCommitHash = $liste_commits[0] ?? null;
-			
+
 			if ($latestCommitHash) {
-				[$hash_dernier_commit, ] = explode("\t", $latestCommitHash);
+				[$hash_dernier_commit] = explode("\t", $latestCommitHash);
 				return trim($hash_dernier_commit);
 			}
-			throw new RuntimeException(
-				"Impossible de récupérer le dernier commit"
-			);
+			throw new RuntimeException("Impossible de récupérer le dernier commit");
 		} catch (Exception $e) {
 			Log::error("Erreur lors de l'obtention du hash du dernier commit : " . $e->getMessage());
 			throw new ChargeurException(

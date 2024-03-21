@@ -45,7 +45,7 @@ class ChargeurQuestionHTTP extends ChargeurQuestion
 		self::vérifier_type($content_type);
 
 		Log::debug("voici l'entêtes de la requête HTTP: " . json_encode($entêtes));
-		$etag = isset($entêtes['etag']) ? trim($entêtes['etag'], '"') : null;
+		$etag = isset($entêtes["etag"]) ? trim($entêtes["etag"], '"') : null;
 		Log::debug("ETag actuel: {$etag}");
 
 		if (str_starts_with($content_type, "application")) {
@@ -58,8 +58,8 @@ class ChargeurQuestionHTTP extends ChargeurQuestion
 			$contenu_question = $this->source->get_chargeur_question_fichier()->récupérer_question($uri);
 			Log::debug("Mise en cache de la question HTTP");
 			$donnéesÀMettreEnCache = [
-				'contenu' => $contenu_question,
-				'cléModification' => $etag
+				"contenu" => $contenu_question,
+				"cléModification" => $etag,
 			];
 
 			$cléCache = md5($uri);

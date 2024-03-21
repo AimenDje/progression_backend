@@ -26,7 +26,6 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
-
 class QuestionDAO extends EntitéDAO
 {
 	public function get_question($uri)
@@ -46,7 +45,7 @@ class QuestionDAO extends EntitéDAO
 
 		$donnéesRécupérées = Cache::get(md5($uri));
 
-		if ($donnéesRécupérées && isset ($donnéesRécupérées["contenu"])) {
+		if ($donnéesRécupérées && isset($donnéesRécupérées["contenu"])) {
 			$is_changed = $chargeur->est_modifié($uri, $donnéesRécupérées["cléModification"]);
 			if ($is_changed) {
 				// Cache::forget($donnéesRécupérées);
@@ -54,7 +53,6 @@ class QuestionDAO extends EntitéDAO
 			} else {
 				$infos_question = $donnéesRécupérées["contenu"];
 			}
-
 		} else {
 			$infos_question = $chargeur->récupérer_question($uri);
 		}
