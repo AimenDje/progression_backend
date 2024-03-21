@@ -71,13 +71,16 @@ final class ChargeurQuestionGitTests extends TestCase
 		$cheminAttendue = "/tmp/gitExemple/info.yml";
 		$mockFacadeFile = Mockery::mock("alias:Illuminate\Support\Facades\File");
 		$mockFacadeFile->shouldReceive("exists")->with("/tmp/gitExemple/info.yml")->andReturn(true);
-		$this->assertEquals($cheminAttendue, (new ChargeurQuestionGit())->chercher_info(
-			"/tmp/gitExemple",
-		)
+		$this->assertEquals(
+			$cheminAttendue,
+			(new ChargeurQuestionGit())->chercher_info(
+				"/tmp/gitExemple",
+			)
 		);
 	}
 
-	public function test_étant_donné_un_lien_public_dun_dépôt_git_lorsquon_récupère_le_lien_on_obtient_le_contenu_de_la_question(){
+	public function test_étant_donné_un_lien_public_dun_dépôt_git_lorsquon_récupère_le_lien_on_obtient_le_contenu_de_la_question()
+	{
 		$résultatAttendu = [
 			"niveau" => "intro",
 			"rétroactions" => [
@@ -101,6 +104,16 @@ final class ChargeurQuestionGitTests extends TestCase
 
 		$ChargeurQuestionGit = new ChargeurQuestionGit();
 		$résultatObtenue = $ChargeurQuestionGit->récupérer_question("https://git.dti.crosemont.quebec/session-intensive/equipe-recuperation/test-depot-git-progression-avec-un-seul-infoyml.git");
-        $this->assertEquals($résultatAttendu, $résultatObtenue);
+		$this->assertEquals($résultatAttendu, $résultatObtenue);
 	}
+
+	public function test_étant_donné_un_répertoire_temporaire_existant_dans_le_dossier_tmp_losrquon_le_supprime_on_obtient_un_dossier_tmp_vide()
+    {
+        $mockFacadeFile = Mockery::mock("alias:Illuminate\Support\Facades\File");
+        $mockFacadeFile->shouldReceive("isDirectory")->with("/tmp/repertoireTemporaire")->andReturn(true);
+        $mockFacadeFile->shouldReceive("deleteDirectory")->with("/tmp/repertoireTemporaire")->andReturn(true);
+        $ChargeurQuestionGit = new ChargeurQuestionGit();
+        $résultat = $ChargeurQuestionGit->supprimer_répertoire_temporaire("/tmp/repertoireTemporaire");
+        $this->assertNull($résultat);
+    }
 }
