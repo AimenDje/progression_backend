@@ -40,7 +40,6 @@ class ChargeurQuestionGit extends ChargeurQuestion
 		$contenu_question = $chargeurFichier->récupérer_question($chemin_fichier_dans_dépôt);
 
 		$this->supprimer_répertoire_temporaire($répertoire_temporaire);
-
 		return $contenu_question;
 	}
 
