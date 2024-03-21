@@ -64,8 +64,6 @@ class ChargeurQuestionGit extends ChargeurQuestion
 	public function est_modifié(string $uri, string $hash_cache): bool
 	{
 		$remote_hash = $this->obtenir_hash_dernier_commit($uri);
-		Log::debug("Voici le log actuel" .$hash_cache);
-		Log::debug("Voici le log remote" .$remote_hash);
 		return $hash_cache !== $remote_hash;
 	}
 
@@ -81,7 +79,6 @@ class ChargeurQuestionGit extends ChargeurQuestion
 			$liste_commits = [];
 			exec($commande_remote, $liste_commits);
 			$latestCommitHash = $liste_commits[0] ?? null;
-			Log::debug("Voici le dernier commit : " . $latestCommitHash);
 			
 			if ($latestCommitHash) {
 				[$hash_dernier_commit, ] = explode("\t", $latestCommitHash);
@@ -109,15 +106,10 @@ class ChargeurQuestionGit extends ChargeurQuestion
 
 		if (!File::isDirectory($répertoire_cible)) {
 			File::makeDirectory($répertoire_cible, 0777, true);
-			Log::debug("Dossier créé : $répertoire_cible");
 		}
-
-		Log::debug("Chemin du dépôt temporaire: " . $répertoire_temporaire);
-		Log::debug("URL du dépôt git: " . $url_du_dépôt);
 
 		try {
 			Admin::cloneTo($répertoire_temporaire, $url_du_dépôt, false);
-			Log::debug("Dépôt cloné avec succès à : $répertoire_temporaire");
 		} catch (ChargeurException $e) {
 			Log::error("Erreur lors du clonage du dépôt : " . $e->getMessage());
 			throw new ChargeurException(
@@ -133,10 +125,8 @@ class ChargeurQuestionGit extends ChargeurQuestion
 		$commit = $repository->getHeadCommit();
 
 		if ($commit !== null) {
-			Log::debug("Voici le dernier commit: " . $commit->getHash());
 			return $commit->getHash();
 		} else {
-			Log::error("Aucun commit trouvé dans le dépôt.");
 			throw new RuntimeException("Aucun commit trouvé dans le dépôt cloné.");
 		}
 	}
@@ -150,7 +140,6 @@ class ChargeurQuestionGit extends ChargeurQuestion
 		$cheminDirect = $répertoire_temporaire . "/info.yml";
 
 		if (File::exists($cheminDirect)) {
-			Log::debug("Fichier trouvé : " . $cheminDirect);
 			return $cheminDirect;
 		}
 
@@ -164,7 +153,6 @@ class ChargeurQuestionGit extends ChargeurQuestion
 	{
 		if (File::isDirectory($dossier_temporaire)) {
 			File::deleteDirectory($dossier_temporaire);
-			Log::debug("Dossier temporaire supprimé : $dossier_temporaire");
 		}
 	}
 }
