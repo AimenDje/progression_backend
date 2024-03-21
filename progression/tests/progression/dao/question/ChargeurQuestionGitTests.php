@@ -50,4 +50,8 @@ final class ChargeurQuestionGitTests extends TestCase
 	public function test_étant_donné_un_url_dépôt_git_dans_lequel_le_fichier_infoYml_est_inexistant_lorsquon_charge_la_question_on_obtient_une_exception_avec_un_message()
 	{
 	}
+
+	public function test_étant_donné_un_uri_invalide_losquon_met_en_cache_la_question_on_obtient_une_exception_avec_un_message_spécifique()
+	{
+	}
 }
