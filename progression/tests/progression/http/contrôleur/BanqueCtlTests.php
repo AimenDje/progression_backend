@@ -34,30 +34,30 @@ final class BanqueCtlTests extends ContrôleurTestCase
         rôle: Rôle::NORMAL,
         état: État::ACTIF,
       );
+      /*
+        public function test_étant_donné()
+        {
 
-      public function test_étant_donné()
-      {
+        }
 
-      }
-
-      public function test_étant_donné()
-      {
+        public function test_étant_donné()
+        {
         
-      }
+        }
 
-      public function test_étant_donné()
-      {
+        public function test_étant_donné()
+        {
         
-      }
+        }
 
-      public function test_étant_donné()
-      {
+        public function test_étant_donné()
+        {
         
-      }
+        }
 
-      public function test_étant_donné()
-      {
+        public function test_étant_donné()
+        {
         
-      }
+      }*/
     }
 }

@@ -20,6 +20,8 @@ namespace progression\dao;
 
 use progression\TestCase;
 use progression\dao\EntitéDAO;
+use progression\domaine\entité\banque\Banque;
+use progression\domaine\entité\banque\QuestionBanque;
 
 final class BanqueDAOTests extends TestCase
 {
@@ -44,9 +46,39 @@ final class BanqueDAOTests extends TestCase
         $this->assertEquals($résultats_attendu, $résultat_observé);
 	}
 
-    // public function test_étant_donné_un_utilisateur_existant_qui_na_pas_de_banque_lorsquon_récupère_toutes_les_banques_on_obtient_une_liste_vide()
+    public function test_étant_donné_un_utilisateur_existant_qui_na_pas_de_banque_lorsquon_récupère_toutes_les_banques_on_obtient_une_liste_vide()
+    {
+		$résultat_observé = (new BanqueDAO())->get_tous("jdoe");
 
-    // public function test_étant_donné_un_utilisateur_existant_qui_a_une_banque_avec_une_erreur_dans_le_contenu_yml_lorsquon_récupère_toutes_les_banques_on_obtient_une_liste_contenant_une_banque_avec_les_questions_si_elles_sont_lisibles()
+        $résultats_attendu = [];
+        
+        $this->assertEquals($résultats_attendu, $résultat_observé);
+	}
+
+
+    /*
+      public function test_étant_donné_un_utilisateur_existant_qui_a_une_banque_avec_une_erreur_dans_le_contenu_yml_lorsquon_récupère_toutes_les_banques_on_obtient_une_liste_contenant_une_banque_avec_les_questions_si_elles_sont_lisibles()
+      {
+        $résultat_observé = (new BanqueDAO())->get_tous("bob");
+
+
+        $résultats_attendu = [];
+        
+        $banque = new Banque("Test banque de questions 1 - fichier yaml invalide","https://git.dti.crosemont.quebec/Julien_Giguere/progression_questions-test/-/raw/main/QuestionsYAML/contenu.yml");    
+            
+        $questionBanque1 = new QuestionBanque("Question1","https://git.dti.crosemont.quebec/asarkes/progression_questions-test/-/raw/main/QuestionsYAML/exemple-anayees.yml");
+        $banque->ajouterQuestionsBanque($questionBanque1);
+
+        $questionBanque2 = new QuestionBanque("erreur de lecture du fichier contenu.yml","");
+        $banque->ajouterQuestionsBanque($questionBanque2);
+
+        $questionBanque3 = new QuestionBanque("Question3","https://git.dti.crosemont.quebec/asarkes/progression_questions-test/-/raw/main/QuestionsYAML/exemple-anayees-1.yml");
+        $banque->ajouterQuestionsBanque($questionBanque3);
+
+        array_push($résultats_attendu, $banque);
+       
+        $this->assertEquals($résultats_attendu, $résultat_observé);
+        }*/
 
     // public function test_étant_donné_un_utilisateur_existant_qui_a_une_banque_lorsquon_récupère_toutes_les_banques_on_obtient_une_liste_contenant_sa_banque()
     
