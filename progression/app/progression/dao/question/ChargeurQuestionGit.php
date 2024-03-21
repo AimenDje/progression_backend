@@ -39,7 +39,6 @@ class ChargeurQuestionGit extends ChargeurQuestion
 		$contenu_question = $chargeurFichier->récupérer_question($chemin_fichier_dans_dépôt);
 
 		$this->supprimer_répertoire_temporaire($répertoire_temporaire);
-
 		return $contenu_question;
 	}
 
@@ -57,7 +56,7 @@ class ChargeurQuestionGit extends ChargeurQuestion
 	 * @param string $url_du_dépôt
 	 * @return string
 	 */
-	private function cloner_dépôt(string $url_du_dépôt): string
+	public function cloner_dépôt(string $url_du_dépôt): string
 	{
 		$répertoire_cible = sys_get_temp_dir();
 		$dossier_temporaire = $répertoire_cible . "/git_repo_" . uniqid();
@@ -102,7 +101,7 @@ class ChargeurQuestionGit extends ChargeurQuestion
 	/**
 	 * @param string $dossier_temporaire
 	 */
-	private function supprimer_répertoire_temporaire(string $dossier_temporaire): void
+	public function supprimer_répertoire_temporaire(string $dossier_temporaire): void
 	{
 		if (File::isDirectory($dossier_temporaire)) {
 			File::deleteDirectory($dossier_temporaire);
