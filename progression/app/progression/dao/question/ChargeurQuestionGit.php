@@ -49,9 +49,12 @@ class ChargeurQuestionGit extends ChargeurQuestion
 
 		$cléCache = md5($uri);
 
-		Cache::put($cléCache, $donnéesÀMettreEnCache);
-
-		$this->supprimer_répertoire_temporaire($répertoire_temporaire);
+		try {
+			Cache::put($cléCache, $donnéesÀMettreEnCache);
+			$this->supprimer_répertoire_temporaire($répertoire_temporaire);
+		} catch (ChargeurException $e) {
+			throw new ChargeurException("La mise en cache la question a échoué! L'uri de la question est invalide");
+		}
 
 		return $contenu_question;
 	}
