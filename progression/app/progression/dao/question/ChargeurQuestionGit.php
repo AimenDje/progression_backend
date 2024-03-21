@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use RuntimeException;
+use Gitonomy\Git\Exception\ReferenceNotFoundException;
 
 class ChargeurQuestionGit extends ChargeurQuestion
 {
@@ -82,12 +83,14 @@ class ChargeurQuestionGit extends ChargeurQuestion
 			$liste_commits = [];
 			exec($commande_remote, $liste_commits);
 			$latestCommitHash = $liste_commits[0] ?? null;
-
+			
 			if ($latestCommitHash) {
-				[$hash_dernier_commit] = explode("\t", $latestCommitHash);
+				[$hash_dernier_commit, ] = explode("\t", $latestCommitHash);
 				return trim($hash_dernier_commit);
 			}
-			throw new RuntimeException("Impossible de récupérer le dernier commit");
+			throw new RuntimeException(
+				"Impossible de récupérer le dernier commit"
+			);
 		} catch (Exception $e) {
 			Log::error("Erreur lors de l'obtention du hash du dernier commit : " . $e->getMessage());
 			throw new ChargeurException(
@@ -122,12 +125,14 @@ class ChargeurQuestionGit extends ChargeurQuestion
 
 	private function getIdDernierCommit(string $répertoire): string
 	{
-		$repository = new Repository($répertoire);
-		$commit = $repository->getHeadCommit();
-
-		if ($commit !== null) {
-			return $commit->getHash();
-		} else {
+		try {
+			$repository = new Repository($répertoire);
+			$commit = $repository->getHeadCommit();
+	
+			if ($commit !== null) {
+				return $commit->getHash();
+			}
+		} catch (ReferenceNotFoundException $e) {
 			throw new RuntimeException("Aucun commit trouvé dans le dépôt cloné.");
 		}
 	}
