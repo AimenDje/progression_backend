@@ -26,5 +26,5 @@ abstract class ChargeurQuestion extends Chargeur
 	 */
 	abstract public function récupérer_question(string $uri): array;
 
-	abstract public function est_modifié(string $uri, int|string $cle): bool;
+	abstract public function est_modifié(string $uri, string $cle): bool;
 }

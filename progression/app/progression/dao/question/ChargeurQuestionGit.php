@@ -58,12 +58,44 @@ class ChargeurQuestionGit extends ChargeurQuestion
 
 	/**
 	 * @param string $uri
-	 * @param int|string $cle
+	 * @param int|string $hash_cache
 	 * @return bool
 	 */
-	public function est_modifié(string $uri, $cle): bool
+	public function est_modifié(string $uri, string $hash_cache): bool
 	{
-		return true;
+		$remote_hash = $this->obtenir_hash_dernier_commit($uri);
+		Log::debug("Voici le log actuel" .$hash_cache);
+		Log::debug("Voici le log remote" .$remote_hash);
+		return $hash_cache !== $remote_hash;
+	}
+
+	/**
+	 * @param string $uri
+	 * @return string
+	 */
+	public function obtenir_hash_dernier_commit(string $uri): string
+	{
+		try {
+			$uri_valide = escapeshellarg($uri);
+			$commande_remote = "git ls-remote $uri_valide | grep -o '^\S*'";
+			$liste_commits = [];
+			exec($commande_remote, $liste_commits);
+			$latestCommitHash = $liste_commits[0] ?? null;
+			Log::debug("Voici le dernier commit : " . $latestCommitHash);
+			
+			if ($latestCommitHash) {
+				[$hash_dernier_commit, ] = explode("\t", $latestCommitHash);
+				return trim($hash_dernier_commit);
+			}
+			throw new RuntimeException(
+				"Impossible de récupérer le dernier commit"
+			);
+		} catch (Exception $e) {
+			Log::error("Erreur lors de l'obtention du hash du dernier commit : " . $e->getMessage());
+			throw new ChargeurException(
+				"L'obtention du hash du dernier commit a échoué! Ce dépôt est peut-être privé ou n'existe pas.",
+			);
+		}
 	}
 
 	/**
