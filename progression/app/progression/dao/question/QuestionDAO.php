@@ -24,6 +24,8 @@ use progression\dao\EntitéDAO;
 use progression\domaine\entité\question\{QuestionProg, QuestionSys};
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis;
+
 
 class QuestionDAO extends EntitéDAO
 {
@@ -44,9 +46,18 @@ class QuestionDAO extends EntitéDAO
 
 		$donnéesRécupérées = Cache::get(md5($uri));
 
-		if ($donnéesRécupérées && isset($donnéesRécupérées["contenu"])) {
-			$infos_question = $donnéesRécupérées["contenu"];
-			Log::debug("Récupération de la question depuis le cache pour l'URL du dépôt: {$uri}");
+		if ($donnéesRécupérées && isset ($donnéesRécupérées["contenu"])) {
+			$is_changed = $chargeur->est_modifié($uri, $donnéesRécupérées["cléModification"]);
+			Log::debug("Valeur de is_changed :". ($is_changed ? 'true' : 'false'));
+			if ($is_changed) {
+				// Cache::forget($donnéesRécupérées);
+				$infos_question = $chargeur->récupérer_question($uri);
+				$this->loguerClésCache();
+			} else {
+				$infos_question = $donnéesRécupérées["contenu"];
+				Log::debug("Récupération de la question depuis le cache pour l'URL du dépôt: {$uri}");
+			}
+
 		} else {
 			$infos_question = $chargeur->récupérer_question($uri);
 			Log::debug("La question pour l'URL du dépôt {$uri} n'est pas dans le cache. Chargement depuis le dépôt.");
@@ -64,5 +75,11 @@ class QuestionDAO extends EntitéDAO
 		} else {
 			throw new DomainException("Type de question inconnu ou non pris en charge");
 		}
+	}
+
+	private function loguerClésCache()
+	{
+		$clés = Redis::connection()->keys('*');
+		Log::debug("Clés de cache actuelles : " . implode(', ', $clés));
 	}
 }
