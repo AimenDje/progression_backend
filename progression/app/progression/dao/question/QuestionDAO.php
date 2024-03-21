@@ -47,6 +47,7 @@ class QuestionDAO extends EntitéDAO
 
 		if ($donnéesRécupérées && isset($donnéesRécupérées["contenu"])) {
 			$is_changed = $chargeur->est_modifié($uri, $donnéesRécupérées["cléModification"]);
+			Log::debug("Valeur de is_changed :" . ($is_changed ? "true" : "false"));
 			if ($is_changed) {
 				// Cache::forget($donnéesRécupérées);
 				$infos_question = $chargeur->récupérer_question($uri);
