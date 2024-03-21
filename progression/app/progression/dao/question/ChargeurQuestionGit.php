@@ -17,6 +17,7 @@
  */
 namespace progression\dao\question;
 
+use Exception;
 use Gitonomy\Git\Admin;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
@@ -74,7 +75,7 @@ class ChargeurQuestionGit extends ChargeurQuestion
 		try {
 			Admin::cloneTo($dossier_temporaire, $url_du_dépôt, false);
 			Log::debug("Dépôt cloné avec succès à : $dossier_temporaire");
-		} catch (ChargeurException $e) {
+		} catch (RuntimeException $e) {
 			Log::error("Erreur lors du clonage du dépôt : " . $e->getMessage());
 			throw new ChargeurException(
 				"Le clonage du dépôt git a échoué! Ce dépôt est peut-être privé ou n'existe pas.",

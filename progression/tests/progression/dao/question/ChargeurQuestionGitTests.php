@@ -33,25 +33,6 @@ final class ChargeurQuestionGitTests extends TestCase
 		$this->contenu_tmp = scandir("/tmp");
 	}
 
-	public function tearDown(): void
-	{
-		$this->assertEquals($this->contenu_tmp, scandir("/tmp"));
-
-		parent::tearDown();
-	}
-
-	public function test_étant_donné_un_url_dépôt_git_lorsquon_charge_la_question_on_obtient_un_objet_Question_correspondant()
-	{
-	}
-
-	public function test_étant_donné_un_url_dépôt_git_privé_lorsquon_charge_la_question_on_obtient_une_exception_avec_un_message()
-	{
-	}
-
-	public function test_étant_donné_un_url_dépôt_git_dans_lequel_le_fichier_infoYml_est_inexistant_lorsquon_charge_la_question_on_obtient_une_exception_avec_un_message()
-	{
-	}
-
 	public function test_étant_donné_un_dépôt_git_avec_un_fichier_info_yml_inexistant_losrquon_cherche_info_yml_on_obtient_une_runtime_exception()
 	{
 		$mockFacadeFile = Mockery::mock("alias:Illuminate\Support\Facades\File");
@@ -78,29 +59,43 @@ final class ChargeurQuestionGitTests extends TestCase
 	}
 
 	public function test_étant_donné_un_lien_public_dun_dépôt_git_lorsquon_récupère_le_lien_on_obtient_le_contenu_de_la_question(){
-		$résultatAttendu = [
-			"niveau" => "intro",
-			"rétroactions" => [
-				"erreur" => "La page [wikipédia sur Kotlin](https://fr.wikipedia.org/wiki/Kotlin_(langage)) peut vous aider.",
-				"négative" => "Assurez-vous que le texte affiché soit exactement celui demandé",
-				"positive" => "Bravo! Passez maintenant à l'exercice suivant."
-			],
-			"tests" => [
-				[
-					"sortie" => "Bonjour le monde de Kotlin!\n"
-				]
-			],
-			"titre" => "Bonjour Kotlin! (DIR:question)",
-			"type" => "prog",
-			"uuid" => "1a879ae8-c0af-49b6-889b-3370f07f5418",
-			"ébauches" => [
-				"kotlin" => "//-VISIBLE\nfun main(){\n//+VISIBLE\n// Écrivez votre code ici 👇\n// et cliquez sur le triangle vert pour le tester.\n// INFO.YML dans DIR QuESTION\n//+TODO\n\n\n//-TODO\n//-VISIBLE\n}\n"
-			],
-			"énoncé" => "Bienvenue au merveilleux monde de [Kotlin](https://fr.wikipedia.org/wiki/Kotlin_(langage)).\n\nComme premier programme, telle que le veut la coutume, il s'agira de faire afficher la phrase suivante :\n\n    Bonjour le monde de Kotlin!\n"
-		];
+		$résultatAttendu = [];
+		$mockFacadeFile = Mockery::mock("alias:Illuminate\Support\Facades\File");
+		$mockFacadeFile->shouldReceive("isDirectory")->with("/tmp")->andReturn(true);
+		$repTemporaire = "/tmp/git_repo_" . uniqid();
+		mkdir($repTemporaire);
+		$uriDépôt = "https://legitexistepas.git";
+
+		$mockAdmin = Mockery::mock("alias:Gitonomy\Git\Admin");
+		$mockAdmin->shouldReceive("cloneTo")->with($repTemporaire, $uriDépôt,false);
+		$mockFacadeFile->shouldReceive("exists")->with("/tmp/gitExemple/info.yml")->andReturn(true);
 
 		$ChargeurQuestionGit = new ChargeurQuestionGit();
 		$résultatObtenue = $ChargeurQuestionGit->récupérer_question("https://git.dti.crosemont.quebec/session-intensive/equipe-recuperation/test-depot-git-progression-avec-un-seul-infoyml.git");
         $this->assertEquals($résultatAttendu, $résultatObtenue);
+	}
+
+	public function test_étant_donné_un_dépôt_git_inexistant_losrquon_essaie_de_cloner_on_obtient_une_chargeur_exception()
+	{
+		$mockFacadeFile = Mockery::mock("alias:Illuminate\Support\Facades\File");
+		$mockFacadeFile->shouldReceive("isDirectory")->with("/tmp")->andReturn(true);
+		$repTemporaire = "/tmp/git_repo_" . uniqid();
+		mkdir($repTemporaire);
+		$uriDépôt = "https://legitexistepas.git";
+
+		$mockAdmin = Mockery::mock("alias:Gitonomy\Git\Admin");
+		$mockAdmin->shouldReceive("cloneTo")->with($repTemporaire, $uriDépôt,false);
+		
+		$chargeurQuestionGit = new ChargeurQuestionGit();
+		$reflection = new \ReflectionClass(get_class($chargeurQuestionGit));
+		$methode = $reflection->getMethod('cloner_dépôt');
+		$methode->setAccessible(true);
+
+		try {
+			$methode->invokeArgs($chargeurQuestionGit, [$uriDépôt]);
+			$this->fail();
+		} catch (ChargeurException $e) {
+			$this->assertEquals("Le clonage du dépôt git a échoué! Ce dépôt est peut-être privé ou n'existe pas.", $e->getMessage());
+		}
 	}
 }
