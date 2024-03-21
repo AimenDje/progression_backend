@@ -59,4 +59,5 @@ final class BanqueCtlTests extends ContrôleurTestCase
       {
         
       }
+    }
 }
