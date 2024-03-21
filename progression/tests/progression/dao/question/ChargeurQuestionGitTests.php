@@ -20,6 +20,7 @@ namespace progression\dao\question;
 
 use progression\TestCase;
 use Mockery;
+use RuntimeException;
 
 final class ChargeurQuestionGitTests extends TestCase
 {
@@ -49,5 +50,30 @@ final class ChargeurQuestionGitTests extends TestCase
 
 	public function test_étant_donné_un_url_dépôt_git_dans_lequel_le_fichier_infoYml_est_inexistant_lorsquon_charge_la_question_on_obtient_une_exception_avec_un_message()
 	{
+	}
+
+	public function test_étant_donné_un_dépôt_git_avec_un_fichier_info_yml_inexistant_losrquon_cherche_info_yml_on_obtient_une_runtime_exception()
+	{
+		$mockFacadeFile = Mockery::mock("alias:Illuminate\Support\Facades\File");
+		$mockFacadeFile->shouldReceive("exists")->with("/tmp/gitExemple/info.yml")->andReturn(false);
+		try {
+			(new ChargeurQuestionGit())->chercher_info(
+				"/tmp/gitExemple",
+			);
+			$this->fail();
+		} catch (RuntimeException $e) {
+			$this->assertEquals("Fichier info.yml inexistant dans le dépôt.", $e->getMessage());
+		}
+	}
+
+	public function test_étant_donné_un_dépôt_git_avec_un_fichier_info_yml_existant_losrquon_cherche_info_yml_on_obtient_le_chemin_du_fichier()
+	{
+		$cheminAttendue = "/tmp/gitExemple/info.yml";
+		$mockFacadeFile = Mockery::mock("alias:Illuminate\Support\Facades\File");
+		$mockFacadeFile->shouldReceive("exists")->with("/tmp/gitExemple/info.yml")->andReturn(true);
+		$this->assertEquals($cheminAttendue, (new ChargeurQuestionGit())->chercher_info(
+			"/tmp/gitExemple",
+		)
+		);
 	}
 }
