@@ -76,4 +76,31 @@ final class ChargeurQuestionGitTests extends TestCase
 		)
 		);
 	}
+
+	public function test_étant_donné_un_lien_public_dun_dépôt_git_lorsquon_récupère_le_lien_on_obtient_le_contenu_de_la_question(){
+		$résultatAttendu = [
+			"niveau" => "intro",
+			"rétroactions" => [
+				"erreur" => "La page [wikipédia sur Kotlin](https://fr.wikipedia.org/wiki/Kotlin_(langage)) peut vous aider.",
+				"négative" => "Assurez-vous que le texte affiché soit exactement celui demandé",
+				"positive" => "Bravo! Passez maintenant à l'exercice suivant."
+			],
+			"tests" => [
+				[
+					"sortie" => "Bonjour le monde de Kotlin!\n"
+				]
+			],
+			"titre" => "Bonjour Kotlin! (DIR:question)",
+			"type" => "prog",
+			"uuid" => "1a879ae8-c0af-49b6-889b-3370f07f5418",
+			"ébauches" => [
+				"kotlin" => "//-VISIBLE\nfun main(){\n//+VISIBLE\n// Écrivez votre code ici 👇\n// et cliquez sur le triangle vert pour le tester.\n// INFO.YML dans DIR QuESTION\n//+TODO\n\n\n//-TODO\n//-VISIBLE\n}\n"
+			],
+			"énoncé" => "Bienvenue au merveilleux monde de [Kotlin](https://fr.wikipedia.org/wiki/Kotlin_(langage)).\n\nComme premier programme, telle que le veut la coutume, il s'agira de faire afficher la phrase suivante :\n\n    Bonjour le monde de Kotlin!\n"
+		];
+
+		$ChargeurQuestionGit = new ChargeurQuestionGit();
+		$résultatObtenue = $ChargeurQuestionGit->récupérer_question("https://git.dti.crosemont.quebec/session-intensive/equipe-recuperation/test-depot-git-progression-avec-un-seul-infoyml.git");
+        $this->assertEquals($résultatAttendu, $résultatObtenue);
+	}
 }
