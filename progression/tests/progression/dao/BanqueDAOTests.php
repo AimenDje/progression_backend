@@ -35,7 +35,7 @@ final class BanqueDAOTests extends TestCase
 		parent::tearDown();
 	}
 
-	public function test_étant_donné_un_utilisateur_existant_qui_na_pas_de_banque_favoris_lorsquon_récupère_toutes_les_banques_on_obtient_null()
+	public function test_étant_donné_un_utilisateur_qui_nexiste_pas_lorsquon_récupère_toutes_les_banques_on_obtient_une_liste_vide()
 	{
 		$résultat_observé = (new BanqueDAO())->get_tous("joe");
 
@@ -43,4 +43,12 @@ final class BanqueDAOTests extends TestCase
         
         $this->assertEquals($résultats_attendu, $résultat_observé);
 	}
+
+    // public function test_étant_donné_un_utilisateur_existant_qui_na_pas_de_banque_lorsquon_récupère_toutes_les_banques_on_obtient_une_liste_vide()
+
+    // public function test_étant_donné_un_utilisateur_existant_qui_a_une_banque_lorsquon_récupère_toutes_les_banques_on_obtient_une_liste_contenant_une_banque()
+
+    // public function test_étant_donné_un_utilisateur_existant_qui_plusieurs_banques_lorsquon_récupère_toutes_les_banques_on_obtient_une_liste_contenant_toutes_ses_banques()
+    
+    
 }

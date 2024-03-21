@@ -36,10 +36,11 @@ final class BanqueTransformerTests extends TestCase
                 objet: $banque,
                 liens: [],
           ),
+      );
 
-        );
-        $this->assertJsonStringEqualsJsonFile(
+      $this->assertJsonStringEqualsJsonFile(
           __DIR__ . "/résultats_attendus/banqueTransformerTest.json",
           json_encode($résultats_obtenus),
-        )
+      );
+    }
 }
