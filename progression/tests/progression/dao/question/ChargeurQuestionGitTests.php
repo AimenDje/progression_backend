@@ -101,6 +101,28 @@ final class ChargeurQuestionGitTests extends TestCase
 		}
 	}
 
+	public function test_étant_donné_un_dépôt_git_losrquon_essaie_de_le_cloner_on_obtient_son_chemin_de_son_répertoire()
+	{
+		$résultat_attendu = "/tmp/git_repo_";
+		$mockFacadeFile = Mockery::mock("alias:Illuminate\Support\Facades\File");
+		$mockFacadeFile->shouldReceive("isDirectory")->with("/tmp")->andReturn(true);
+		$uriDépôt = "https://legitexistepas.git";
+
+        $mockAdmin = Mockery::mock("alias:Gitonomy\Git\Admin");
+        $mockAdmin->shouldReceive("cloneTo")->andReturn();
+		
+		$chargeurQuestionGit = new ChargeurQuestionGit();
+		$reflection = new \ReflectionClass(get_class($chargeurQuestionGit));
+		$methode = $reflection->getMethod('cloner_dépôt');
+		$methode->setAccessible(true);
+
+		$résultat_obtenue = $methode->invokeArgs($chargeurQuestionGit, [$uriDépôt]);
+
+		$résultat_obtenue = substr($résultat_obtenue, 0, 14);
+ 
+        $this->assertEquals($résultat_attendu, $résultat_obtenue);
+	}
+
 	public function test_étant_donné_un_répertoire_temporaire_existant_dans_le_dossier_tmp_losrquon_le_supprime_on_obtient_un_dossier_tmp_vide()
     {
         $mockFacadeFile = Mockery::mock("alias:Illuminate\Support\Facades\File");
