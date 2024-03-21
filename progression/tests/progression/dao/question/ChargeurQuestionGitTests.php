@@ -106,8 +106,11 @@ final class ChargeurQuestionGitTests extends TestCase
         $mockFacadeFile = Mockery::mock("alias:Illuminate\Support\Facades\File");
         $mockFacadeFile->shouldReceive("isDirectory")->with("/tmp/repertoireTemporaire")->andReturn(true);
         $mockFacadeFile->shouldReceive("deleteDirectory")->with("/tmp/repertoireTemporaire")->andReturn(true);
-        $ChargeurQuestionGit = new ChargeurQuestionGit();
-        $résultat = $ChargeurQuestionGit->supprimer_répertoire_temporaire("/tmp/repertoireTemporaire");
+		$chargeurQuestionGit = new ChargeurQuestionGit();
+        $reflection = new \ReflectionClass(get_class($chargeurQuestionGit));
+		$supprimer = $reflection->getMethod("supprimer_répertoire_temporaire");
+		$supprimer->setAccessible(true);
+		$résultat = $supprimer->invoke($chargeurQuestionGit,"/tmp/repertoireTemporaire");
         $this->assertNull($résultat);
     }
 
