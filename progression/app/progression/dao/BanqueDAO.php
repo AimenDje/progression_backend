@@ -102,7 +102,7 @@ class BanqueDAO extends EntitéDAO
 
             return $estValide;
             
-        }catch (\Throwable $e) {
+        } catch (\Throwable $e) {
             throw new BadMethodCallException("Schéma d'URI invalide");
         }
     }
@@ -136,28 +136,38 @@ class BanqueDAO extends EntitéDAO
             if ($item == null) {
                 continue;
             }
+
+            try {
+                $banque = new Banque(
+                    $item["nom"],
+                    $item["url"],
+                );    
             
-            $banque = new Banque(
-				$item["nom"],
-				$item["url"],
-            );
+                $contenu = ChargeurFactoryBanque::get_instance()->get_chargeur_http()->get_url($banque->url);
 
-            $contenu = ChargeurFactoryBanque::get_instance()->get_chargeur_http()->get_url($banque->url);
+                $info = yaml_parse($contenu);
 
-            $info = yaml_parse($contenu);
+                foreach ($info['questions'] as $question) {
 
-            foreach ($info['questions'] as $question) {
+                    $questionBanque = new QuestionBanque (
 
-                $questionBanque = new QuestionBanque (
+                        $question['nom'],
+                        $question['url'],
+                    );
 
-                    $question['nom'],
-                    $question['url'],
-                );
+                    $banque->ajouterQuestionsBanque($questionBanque);
+                }
+            } catch (\Throwable $e) {
+                $banque = new Banque(
+                    $item["nom"],
+                    $item["url"],
+                );    
+                $questionBanque = new QuestionBanque ("erreur de lecture du fichier contenu.yml","",);
 
                 $banque->ajouterQuestionsBanque($questionBanque);
-            }
+            } 
 
-			$banques[$item["id"]] = $banque;
+            $banques[$item["id"]] = $banque;
             }
         return $banques;
 	}
