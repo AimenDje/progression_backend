@@ -22,6 +22,8 @@ use DomainException;
 use BadMethodCallException;
 use progression\dao\EntitéDAO;
 use progression\domaine\entité\question\{QuestionProg, QuestionSys};
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class QuestionDAO extends EntitéDAO
 {
@@ -31,28 +33,36 @@ class QuestionDAO extends EntitéDAO
 		$extension = pathinfo($uri, PATHINFO_EXTENSION);
 
 		if ($scheme == "file") {
-			$infos_question = ChargeurFactory::get_instance()
-				->get_chargeur_question_fichier()
-				->récupérer_question($uri);
+			$chargeur = ChargeurFactory::get_instance()->get_chargeur_question_fichier();
 		} elseif ($extension == "git") {
-			$infos_question = ChargeurFactory::get_instance()->get_chargeur_question_git()->récupérer_question($uri);
+			$chargeur = ChargeurFactory::get_instance()->get_chargeur_question_git();
 		} elseif ($scheme == "https") {
-			$infos_question = ChargeurFactory::get_instance()->get_chargeur_question_http()->récupérer_question($uri);
+			$chargeur = ChargeurFactory::get_instance()->get_chargeur_question_http();
 		} else {
 			throw new BadMethodCallException("Schéma d'URI invalide");
+		}
+
+		$donnéesRécupérées = Cache::get(md5($uri));
+
+		if ($donnéesRécupérées && isset($donnéesRécupérées["contenu"])) {
+			$infos_question = $donnéesRécupérées["contenu"];
+			Log::debug("Récupération de la question depuis le cache pour l'URL du dépôt: {$uri}");
+		} else {
+			$infos_question = $chargeur->récupérer_question($uri);
+			Log::debug("La question pour l'URL du dépôt {$uri} n'est pas dans le cache. Chargement depuis le dépôt.");
 		}
 
 		if ($infos_question === null) {
 			return null;
 		}
 
-		$type = $infos_question["type"] ?? ($type = "prog");
+		$type = $infos_question["type"] ?? "prog";
 		if ($type == "prog") {
 			return DécodeurQuestionProg::load(new QuestionProg(), $infos_question);
 		} elseif ($type == "sys") {
 			return DécodeurQuestionSys::load(new QuestionSys(), $infos_question);
 		} else {
-			throw new DomainException("Le fichier ne peut pas être décodé. Type inconnu");
+			throw new DomainException("Type de question inconnu ou non pris en charge");
 		}
 	}
 }
