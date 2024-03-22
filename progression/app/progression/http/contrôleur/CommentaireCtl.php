@@ -53,6 +53,7 @@ class CommentaireCtl extends Contrôleur
 					$commentaire = $commentaireInt->sauvegarder_commentaire(
 						$username,
 						$question_uriDécodé,
+						$timestamp,
 						null,
 						new Commentaire(
 							$request->message,
