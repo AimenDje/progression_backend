@@ -56,28 +56,27 @@ final class ChargeurQuestionGitTests extends TestCase
 
 	public function test_étant_donné_un_répertoire_temporaire_lorsquon_essaye_de_récupérer_le_dernier_commit_on_obtient_le_hash_du_commit()
 	{
-
-		$repertoireTemporaire = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'git_test_' . uniqid();
+		$repertoireTemporaire = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "git_test_" . uniqid();
 		Admin::init($repertoireTemporaire, false);
 
 		$repository = new Repository($repertoireTemporaire);
 
-		$repository->run('config', ['user.email', 'test@example.com']);
-		$repository->run('config', ['user.name', 'Test User']);
+		$repository->run("config", ["user.email", "test@example.com"]);
+		$repository->run("config", ["user.name", "Test User"]);
 
-		file_put_contents($repertoireTemporaire . DIRECTORY_SEPARATOR . 'file.txt', "Contenu de test");
-		$repository->run('add', ['.']);
-		$repository->run('commit', ['-m', 'Commit de test']);
+		file_put_contents($repertoireTemporaire . DIRECTORY_SEPARATOR . "file.txt", "Contenu de test");
+		$repository->run("add", ["."]);
+		$repository->run("commit", ["-m", "Commit de test"]);
 
-		$hashAttendu = trim($repository->run('rev-parse', ['HEAD']));
+		$hashAttendu = trim($repository->run("rev-parse", ["HEAD"]));
 
 		$chargeurQuestionGit = new ChargeurQuestionGit();
-    
+
 		$reflection = new \ReflectionClass(get_class($chargeurQuestionGit));
-		$methode = $reflection->getMethod('getIdDernierCommit');
+		$methode = $reflection->getMethod("getIdDernierCommit");
 		$methode->setAccessible(true);
-    
-	 	$resultat = $methode->invokeArgs($chargeurQuestionGit, [$repertoireTemporaire]);
+
+		$resultat = $methode->invokeArgs($chargeurQuestionGit, [$repertoireTemporaire]);
 
 		$this->assertEquals($hashAttendu, $resultat);
 
@@ -86,29 +85,22 @@ final class ChargeurQuestionGitTests extends TestCase
 
 	public function test_étant_donné_un_répertoire_temporaire_avec_aucun_commit_lorsquon_essaye_de_récupérer_un_commit_on_obtient_une_RuntimeException()
 	{
-		$repertoireTemporaire = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'git_test_' . uniqid();
+		$repertoireTemporaire = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "git_test_" . uniqid();
 		Admin::init($repertoireTemporaire, false);
 
 		$chargeurQuestionGit = new ChargeurQuestionGit();
-    
+
 		$reflection = new \ReflectionClass(get_class($chargeurQuestionGit));
-		$methode = $reflection->getMethod('getIdDernierCommit');
+		$methode = $reflection->getMethod("getIdDernierCommit");
 		$methode->setAccessible(true);
-    
-	 	try {
-    
-        	$methode->invokeArgs($chargeurQuestionGit, [$repertoireTemporaire]);
-        	$this->fail();
-    	} catch (RuntimeException $e) {
-        	$this->assertEquals("Aucun commit trouvé dans le dépôt cloné.", $e->getMessage());
-    	}
+
+		try {
+			$methode->invokeArgs($chargeurQuestionGit, [$repertoireTemporaire]);
+			$this->fail();
+		} catch (RuntimeException $e) {
+			$this->assertEquals("Aucun commit trouvé dans le dépôt cloné.", $e->getMessage());
+		}
 
 		system("rm -rf " . escapeshellarg($repertoireTemporaire));
-
-
-	}
-
-	public function test_étant_donné_un_uri_invalide_losquon_met_en_cache_la_question_on_obtient_une_exception_avec_un_message_spécifique()
-	{
 	}
 }
