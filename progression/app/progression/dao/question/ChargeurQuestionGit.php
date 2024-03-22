@@ -17,10 +17,8 @@
  */
 namespace progression\dao\question;
 
-use Exception;
 use Gitonomy\Git\Admin;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
 class ChargeurQuestionGit extends ChargeurQuestion
@@ -63,19 +61,12 @@ class ChargeurQuestionGit extends ChargeurQuestion
 		$dossier_temporaire = $répertoire_cible . "/git_repo_" . uniqid();
 
 		if (!File::isDirectory($répertoire_cible)) {
-			throw new ChargeurException(
-				"Le répertoire cible où le clone est sensé se faire n'existe pas."
-			);
+			throw new ChargeurException("Le répertoire cible où le clone est sensé se faire n'existe pas.");
 		}
-
-		Log::debug("Chemin du dépôt temporaire: " . $dossier_temporaire);
-		Log::debug("URL du dépôt git: " . $url_du_dépôt);
 
 		try {
 			Admin::cloneTo($dossier_temporaire, $url_du_dépôt, false);
-			Log::debug("Dépôt cloné avec succès à : $dossier_temporaire");
 		} catch (RuntimeException $e) {
-			Log::error("Erreur lors du clonage du dépôt : " . $e->getMessage());
 			throw new ChargeurException(
 				"Le clonage du dépôt git a échoué! Ce dépôt est peut-être privé ou n'existe pas.",
 			);
@@ -92,7 +83,6 @@ class ChargeurQuestionGit extends ChargeurQuestion
 		$cheminDirect = $répertoire_temporaire . "/info.yml";
 
 		if (File::exists($cheminDirect)) {
-			Log::debug("Fichier trouvé : " . $cheminDirect);
 			return $cheminDirect;
 		}
 
@@ -106,7 +96,6 @@ class ChargeurQuestionGit extends ChargeurQuestion
 	{
 		if (File::isDirectory($dossier_temporaire)) {
 			File::deleteDirectory($dossier_temporaire);
-			Log::debug("Dossier temporaire supprimé : $dossier_temporaire");
 		}
 	}
 }
