@@ -98,14 +98,15 @@ final class CommentaireDAOTests extends TestCase
 
 	public function test_étant_donné_un_commentaire_inexistant_lorsquon_le_sauvegarde_il_est_créé_dans_la_bd_et_on_obtient_le_commentaire()
 	{
-		$réponse_attendue = new Commentaire("le 4ième message", $this->jdoe, 1615696276, 11);
+		$réponse_attendue = new Commentaire("le 4ième message", $this->jdoe, 1615696288, 11);
 
 		$dao = new CommentaireDAO();
 		$réponse_observée = $dao->save(
 			"bob",
 			"https://depot.com/roger/questions_prog/fonctions01/appeler_une_fonction",
-			4,
-			new Commentaire("le 4ième message", $this->jdoe, 1615696276, 11),
+			1615696276,
+			null,
+			new Commentaire("le 4ième message", $this->jdoe, 1615696288, 11),
 		);
 
 		//Vérifie le Commentaire retourné
@@ -118,14 +119,15 @@ final class CommentaireDAOTests extends TestCase
 
 	public function test_étant_donné_un_commentaire_existant_lorsquon_le_sauvegarde_on_modifie_le_commentaire_dans_la_bd()
 	{
-		$réponse_attendue = new Commentaire("le 1er message modifie", $this->jdoe, 1615696255, 17);
+		$réponse_attendue = new Commentaire("le 1er message modifie", $this->jdoe, 1615696277, 17);
 
 		$dao = new CommentaireDAO();
 		$réponse_observée = $dao->save(
 			"bob",
 			"https://depot.com/roger/questions_prog/fonctions01/appeler_une_fonction",
+			1615696276,
 			1,
-			new Commentaire("le 1er message modifie", $this->jdoe, 1615696255, 17),
+			new Commentaire("le 1er message modifie", $this->jdoe, 1615696277, 17),
 		);
 
 		//Vérifie le Commentaire retourné
@@ -146,6 +148,7 @@ final class CommentaireDAOTests extends TestCase
 		$dao->save(
 			"bob",
 			"https://depot.com/roger/questions_prog/fonctions01/appeler_une_fonction",
+			1615696255,
 			1,
 			new Commentaire("le 1er message modifie", $this->personne, 1615696255, 17),
 		);
