@@ -62,7 +62,7 @@ class ChargeurQuestionGit extends ChargeurQuestion
 
 	/**
 	 * @param string $uri
-	 * @param int|string $hash_cache
+	 * @param string $hash_cache
 	 * @return bool
 	 */
 	public function est_modifié(string $uri, string $hash_cache): bool
@@ -89,7 +89,7 @@ class ChargeurQuestionGit extends ChargeurQuestion
 				return trim($hash_dernier_commit);
 			}
 			throw new RuntimeException("Impossible de récupérer le dernier commit");
-		} catch (Exception $e) {
+		} catch (ChargeurException $e) {
 			Log::error("Erreur lors de l'obtention du hash du dernier commit : " . $e->getMessage());
 			throw new ChargeurException(
 				"L'obtention du hash du dernier commit a échoué! Ce dépôt est peut-être privé ou n'existe pas.",
@@ -129,6 +129,8 @@ class ChargeurQuestionGit extends ChargeurQuestion
 
 			if ($commit !== null) {
 				return $commit->getHash();
+			} else {
+				throw new RuntimeException("Aucun commit trouvé dans le dépôt cloné.");
 			}
 		} catch (ReferenceNotFoundException $e) {
 			throw new RuntimeException("Aucun commit trouvé dans le dépôt cloné.");

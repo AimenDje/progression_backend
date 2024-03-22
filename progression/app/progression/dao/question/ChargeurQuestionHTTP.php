@@ -66,6 +66,8 @@ class ChargeurQuestionHTTP extends ChargeurQuestion
 			Cache::put($cléCache, $donnéesÀMettreEnCache);
 
 			return $contenu_question;
+		} else {
+			throw new ChargeurException("La récuperation de la question a echouée");
 		}
 	}
 
@@ -81,10 +83,10 @@ class ChargeurQuestionHTTP extends ChargeurQuestion
 		return $cache_ETag !== $remote_ETag;
 	}
 
-	private function get_ETag($uri): string
+	private function get_ETag(string $uri): string
 	{
 		$entêtes = array_change_key_case($this->source->get_chargeur_http()->get_entêtes($uri));
-		$etag = isset($entêtes["etag"]) ? trim($entêtes["etag"], '"') : null;
+		$etag = isset($entêtes["etag"]) ? trim($entêtes["etag"], '"') : "";
 		return $etag;
 	}
 
