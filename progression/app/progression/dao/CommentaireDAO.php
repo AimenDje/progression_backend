@@ -65,20 +65,32 @@ class CommentaireDAO extends EntitéDAO
 	/**
 	 * @return array<Commentaire>
 	 */
-	public function save($username, $question_uri, $numéro, $commentaire): array
-	{
+	public function save(
+		string $username,
+		string $question_uri,
+		int $date_soumission,
+		int|null $numéro,
+		Commentaire $commentaire,
+	): array {
 		try {
-			$tentative = TentativeProgMdl::join("avancement", "reponse_prog.avancement_id", "=", "avancement.id")
+			$tentative = TentativeProgMdl::select("reponse_prog.id")
+				->from("reponse_prog")
+				->join("avancement", "reponse_prog.avancement_id", "=", "avancement.id")
 				->join("user", "avancement.user_id", "=", "user.id")
 				->where("user.username", $username)
 				->where("avancement.question_uri", $question_uri)
+				->where("reponse_prog.date_soumission", $date_soumission)
 				->first();
 
 			if (!$tentative) {
 				throw new IntégritéException("Impossible de sauvegarder la ressource; le parent n'existe pas.");
 			}
 
-			$créateur = UserMdl::where("username", $commentaire->créateur->username)->first();
+			$créateur = UserMdl::select("user.id")
+				->from("user")
+				->where("username", $commentaire->créateur->username)
+				->first();
+
 			if (!$créateur) {
 				throw new IntégritéException("Impossible de sauvegarder la ressource; le parent n'existe pas.");
 			}
