@@ -20,6 +20,7 @@ namespace progression\dao\question;
 
 use progression\domaine\entité\question\QuestionProg;
 use progression\TestCase;
+use Illuminate\Support\Facades\Cache;
 use Mockery;
 
 final class ChargeurQuestionHTTPTests extends TestCase
@@ -37,6 +38,7 @@ final class ChargeurQuestionHTTPTests extends TestCase
 	{
 		// Le contenu du répertoire /tmp n'a pas changé
 		$this->assertEquals($this->contenu_tmp, scandir("/tmp"));
+		Mockery::close();
 
 		parent::tearDown();
 	}
@@ -64,6 +66,8 @@ final class ChargeurQuestionHTTPTests extends TestCase
 		$mockChargeurFactory = Mockery::mock("progression\\dao\\question\\ChargeurFactory");
 		$mockChargeurFactory->shouldReceive("get_chargeur_http")->andReturn($mockChargeurHTTP);
 		$mockChargeurFactory->shouldReceive("get_chargeur_question_fichier")->andReturn($mockChargeurFichier);
+		// Cache
+		Cache::shouldReceive("put")->once();
 
 		$this->assertEquals(
 			$résultat_attendu,
