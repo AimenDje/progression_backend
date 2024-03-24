@@ -22,6 +22,7 @@ use progression\domaine\entité\question\{Question, QuestionProg, QuestionSys};
 use progression\domaine\entité\{Exécutable, TestProg, TestSys};
 use progression\TestCase;
 use Mockery;
+use Illuminate\Support\Facades\Cache;
 
 final class QuestionDAOTests extends TestCase
 {
@@ -33,6 +34,7 @@ final class QuestionDAOTests extends TestCase
 
 	public function test_étant_donné_un_uri_de_question_inexistant_lorqsuon_la_charge_on_obtient_null()
 	{
+		Cache::shouldReceive("get")->once();
 		$this->assertNull((new QuestionDAO())->get_question("file://inexistant.yml"));
 	}
 
@@ -42,6 +44,8 @@ final class QuestionDAOTests extends TestCase
 			tests: [new TestProg()],
 			exécutables: ["python" => new Exécutable("", "python")],
 		);
+
+		Cache::shouldReceive("get")->once();
 
 		$résultat_obtenu = (new QuestionDAO())->get_question("file://" . __DIR__ . "/démo/défauts/info.yml");
 
@@ -74,6 +78,8 @@ final class QuestionDAOTests extends TestCase
 				),
 			],
 		);
+
+		Cache::shouldReceive("get")->once();
 
 		$résultat_obtenu = (new QuestionDAO())->get_question(
 			"file://" . __DIR__ . "/démo/boucles/boucle_énumérée/info.yml",
@@ -112,6 +118,8 @@ final class QuestionDAOTests extends TestCase
 				new TestProg(nom: "0 fois", entrée: 0, sortie_attendue: ""),
 			],
 		);
+
+		Cache::shouldReceive("get")->once();
 
 		$résultat_obtenu = (new QuestionDAO())->get_question(
 			"file://" . __DIR__ . "/démo/boucles/énoncé_multiparties/info.yml",
@@ -167,6 +175,8 @@ final class QuestionDAOTests extends TestCase
 		$résultat_attendu->tests[0]->feedback_pos = "Bien joué!";
 		$résultat_attendu->tests[0]->feedback_neg = "Encore un effort! Toutes les permissions ne sont pas octroyées";
 
+		Cache::shouldReceive("get")->once();
+
 		$résultat_obtenu = (new QuestionDAO())->get_question(
 			"file://" . __DIR__ . "/démo/permissions_sys/permissions/info.yml",
 		);
@@ -216,6 +226,8 @@ final class QuestionDAOTests extends TestCase
 		];
 		$résultat_attendu->tests[0]->validation = "ls –l test.txt";
 		$résultat_attendu->tests[0]->utilisateur = "matt";
+
+		Cache::shouldReceive("get")->once();
 
 		$résultat_obtenu = (new QuestionDAO())->get_question(
 			"file://" . __DIR__ . "/démo/permissions_sys/permissions/info.yml",
