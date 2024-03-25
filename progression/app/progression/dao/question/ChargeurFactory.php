@@ -18,6 +18,9 @@
 
 namespace progression\dao\question;
 
+use Gitonomy\Git\Repository;
+use Gitonomy\Git\Admin;
+
 class ChargeurFactory
 {
 	private static $laFactory = null;
@@ -62,5 +65,15 @@ class ChargeurFactory
 	function get_chargeur_question_git(): ChargeurQuestionGit
 	{
 		return new ChargeurQuestionGit($this);
+	}
+
+	function get_repository(string $repertoireTemporaire): Repository
+	{
+		return new Repository($repertoireTemporaire);
+	}
+
+	function get_admin(): Admin
+	{
+		return new Admin();
 	}
 }

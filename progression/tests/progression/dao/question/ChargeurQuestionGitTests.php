@@ -20,7 +20,10 @@ namespace progression\dao\question;
 
 use progression\TestCase;
 use Mockery;
+use Gitonomy\Git\Repository;
+use Gitonomy\Git\Commit;
 use RuntimeException;
+use Illuminate\Support\Facades\Cache;
 
 final class ChargeurQuestionGitTests extends TestCase
 {
@@ -33,12 +36,21 @@ final class ChargeurQuestionGitTests extends TestCase
 		$this->contenu_tmp = scandir("/tmp");
 	}
 
+	public function tearDown(): void
+	{
+		parent::tearDown();
+	}
+
 	public function test_étant_donné_un_dépôt_git_avec_un_fichier_info_yml_inexistant_losrquon_cherche_info_yml_on_obtient_une_runtime_exception()
 	{
 		$mockFacadeFile = Mockery::mock("alias:Illuminate\Support\Facades\File");
 		$mockFacadeFile->shouldReceive("exists")->with("/tmp/gitExemple/info.yml")->andReturn(false);
+		$chargeurQuestionGit = new ChargeurQuestionGit();
+		$reflection = new \ReflectionClass(get_class($chargeurQuestionGit));
+		$methode = $reflection->getMethod("chercher_info");
+		$methode->setAccessible(true);
 		try {
-			(new ChargeurQuestionGit())->chercher_info("/tmp/gitExemple");
+			$methode->invokeArgs($chargeurQuestionGit, ["/tmp/gitExemple"]);
 			$this->fail();
 		} catch (RuntimeException $e) {
 			$this->assertEquals("Fichier info.yml inexistant dans le dépôt.", $e->getMessage());
@@ -49,15 +61,19 @@ final class ChargeurQuestionGitTests extends TestCase
 	{
 		$cheminAttendue = "/tmp/gitExemple/info.yml";
 		$mockFacadeFile = Mockery::mock("alias:Illuminate\Support\Facades\File");
+		$chargeurQuestionGit = new ChargeurQuestionGit();
+		$reflection = new \ReflectionClass(get_class($chargeurQuestionGit));
+		$methode = $reflection->getMethod("chercher_info");
+		$methode->setAccessible(true);
 		$mockFacadeFile->shouldReceive("exists")->with("/tmp/gitExemple/info.yml")->andReturn(true);
-		$this->assertEquals($cheminAttendue, (new ChargeurQuestionGit())->chercher_info("/tmp/gitExemple"));
+		$cheminTesté = $methode->invokeArgs($chargeurQuestionGit, ["/tmp/gitExemple"]);
+		$this->assertEquals($cheminAttendue, $cheminTesté);
 	}
 
 	public function test_étant_donné_un_lien_public_dun_dépôt_git_lorsquon_récupère_le_lien_on_obtient_le_contenu_de_la_question()
 	{
 		$résultatAttendu = [];
-
-		$mockChargeurQuestionGit = Mockery::mock("progression\\dao\\question\\ChargeurQuestionGit");
+		$hashCommitAttendu = "e1x2e3m4p5l6e7";
 
 		$mockFacadeFile = Mockery::mock("alias:Illuminate\Support\Facades\File");
 		$mockFacadeFile->shouldReceive("deleteDirectory")->andReturn(true);
@@ -65,32 +81,49 @@ final class ChargeurQuestionGitTests extends TestCase
 		$mockFacadeFile->shouldReceive("exists")->andReturn(true);
 
 		$mockAdmin = Mockery::mock("alias:Gitonomy\Git\Admin");
-		$mockAdmin->shouldReceive("cloneTo")->andReturn();
+		$mockAdmin->shouldReceive("cloneTo")->andReturn(true);
 
-		$mockChargeurQuestionGit->shouldReceive("chercher_info")->andReturn("");
+		$mockRepository = Mockery::mock(Repository::class);
+		$mockCommit = Mockery::mock(Commit::class);
+		$mockCommit->shouldReceive("getHash")->andReturn($hashCommitAttendu);
+		$mockRepository->shouldReceive("getHeadCommit")->andReturn($mockCommit);
 
 		$mockChargeurFichier = Mockery::mock("progression\\dao\\question\\ChargeurQuestionFichier");
 		$mockChargeurFichier->shouldReceive("récupérer_question")->andReturn($résultatAttendu);
+
 		$mockChargeurFactory = Mockery::mock("progression\\dao\\question\\ChargeurFactory");
 		$mockChargeurFactory->shouldReceive("get_chargeur_question_fichier")->andReturn($mockChargeurFichier);
+		$mockChargeurFactory->shouldReceive("get_repository")->andReturn($mockRepository);
+		$mockChargeurFactory->shouldReceive("get_admin")->andReturn($mockAdmin);
+
+		Cache::shouldReceive("put")->once();
 
 		$ChargeurQuestionGit = new ChargeurQuestionGit($mockChargeurFactory);
-		$résultatObtenue = $ChargeurQuestionGit->récupérer_question("");
-		$this->assertEquals($résultatAttendu, $résultatObtenue);
+
+		$résultatObtenu = $ChargeurQuestionGit->récupérer_question("https://exemple.git");
+
+		$this->assertEquals($résultatAttendu, $résultatObtenu);
 	}
 
 	public function test_étant_donné_un_dépôt_git_inexistant_losrquon_essaie_de_cloner_on_obtient_une_chargeur_exception()
 	{
 		$mockFacadeFile = Mockery::mock("alias:Illuminate\Support\Facades\File");
 		$mockFacadeFile->shouldReceive("isDirectory")->with("/tmp")->andReturn(true);
+
+		$uriDépôt = "https://exemple.git";
 		$repTemporaire = "/tmp/git_repo_" . uniqid();
-		mkdir($repTemporaire);
-		$uriDépôt = "https://legitexistepas.git";
 
 		$mockAdmin = Mockery::mock("alias:Gitonomy\Git\Admin");
-		$mockAdmin->shouldReceive("cloneTo")->with($repTemporaire, $uriDépôt, false);
+		$mockAdmin
+			->shouldReceive("cloneTo")
+			->with($repTemporaire, $uriDépôt, false)
+			->andThrow(new RuntimeException("Clonage échoué."));
 
-		$chargeurQuestionGit = new ChargeurQuestionGit();
+		$mockChargeurFactory = Mockery::mock("ChargeurFactory");
+		$mockChargeurFactory->shouldReceive("get_admin")->andReturn($mockAdmin);
+
+		$chargeurQuestionGit = new ChargeurQuestionGit($mockChargeurFactory);
+
 		$reflection = new \ReflectionClass(get_class($chargeurQuestionGit));
 		$methode = $reflection->getMethod("cloner_dépôt");
 		$methode->setAccessible(true);
@@ -99,7 +132,6 @@ final class ChargeurQuestionGitTests extends TestCase
 			$methode->invokeArgs($chargeurQuestionGit, [$uriDépôt]);
 			$this->fail();
 		} catch (ChargeurException $e) {
-			rmdir($repTemporaire);
 			$this->assertEquals(
 				"Le clonage du dépôt git a échoué! Ce dépôt est peut-être privé ou n'existe pas.",
 				$e->getMessage(),
@@ -112,9 +144,16 @@ final class ChargeurQuestionGitTests extends TestCase
 		$mockFacadeFile = Mockery::mock("alias:Illuminate\Support\Facades\File");
 		$mockFacadeFile->shouldReceive("isDirectory")->with("/tmp")->andReturn(false);
 
-		$uriDépôt = "https://legitexistepas.git";
+		$uriDépôt = "https://exemple.git";
+		$repTemporaire = "/tmp/git_repo_" . uniqid();
 
-		$chargeurQuestionGit = new ChargeurQuestionGit();
+		$mockAdmin = Mockery::mock("alias:Gitonomy\Git\Admin");
+		$mockAdmin->shouldReceive("cloneTo")->with($repTemporaire, $uriDépôt, false);
+
+		$mockChargeurFactory = Mockery::mock("ChargeurFactory");
+		$mockChargeurFactory->shouldReceive("get_admin")->andReturn($mockAdmin);
+
+		$chargeurQuestionGit = new ChargeurQuestionGit($mockChargeurFactory);
 		$reflection = new \ReflectionClass(get_class($chargeurQuestionGit));
 		$methode = $reflection->getMethod("cloner_dépôt");
 		$methode->setAccessible(true);
@@ -123,7 +162,10 @@ final class ChargeurQuestionGitTests extends TestCase
 			$methode->invokeArgs($chargeurQuestionGit, [$uriDépôt]);
 			$this->fail();
 		} catch (ChargeurException $e) {
-			$this->assertEquals("Le répertoire cible où le clone est sensé se faire n'existe pas.", $e->getMessage());
+			$this->assertEquals(
+				"Le clonage du dépôt git a échoué! Ce dépôt est peut-être privé ou n'existe pas.",
+				$e->getMessage(),
+			);
 		}
 	}
 
@@ -134,12 +176,15 @@ final class ChargeurQuestionGitTests extends TestCase
 		$mockFacadeFile = Mockery::mock("alias:Illuminate\Support\Facades\File");
 		$mockFacadeFile->shouldReceive("isDirectory")->with("/tmp")->andReturn(true);
 
-		$uriDépôt = "https://legitexistepas.git";
+		$uriDépôt = "https://exemple.git";
 
 		$mockAdmin = Mockery::mock("alias:Gitonomy\Git\Admin");
-		$mockAdmin->shouldReceive("cloneTo")->andReturn();
+		$mockAdmin->shouldReceive("cloneTo")->andReturn(true);
 
-		$chargeurQuestionGit = new ChargeurQuestionGit();
+		$mockChargeurFactory = Mockery::mock("ChargeurFactory");
+		$mockChargeurFactory->shouldReceive("get_admin")->andReturn($mockAdmin);
+
+		$chargeurQuestionGit = new ChargeurQuestionGit($mockChargeurFactory);
 		$reflection = new \ReflectionClass(get_class($chargeurQuestionGit));
 		$methode = $reflection->getMethod("cloner_dépôt");
 		$methode->setAccessible(true);
@@ -162,5 +207,50 @@ final class ChargeurQuestionGitTests extends TestCase
 		$supprimer->setAccessible(true);
 		$résultat = $supprimer->invoke($chargeurQuestionGit, "/tmp/repertoireTemporaire");
 		$this->assertNull($résultat);
+	}
+
+	public function test_étant_donné_un_répertoire_temporaire_lorsquon_essaye_de_récupérer_le_dernier_commit_on_obtient_le_hash_du_commit()
+	{
+		$hashAttendu = "exemple123";
+		$mockCommit = Mockery::mock(Commit::class);
+		$mockCommit->shouldReceive("getHash")->andReturn($hashAttendu);
+
+		$mockRepository = Mockery::mock(Repository::class);
+		$mockRepository->shouldReceive("getHeadCommit")->andReturn($mockCommit);
+
+		$mockChargeurFactory = Mockery::mock(ChargeurFactory::class);
+		$mockChargeurFactory->shouldReceive("get_repository")->andReturn($mockRepository);
+
+		$chargeurQuestionGit = new ChargeurQuestionGit($mockChargeurFactory);
+
+		$reflection = new \ReflectionClass($chargeurQuestionGit);
+		$methode = $reflection->getMethod("getIdDernierCommit");
+		$methode->setAccessible(true);
+
+		$resultat = $methode->invokeArgs($chargeurQuestionGit, ["/tmp/git_repo_test"]);
+
+		$this->assertEquals($hashAttendu, $resultat);
+	}
+
+	public function test_étant_donné_un_répertoire_temporaire_avec_aucun_commit_lorsquon_essaye_de_récupérer_un_commit_on_obtient_une_RuntimeException()
+	{
+		$mockRepository = Mockery::mock(Repository::class);
+		$mockRepository->shouldReceive("getHeadCommit");
+
+		$mockChargeurFactory = Mockery::mock(ChargeurFactory::class);
+		$mockChargeurFactory->shouldReceive("get_repository")->andReturn($mockRepository);
+
+		$chargeurQuestionGit = new ChargeurQuestionGit($mockChargeurFactory);
+
+		$reflection = new \ReflectionClass($chargeurQuestionGit);
+		$methode = $reflection->getMethod("getIdDernierCommit");
+		$methode->setAccessible(true);
+
+		try {
+			$methode->invokeArgs($chargeurQuestionGit, ["/tmp/git_repo_test"]);
+			$this->fail();
+		} catch (RuntimeException $e) {
+			$this->assertEquals("Aucun commit trouvé dans le dépôt cloné.", $e->getMessage());
+		}
 	}
 }

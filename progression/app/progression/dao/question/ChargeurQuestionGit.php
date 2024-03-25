@@ -17,9 +17,11 @@
  */
 namespace progression\dao\question;
 
-use Gitonomy\Git\Admin;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 use RuntimeException;
+use Gitonomy\Git\Exception\ReferenceNotFoundException;
 
 class ChargeurQuestionGit extends ChargeurQuestion
 {
@@ -31,24 +33,66 @@ class ChargeurQuestionGit extends ChargeurQuestion
 	{
 		$répertoire_temporaire = $this->cloner_dépôt($uri);
 
+		$dernierCommit = $this->getIdDernierCommit($répertoire_temporaire);
+
 		$chemin_fichier_dans_dépôt = $this->chercher_info($répertoire_temporaire);
 
 		$chargeurFichier = $this->source->get_chargeur_question_fichier();
 
 		$contenu_question = $chargeurFichier->récupérer_question($chemin_fichier_dans_dépôt);
 
-		$this->supprimer_répertoire_temporaire($répertoire_temporaire);
+		$donnéesÀMettreEnCache = [
+			"contenu" => $contenu_question,
+			"cléModification" => $dernierCommit,
+		];
+
+		$cléCache = md5($uri);
+
+		try {
+			Cache::put($cléCache, $donnéesÀMettreEnCache);
+			$this->supprimer_répertoire_temporaire($répertoire_temporaire);
+		} catch (ChargeurException $e) {
+			throw new ChargeurException("La mise en cache la question a échoué! L'uri de la question est invalide");
+		}
+
 		return $contenu_question;
 	}
 
 	/**
 	 * @param string $uri
-	 * @param int|string $cle
+	 * @param string $hash_cache
 	 * @return bool
 	 */
-	public function est_modifié(string $uri, $cle): bool
+	public function est_modifié(string $uri, string $hash_cache): bool
 	{
-		return true;
+		$remote_hash = $this->obtenir_hash_dernier_commit($uri);
+		return $hash_cache !== $remote_hash;
+	}
+
+	/**
+	 * @param string $uri
+	 * @return string
+	 */
+	public function obtenir_hash_dernier_commit(string $uri): string
+	{
+		try {
+			$uri_valide = escapeshellarg($uri);
+			$commande_remote = "git ls-remote $uri_valide | grep -o '^\S*'";
+			$liste_commits = [];
+			exec($commande_remote, $liste_commits);
+			$latestCommitHash = $liste_commits[0] ?? null;
+
+			if ($latestCommitHash) {
+				[$hash_dernier_commit] = explode("\t", $latestCommitHash);
+				return trim($hash_dernier_commit);
+			}
+			throw new RuntimeException("Impossible de récupérer le dernier commit");
+		} catch (ChargeurException $e) {
+			Log::error("Erreur lors de l'obtention du hash du dernier commit : " . $e->getMessage());
+			throw new ChargeurException(
+				"L'obtention du hash du dernier commit a échoué! Ce dépôt est peut-être privé ou n'existe pas.",
+			);
+		}
 	}
 
 	/**
@@ -58,27 +102,41 @@ class ChargeurQuestionGit extends ChargeurQuestion
 	private function cloner_dépôt(string $url_du_dépôt): string
 	{
 		$répertoire_cible = sys_get_temp_dir();
-		$dossier_temporaire = $répertoire_cible . "/git_repo_" . uniqid();
-
-		if (!File::isDirectory($répertoire_cible)) {
-			throw new ChargeurException("Le répertoire cible où le clone est sensé se faire n'existe pas.");
-		}
+		$répertoire_temporaire = $répertoire_cible . "/git_repo_" . uniqid();
 
 		try {
-			Admin::cloneTo($dossier_temporaire, $url_du_dépôt, false);
+			$admin = $this->source->get_admin();
+			$admin->cloneTo($répertoire_temporaire, $url_du_dépôt, false);
 		} catch (RuntimeException $e) {
+			Log::error("Erreur lors du clonage du dépôt : " . $e->getMessage());
 			throw new ChargeurException(
 				"Le clonage du dépôt git a échoué! Ce dépôt est peut-être privé ou n'existe pas.",
 			);
 		}
-		return $dossier_temporaire;
+		return $répertoire_temporaire;
+	}
+
+	private function getIdDernierCommit(string $répertoire): string
+	{
+		try {
+			$repository = $this->source->get_repository($répertoire);
+			$commit = $repository->getHeadCommit();
+
+			if ($commit !== null) {
+				return $commit->getHash();
+			} else {
+				throw new RuntimeException("Aucun commit trouvé dans le dépôt cloné.");
+			}
+		} catch (ReferenceNotFoundException $e) {
+			throw new RuntimeException("Aucun commit trouvé dans le dépôt cloné.");
+		}
 	}
 
 	/**
 	 * @param string $répertoire_temporaire
 	 * @return string
 	 */
-	public function chercher_info(string $répertoire_temporaire): string
+	private function chercher_info(string $répertoire_temporaire): string
 	{
 		$cheminDirect = $répertoire_temporaire . "/info.yml";
 

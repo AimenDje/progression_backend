@@ -666,16 +666,6 @@ parameters:
 			path: app/progression/dao/question/ChargeurQuestionHTTP.php
 
 		-
-			message: "#^Method progression\\\\dao\\\\question\\\\ChargeurQuestionHTTP\\:\\:récupérer_question\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: app/progression/dao/question/ChargeurQuestionHTTP.php
-
-		-
-			message: "#^Method progression\\\\dao\\\\question\\\\ChargeurQuestionHTTP\\:\\:récupérer_question\\(\\) has parameter \\$uri with no type specified\\.$#"
-			count: 1
-			path: app/progression/dao/question/ChargeurQuestionHTTP.php
-
-		-
 			message: "#^Method progression\\\\dao\\\\question\\\\ChargeurQuestionHTTP\\:\\:télécharger_fichier\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: app/progression/dao/question/ChargeurQuestionHTTP.php
