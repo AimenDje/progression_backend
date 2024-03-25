@@ -156,26 +156,6 @@ parameters:
 			path: app/progression/dao/CommentaireDAO.php
 
 		-
-			message: "#^Method progression\\\\dao\\\\CommentaireDAO\\:\\:save\\(\\) has parameter \\$commentaire with no type specified\\.$#"
-			count: 1
-			path: app/progression/dao/CommentaireDAO.php
-
-		-
-			message: "#^Method progression\\\\dao\\\\CommentaireDAO\\:\\:save\\(\\) has parameter \\$numéro with no type specified\\.$#"
-			count: 1
-			path: app/progression/dao/CommentaireDAO.php
-
-		-
-			message: "#^Method progression\\\\dao\\\\CommentaireDAO\\:\\:save\\(\\) has parameter \\$question_uri with no type specified\\.$#"
-			count: 1
-			path: app/progression/dao/CommentaireDAO.php
-
-		-
-			message: "#^Method progression\\\\dao\\\\CommentaireDAO\\:\\:save\\(\\) has parameter \\$username with no type specified\\.$#"
-			count: 1
-			path: app/progression/dao/CommentaireDAO.php
-
-		-
 			message: "#^Method progression\\\\dao\\\\DAOFactory\\:\\:getInstance\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: app/progression/dao/DAOFactory.php

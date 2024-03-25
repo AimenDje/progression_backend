@@ -29,6 +29,7 @@ class SauvegarderCommentaireInt extends Interacteur
 	public function sauvegarder_commentaire(
 		string $username,
 		string $question_uri,
+		int $date_soumission,
 		int|null $numéro,
 		Commentaire $commentaire,
 	): array {
@@ -38,7 +39,7 @@ class SauvegarderCommentaireInt extends Interacteur
 		try {
 			$commentaire_sauvegardé = $this->source_dao
 				->get_commentaire_dao()
-				->save($username, $question_uri, $numéro, $commentaire);
+				->save($username, $question_uri, $date_soumission, $numéro, $commentaire);
 
 			return $commentaire_sauvegardé;
 		} catch (DAOException $e) {
