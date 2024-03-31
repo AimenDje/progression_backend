@@ -18,8 +18,7 @@
 
 namespace progression\dao\question;
 
-use Illuminate\Support\Facades\Log;
-use DomainException, RuntimeException;
+use RuntimeException;
 
 class ChargeurQuestionFichier extends Chargeur
 {

@@ -20,7 +20,6 @@ namespace progression\dao\question;
 
 use DomainException;
 use BadMethodCallException;
-use Illuminate\Support\Facades\Log;
 use progression\dao\EntitéDAO;
 use progression\domaine\entité\question\{QuestionProg, QuestionSys};
 

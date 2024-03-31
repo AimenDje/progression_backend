@@ -18,7 +18,7 @@
 
 namespace progression\http\contrôleur;
 
-use Illuminate\Http\Request;
+use Illuminate\Http\{Request, JsonResponse};
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Gate;
@@ -39,6 +39,44 @@ class AvancementCtl extends Contrôleur
 		$réponse = $this->valider_et_préparer_réponse($avancement, $username, $question_uri);
 
 		Log::debug("AvancementCtl.get. Retour : ", [$réponse]);
+		return $réponse;
+	}
+
+	public function put(Request $request, string $username, string $question_uri): JsonResponse
+	{
+		Log::debug("AvancementCtl.put. Params : ", [$request->all(), $username]);
+
+		$request->merge([
+			"question_uri" => $question_uri,
+			"avancement" => ["extra" => $request->extra ?? ""],
+		]);
+
+		$réponse = $this->post($request, $username);
+
+		Log::debug("AvancementCtl.put. Retour : ", [$réponse]);
+		return $réponse;
+	}
+
+	public function patch(Request $request, string $username, string $question_uri): JsonResponse
+	{
+		Log::debug("AvancementCtl.patch. Params : ", [$request->all(), $username]);
+
+		$avancement_existant = $this->obtenir_avancement($username, $question_uri);
+
+		if (!$avancement_existant) {
+			$réponse = $this->préparer_réponse(null);
+		} elseif ($request->extra === null || $avancement_existant->extra === $request->extra) {
+			$réponse = $this->valider_et_préparer_réponse($avancement_existant, $username, $question_uri);
+		} else {
+			$request->merge([
+				"question_uri" => $question_uri,
+				"avancement" => ["extra" => $request->extra ?? ""],
+			]);
+
+			$réponse = $this->post($request, $username);
+		}
+
+		Log::debug("AvancementCtl.patch. Retour : ", [$réponse]);
 		return $réponse;
 	}
 
@@ -157,7 +195,7 @@ class AvancementCtl extends Contrôleur
 
 	private function sauvegarder_avancement($username, $question_uri, $avancement)
 	{
-		Log::debug("AvancementCtl.sauvegarder_avancement. Params : ", [$username, $question_uri]);
+		Log::debug("AvancementCtl.sauvegarder_avancement. Params : ", [$username, $question_uri, $avancement]);
 
 		$avancementInt = new SauvegarderAvancementInt();
 		$chemin = Encodage::base64_decode_url($question_uri);
