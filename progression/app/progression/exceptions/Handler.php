@@ -37,7 +37,9 @@ class Handler extends ExceptionHandler
 	 */
 	public function report(Throwable $exception)
 	{
-		parent::report($exception);
+		if ($exception->getCode() >= 500) {
+			parent::report($exception);
+		}
 	}
 
 	/**
@@ -51,7 +53,7 @@ class Handler extends ExceptionHandler
 	 */
 	public function render($request, Throwable $exception)
 	{
-		Log::error("Exception.", [
+		Log::debug("Exception.", [
 			"exception" => $exception,
 			"code" => $exception->getCode(),
 		]);

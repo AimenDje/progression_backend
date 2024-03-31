@@ -18,7 +18,8 @@
 
 namespace progression\domaine\interacteur;
 
-use progression\domaine\entité\{Avancement, Tentative};
+use Illuminate\Support\Facades\Log;
+use progression\domaine\entité\Avancement;
 use progression\domaine\entité\question\{Question, QuestionProg, QuestionSys, QuestionBD};
 use progression\dao\DAOException;
 use progression\dao\question\ChargeurException;
@@ -38,7 +39,10 @@ class SauvegarderAvancementInt extends Interacteur
 		try {
 			$question = $question ?? $this->source_dao->get_question_dao()->get_question($question_uri);
 		} catch (ChargeurException $e) {
-			throw new RessourceInvalideException($e);
+			Log::notice($e->getMessage());
+			throw new RessourceInvalideException(
+				"La question `{$question_uri}` n'existe pas ou ne peut pas être chargée.",
+			);
 		} catch (DAOException $e) {
 			throw new IntéracteurException($e, 503);
 		}
@@ -65,6 +69,7 @@ class SauvegarderAvancementInt extends Interacteur
 		} catch (DAOException $e) {
 			throw new IntéracteurException($e, 503);
 		}
+
 		$avancements_sauvegardés = $dao_avancement->save($username, $question_uri, $type, $avancement);
 
 		return $avancements_sauvegardés;

@@ -12,7 +12,8 @@
         },
         "id": "cXVlc3Rpb25fZGVfdGVzdA",
         "links": {
-            "résultats": "https://example.com/question/cXVlc3Rpb25fZGVfdGVzdA/resultats",
+	        "avancement": "https://example.com/avancement/bob/cXVlc3Rpb25fZGVfdGVzdA",
+	        "résultats": "https://example.com/question/cXVlc3Rpb25fZGVfdGVzdA/resultats",
             "self": "https://example.com/question/cXVlc3Rpb25fZGVfdGVzdA"
         },
         "relationships": {
