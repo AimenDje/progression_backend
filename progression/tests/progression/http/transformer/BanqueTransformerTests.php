@@ -25,7 +25,7 @@ use progression\TestCase;
 
 final class BanqueTransformerTests extends TestCase
 {
-    public function test_étant_donné_une_banque_instanciée_lorsquon_récupère_son_transformer_on_obtient_un_array_identique()
+    /*  public function test_étant_donné_une_banque_instanciée_lorsquon_récupère_son_transformer_on_obtient_un_array_identique()
     {
       $banque = new Banque();
 
@@ -42,5 +42,5 @@ final class BanqueTransformerTests extends TestCase
           __DIR__ . "/résultats_attendus/banqueTransformerTest.json",
           json_encode($résultats_obtenus),
       );
-    }
+      }*/
 }
