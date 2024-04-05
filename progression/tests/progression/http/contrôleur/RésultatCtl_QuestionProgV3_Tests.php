@@ -26,7 +26,7 @@ use progression\domaine\entité\question\QuestionProg;
 use progression\domaine\entité\user\{User, Rôle, État};
 use progression\UserAuthentifiable;
 
-final class RésultatCtl_QuestionProg_Tests extends ContrôleurTestCase
+final class RésultatCtl_QuestionProgV3_Tests extends ContrôleurTestCase
 {
 	public $user;
 
@@ -167,24 +167,20 @@ final class RésultatCtl_QuestionProg_Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_test_unique_lorsquil_est_soumis_on_obtient_le_résultat_réussi_pour_le_test_fourni()
 	{
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/question/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fcsOpdXNzaWU/resultats",
 			[
-				"data" => [
-					"type" => "resultat",
-					"attributes" => [
-						"langage" => "réussi",
-						"code" => "#+TODO\nprint(\"Hello world!\")",
-						"test" => [
-							"nom" => "Bonjour",
-							"entrée" => "bonjour",
-							"sortie_attendue" => "Bonjour\nBonjour\nBonjour\n",
-						],
-					],
+				"langage" => "réussi",
+				"code" => "#+TODO\nprint(\"Hello world!\")",
+				"test" => [
+					"nom" => "Bonjour",
+					"entrée" => "bonjour",
+					"sortie_attendue" => "Bonjour\nBonjour\nBonjour\n",
 				],
 			],
 		);
+
 		$this->assertEquals(200, $résultat_obtenu->status());
 
 		$this->assertJsonStringEqualsJsonString(
@@ -195,24 +191,20 @@ final class RésultatCtl_QuestionProg_Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_test_unique_raté_lorsquil_est_soumis_on_obtient_le_résultat_non_réussi_pour_le_test_fourni()
 	{
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/question/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fcsOpdXNzaWU/resultats",
 			[
-				"data" => [
-					"type" => "resultat",
-					"attributes" => [
-						"langage" => "non_réussi",
-						"code" => "#+TODO\nprint(\"Hello world!\")",
-						"test" => [
-							"nom" => "Bonjour",
-							"entrée" => "bonjour",
-							"sortie_attendue" => "Bonjour\nBonjour\nBonjour\n",
-						],
-					],
+				"langage" => "non_réussi",
+				"code" => "#+TODO\nprint(\"Hello world!\")",
+				"test" => [
+					"nom" => "Bonjour",
+					"entrée" => "bonjour",
+					"sortie_attendue" => "Bonjour\nBonjour\nBonjour\n",
 				],
 			],
 		);
+
 		$this->assertEquals(200, $résultat_obtenu->status());
 
 		$this->assertJsonStringEqualsJsonString(
@@ -223,24 +215,20 @@ final class RésultatCtl_QuestionProg_Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_test_unique_erroné_lorsquil_est_soumis_on_obtient_le_résultat_avec_erreur_pour_le_test_fourni()
 	{
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/question/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fcsOpdXNzaWU/resultats",
 			[
-				"data" => [
-					"type" => "resultat",
-					"attributes" => [
-						"langage" => "erreur",
-						"code" => "#+TODO\nprint(\"Hello world!\")",
-						"test" => [
-							"nom" => "Bonjour",
-							"entrée" => "bonjour",
-							"sortie_attendue" => "Bonjour\nBonjour\nBonjour\n",
-						],
-					],
+				"langage" => "erreur",
+				"code" => "#+TODO\nprint(\"Hello world!\")",
+				"test" => [
+					"nom" => "Bonjour",
+					"entrée" => "bonjour",
+					"sortie_attendue" => "Bonjour\nBonjour\nBonjour\n",
 				],
 			],
 		);
+
 		$this->assertEquals(200, $résultat_obtenu->status());
 
 		$this->assertJsonStringEqualsJsonString(
@@ -251,20 +239,16 @@ final class RésultatCtl_QuestionProg_Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_test_unique_comportant_un_numéro_de_test_lorsquil_est_soumis_on_obtient_le_résultat_réussi_pour_le_test_de_la_question()
 	{
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/question/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fcsOpdXNzaWU/resultats",
 			[
-				"data" => [
-					"type" => "resultat",
-					"attributes" => [
-						"langage" => "réussi",
-						"code" => "#+TODO\nprint(\"Hello world!\")",
-						"index" => 2,
-					],
-				],
+				"langage" => "réussi",
+				"code" => "#+TODO\nprint(\"Hello world!\")",
+				"index" => 2,
 			],
 		);
+
 		$this->assertEquals(200, $résultat_obtenu->status());
 
 		$this->assertJsonStringEqualsJsonString(
@@ -275,20 +259,16 @@ final class RésultatCtl_QuestionProg_Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_test_unique_caché_lorsquil_est_soumis_on_obtient_le_résultat_caviardé()
 	{
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/question/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fcsOpdXNzaWU/resultats",
 			[
-				"data" => [
-					"type" => "resultat",
-					"attributes" => [
-						"langage" => "réussi",
-						"code" => "#+TODO\nprint(\"Hello world!\")",
-						"index" => 1,
-					],
-				],
+				"langage" => "réussi",
+				"code" => "#+TODO\nprint(\"Hello world!\")",
+				"index" => 1,
 			],
 		);
+
 		$this->assertEquals(200, $résultat_obtenu->status());
 
 		$this->assertJsonStringEqualsJsonString(
@@ -299,25 +279,21 @@ final class RésultatCtl_QuestionProg_Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_test_unique_comportant_un_numéro_de_test_et_un_test_lorsquil_est_soumis_on_obtient_le_résultat_réussi_pour_le_test_reçu()
 	{
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/question/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fcsOpdXNzaWU/resultats",
 			[
-				"data" => [
-					"type" => "resultat",
-					"attributes" => [
-						"langage" => "réussi",
-						"code" => "#+TODO\nprint(\"Hello world!\")",
-						"index" => 0,
-						"test" => [
-							"nom" => "Bonjour",
-							"entrée" => "bonjour",
-							"sortie_attendue" => "Bonjour\nBonjour\nBonjour\n",
-						],
-					],
+				"langage" => "réussi",
+				"code" => "#+TODO\nprint(\"Hello world!\")",
+				"index" => 0,
+				"test" => [
+					"nom" => "Bonjour",
+					"entrée" => "bonjour",
+					"sortie_attendue" => "Bonjour\nBonjour\nBonjour\n",
 				],
 			],
 		);
+
 		$this->assertEquals(200, $résultat_obtenu->status());
 
 		$this->assertJsonStringEqualsJsonString(
@@ -328,19 +304,15 @@ final class RésultatCtl_QuestionProg_Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_test_unique_sans_test_lorsquil_est_soumis_on_obtient_une_erreur_400()
 	{
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/question/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fcsOpdXNzaWU/resultats",
 			[
-				"data" => [
-					"type" => "resultat",
-					"attributes" => [
-						"langage" => "réussi",
-						"code" => "#+TODO\nprint(\"Hello world!\")",
-					],
-				],
+				"langage" => "réussi",
+				"code" => "#+TODO\nprint(\"Hello world!\")",
 			],
 		);
+
 		$this->assertEquals(400, $résultat_obtenu->status());
 		$this->assertEquals(
 			'{"erreur":{"test":["Le champ test est obligatoire lorsque index n\'est pas présent."]}}',
@@ -350,19 +322,15 @@ final class RésultatCtl_QuestionProg_Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_test_unique_sans_langage_lorsquil_est_soumis_on_obtient_une_erreur_400()
 	{
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/question/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fcsOpdXNzaWU/resultats",
 			[
-				"data" => [
-					"type" => "resultat",
-					"attributes" => [
-						"code" => "#+TODO\nprint(\"Hello world!\")",
-						"test" => 1,
-					],
-				],
+				"code" => "#+TODO\nprint(\"Hello world!\")",
+				"test" => 1,
 			],
 		);
+
 		$this->assertEquals(400, $résultat_obtenu->status());
 		$this->assertEquals(
 			'{"erreur":{"langage":["Le champ langage est obligatoire."]}}',
@@ -372,39 +340,31 @@ final class RésultatCtl_QuestionProg_Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_test_unique_sans_code_lorsquil_est_soumis_on_obtient_une_erreur_400()
 	{
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/question/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fcsOpdXNzaWU/resultats",
 			[
-				"data" => [
-					"type" => "resultat",
-					"attributes" => [
-						"langage" => "python",
-						"test" => 1,
-					],
-				],
+				"langage" => "python",
+				"test" => 1,
 			],
 		);
+
 		$this->assertEquals(400, $résultat_obtenu->status());
 		$this->assertEquals('{"erreur":{"code":["Le champ code est obligatoire."]}}', $résultat_obtenu->getContent());
 	}
 
 	public function test_étant_donné_un_test_unique_pour_une_question_inexistante_lorsquil_est_soumis_on_obtient_une_erreur_404()
 	{
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/question/aHR0cHM6Ly9leGVtcGxlLmNvbS9xdWVzdGlvbl9pbnRyb3V2YWJsZS55bWw/resultats",
 			[
-				"data" => [
-					"type" => "resultat",
-					"attributes" => [
-						"langage" => "réussi",
-						"code" => "#+TODO\nprint(\"Hello world!\")",
-						"test" => 1,
-					],
-				],
+				"langage" => "réussi",
+				"code" => "#+TODO\nprint(\"Hello world!\")",
+				"test" => 1,
 			],
 		);
+
 		$this->assertEquals(404, $résultat_obtenu->status());
 		$this->assertEquals(
 			'{"erreur":"La question https:\/\/exemple.com\/question_introuvable.yml n\'existe pas."}',
@@ -414,20 +374,16 @@ final class RésultatCtl_QuestionProg_Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_test_unique_avec_indice_de_test_inexistant_lorsquil_est_soumis_on_obtient_une_erreur_400()
 	{
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/question/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fcsOpdXNzaWU/resultats",
 			[
-				"data" => [
-					"type" => "resultat",
-					"attributes" => [
-						"langage" => "réussi",
-						"code" => "#+TODO\nprint(\"Hello world!\")",
-						"index" => 42,
-					],
-				],
+				"langage" => "réussi",
+				"code" => "#+TODO\nprint(\"Hello world!\")",
+				"index" => 42,
 			],
 		);
+
 		$this->assertEquals(400, $résultat_obtenu->status());
 		$this->assertEquals('{"erreur":"L\'indice de test n\'existe pas."}', $résultat_obtenu->getContent());
 	}
@@ -437,18 +393,13 @@ final class RésultatCtl_QuestionProg_Tests extends ContrôleurTestCase
 		Config::set("limites.taille_code", 23);
 		$testCode = "#+TODO\n日本語でのテストです\n#-TODO"; //24 caractères UTF8
 
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/question/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fcsOpdXNzaWU/resultats/",
 			[
-				"data" => [
-					"type" => "resultat",
-					"attributes" => [
-						"index" => 0,
-						"langage" => "réussi",
-						"code" => "$testCode",
-					],
-				],
+				"index" => 0,
+				"langage" => "réussi",
+				"code" => "$testCode",
 			],
 		);
 		Config::set("limites.taille_code", 1000);
@@ -465,18 +416,13 @@ final class RésultatCtl_QuestionProg_Tests extends ContrôleurTestCase
 		Config::set("limites.taille_code", 24);
 		$testCode = "#+TODO\n日本語でのテストです\n#-TODO"; //24 caractères UTF8
 
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/question/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fcsOpdXNzaWU/resultats",
 			[
-				"data" => [
-					"type" => "resultat",
-					"attributes" => [
-						"index" => 0,
-						"langage" => "réussi",
-						"code" => "$testCode",
-					],
-				],
+				"index" => 0,
+				"langage" => "réussi",
+				"code" => "$testCode",
 			],
 		);
 		Config::set("limites.taille_code", 1000);
@@ -486,20 +432,16 @@ final class RésultatCtl_QuestionProg_Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_test_unique_compilebox_inaccessible_lorsquon_appelle_post_on_obtient_Service_non_disponible()
 	{
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/question/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fcsOpdXNzaWU/resultats/",
 			[
-				"data" => [
-					"type" => "resultat",
-					"attributes" => [
-						"langage" => "pas d'exécuteur",
-						"code" => "#+TODO\nprint(\"on ne se rendra pas à exécuter ceci\")",
-						"index" => 0,
-					],
-				],
+				"langage" => "pas d'exécuteur",
+				"code" => "#+TODO\nprint(\"on ne se rendra pas à exécuter ceci\")",
+				"index" => 0,
 			],
 		);
+
 		$this->assertEquals(503, $résultat_obtenu->status());
 		$this->assertEquals('{"erreur":"Exécuteur non disponible."}', $résultat_obtenu->getContent());
 	}

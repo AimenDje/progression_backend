@@ -18,9 +18,10 @@
 
 namespace progression\http\contrôleur;
 
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\MessageBag;
 use progression\domaine\interacteur\{ObtenirSauvegardeInt, EnregistrerSauvegardeInt, IntéracteurException};
 use progression\http\transformer\SauvegardeTransformer;
 use progression\http\transformer\dto\GénériqueDTO;
@@ -29,9 +30,9 @@ use progression\domaine\entité\Sauvegarde;
 
 class SauvegardeCtl extends Contrôleur
 {
-	public function get(Request $request, $username, $question_uri, $langage)
+	public function get(string $username, string $question_uri, string $langage): JsonResponse
 	{
-		Log::debug("SauvegardeCtl.get. Params : ", [$request->all(), $username, $question_uri, $langage]);
+		Log::debug("SauvegardeCtl.get. Params : ", [$username, $question_uri, $langage]);
 
 		$réponse = null;
 
@@ -42,16 +43,24 @@ class SauvegardeCtl extends Contrôleur
 		return $réponse;
 	}
 
-	public function post(Request $request, $username, $question_uri)
+	/**
+	 * @param array<mixed> $attributs
+	 */
+	public function post(string $username, string $question_uri, array $attributs): JsonResponse
 	{
-		Log::debug("SauvegardeCtl.post. Params : ", [$request->all(), $username, $question_uri]);
+		Log::debug("SauvegardeCtl.post. Params : ", [$username, $question_uri, $attributs]);
 
 		$réponse = null;
-		$validateur = $this->valider_paramètres($request);
-		if ($validateur->fails()) {
-			$réponse = $this->réponse_json(["erreur" => $validateur->errors()], 400);
+		$validateur = $this->valider_paramètres($attributs);
+		if (!$validateur->isEmpty()) {
+			$réponse = $this->réponse_json(["erreur" => $validateur], 400);
 		} else {
-			$résultat_sauvegarde = $this->sauvegarder_sauvegarde($request, $username, $question_uri);
+			$résultat_sauvegarde = $this->sauvegarder_sauvegarde(
+				$username,
+				$question_uri,
+				$attributs["langage"],
+				$attributs,
+			);
 			$id = array_key_first($résultat_sauvegarde);
 			$réponse = $this->valider_et_préparer_réponse($résultat_sauvegarde[$id], $username, $question_uri, $id);
 		}
@@ -107,24 +116,35 @@ class SauvegardeCtl extends Contrôleur
 		return $réponse;
 	}
 
-	private function sauvegarder_sauvegarde($request, $username, $question_uri)
-	{
-		Log::debug("SauvegardeCtl.sauvegarder_sauvegarde. Params : ", [$request->all(), $username, $question_uri]);
+	/**
+	 * @param array<mixed> $attributs
+	 * @return array<Sauvegarde>
+	 */
+	private function sauvegarder_sauvegarde(
+		string $username,
+		string $question_uri,
+		string $langage,
+		array $attributs,
+	): array {
+		Log::debug("SauvegardeCtl.sauvegarder_sauvegarde. Params : ", [$username, $question_uri, $langage, $attributs]);
 
-		$sauvegarde = new Sauvegarde((new \DateTime())->getTimestamp(), $request->code);
+		$sauvegarde = new Sauvegarde((new \DateTime())->getTimestamp(), $attributs["code"]);
 		$sauvegardeInt = new EnregistrerSauvegardeInt();
 
 		$chemin = Encodage::base64_decode_url($question_uri);
-		$résultat_sauvegarde = $sauvegardeInt->enregistrer($username, $chemin, $request->langage, $sauvegarde);
+		$résultat_sauvegarde = $sauvegardeInt->enregistrer($username, $chemin, $langage, $sauvegarde);
 
 		Log::debug("SauvegardeCtl.sauvegarder_sauvegarde. Retour : ", [$résultat_sauvegarde]);
 		return $résultat_sauvegarde;
 	}
 
-	private function valider_paramètres($request)
+	/**
+	 * @param array<mixed> $params
+	 */
+	private function valider_paramètres($params): MessageBag
 	{
-		return Validator::make(
-			$request->all(),
+		$validateur = Validator::make(
+			$params,
 			[
 				"langage" => "required",
 				"code" => "required",
@@ -133,5 +153,7 @@ class SauvegardeCtl extends Contrôleur
 				"required" => "Le champ :attribute est obligatoire.",
 			],
 		);
+
+		return $validateur->errors();
 	}
 }

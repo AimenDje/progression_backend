@@ -47,6 +47,15 @@ abstract class TestCase extends BaseTestCase
 		parent::tearDown();
 	}
 
+	public function json_api($method, $uri, array $data = [], array $headers = [])
+	{
+		$headers = ["CONTENT_TYPE" => "application/vnd.api+json"];
+
+		$this->json($method, $uri, $data, $headers);
+
+		return $this->response;
+	}
+
 	public function createApplication()
 	{
 		return require __DIR__ . "/../../app/bootstrap/app.php";

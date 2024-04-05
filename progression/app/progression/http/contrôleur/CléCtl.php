@@ -18,19 +18,19 @@
 
 namespace progression\http\contrôleur;
 
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\MessageBag;
 use progression\domaine\interacteur\{ObtenirCléInt, GénérerCléAuthentificationInt};
 use progression\http\transformer\CléTransformer;
 use progression\http\transformer\dto\GénériqueDTO;
 
 class CléCtl extends Contrôleur
 {
-	public function get(Request $request, $username, $nom)
+	public function get(string $username, string $nom): JsonResponse
 	{
-		Log::debug("CléCtl.get. Params : ", [$request->all(), $username, $nom]);
+		Log::debug("CléCtl.get. Params : ", [$username, $nom]);
 
 		$nom_décodé = urldecode($nom);
 
@@ -42,18 +42,21 @@ class CléCtl extends Contrôleur
 		return $réponse;
 	}
 
-	public function post(Request $request, $username)
+	/**
+	 * @param array<string> $attributs
+	 */
+	public function post(string $username, array $attributs): JsonResponse
 	{
-		Log::debug("CléCtl.post. Params : ", [$request->all(), $username]);
+		Log::debug("CléCtl.post. Params : ", [$username, $attributs]);
 
-		$validateur = $this->valider_paramètres($request);
+		$validateur = $this->valider_paramètres($attributs);
 
 		$réponse = null;
 		if ($validateur->fails()) {
 			$réponse = $this->réponse_json(["erreur" => $validateur->errors()], 400);
 		} else {
 			$cléInt = new GénérerCléAuthentificationInt();
-			$clé = $cléInt->générer_clé($username, $request->nom, $request->expiration ?? 0);
+			$clé = $cléInt->générer_clé($username, $attributs["nom"], $attributs["expiration"] ?? 0);
 			if ($clé) {
 				$id = array_key_first($clé);
 				$réponse = $this->valider_et_préparer_réponse($clé[$id], $username, $id);
@@ -114,10 +117,13 @@ class CléCtl extends Contrôleur
 		return $réponse;
 	}
 
-	private function valider_paramètres($request)
+	/**
+	 * @param array<mixed> $params
+	 */
+	private function valider_paramètres($params)
 	{
 		$validateur = Validator::make(
-			$request->all(),
+			$params,
 			[
 				"nom" => "required|alpha_dash:ascii",
 				"expiration" => [
