@@ -20,11 +20,10 @@ use progression\ContrôleurTestCase;
 
 use Illuminate\Support\Facades\Config;
 use progression\dao\DAOFactory;
-use progression\domaine\entité\{Avancement, TentativeProg};
 use progression\domaine\entité\user\{User, État, Rôle};
 use progression\UserAuthentifiable;
 
-final class UserModificationCtlTests extends ContrôleurTestCase
+final class UserModificationCtlV3Tests extends ContrôleurTestCase
 {
 	public $user;
 	public function setUp(): void

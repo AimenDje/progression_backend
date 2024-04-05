@@ -25,7 +25,7 @@ use progression\domaine\entité\user\{User, Rôle};
 use progression\domaine\entité\user\État as UserÉtat;
 use progression\UserAuthentifiable;
 
-final class AvancementCtlTests extends ContrôleurTestCase
+final class AvancementCtlV3Tests extends ContrôleurTestCase
 {
 	public $user;
 
@@ -198,109 +198,31 @@ final class AvancementCtlTests extends ContrôleurTestCase
 		DAOFactory::setInstance($mockDAOFactory);
 	}
 
-	// GET
-	public function test_étant_donné_un_avancement_existant_lorsquon_le_récupère_sans_includes_on_obtient_l_avancement_seulement_sous_forme_json()
-	{
-		$résultat_observé = $this->actingAs($this->user)->json_api(
-			"GET",
-			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcm9nZXIvcXVlc3Rpb25zX3Byb2cvZm9uY3Rpb25zMDEvYXBwZWxlcl91bmVfZm9uY3Rpb24",
-		);
-
-		$this->assertResponseStatus(200);
-		$this->assertJsonStringEqualsJsonFile(
-			__DIR__ . "/résultats_attendus/avancementCtlTests_avancement_réussi.json",
-			$résultat_observé->getContent(),
-		);
-	}
-
-	public function test_étant_donné_un_avancement_existant_lorsquon_le_récupère_avec_includes_on_obtient_l_avancement_et_ses_tentatives_et_sauvegardes_sous_forme_json()
-	{
-		$résultat_observé = $this->actingAs($this->user)->json_api(
-			"GET",
-			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcm9nZXIvcXVlc3Rpb25zX3Byb2cvZm9uY3Rpb25zMDEvYXBwZWxlcl91bmVfZm9uY3Rpb24?include=tentatives,sauvegardes",
-		);
-
-		$this->assertResponseStatus(200);
-		$this->assertJsonStringEqualsJsonFile(
-			__DIR__ . "/résultats_attendus/avancementCtlTests_avancement_réussi_avec_tentatives_et_sauvegardes.json",
-			$résultat_observé->getContent(),
-		);
-	}
-
-	public function test_étant_donné_un_avancement_existant_lorsquon_le_récupère_en_incluant_les_tentatives_avec_commentaires_et_sauvegardes_on_obtient_l_avancement_et_ses_sauvegardes_et_tentatives_avec_ses_commentaires_sous_forme_json()
-	{
-		$résultat_observé = $this->actingAs($this->user)->json_api(
-			"GET",
-			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcm9nZXIvcXVlc3Rpb25zX3Byb2cvZm9uY3Rpb25zMDEvYXBwZWxlcl91bmVfZm9uY3Rpb24?include=tentatives.commentaires,sauvegardes",
-		);
-
-		$this->assertResponseStatus(200);
-		$this->assertJsonStringEqualsJsonFile(
-			__DIR__ .
-				"/résultats_attendus/avancementCtlTests_avancement_réussi_avec_tentatives_commentaires_et_sauvegardes.json",
-			$résultat_observé->getContent(),
-		);
-	}
-
-	public function test_étant_donné_un_avancement_inexistant_lorsquon_le_récupère_on_obtient_une_erreur_404()
-	{
-		$résultat_observé = $this->actingAs($this->user)->json_api(
-			"GET",
-			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcm9nZXIvcXVlc3Rpb25faW5leGlzdGFudGU",
-		);
-
-		$this->assertResponseStatus(404);
-		$this->assertEquals('{"erreur":"Ressource non trouvée."}', $résultat_observé->getContent());
-	}
-
 	// POST
-	public function test_étant_donné_un_user_existant_lorsquon_appelle_post_sans_id_on_obtient_une_erreur_400()
+	public function test_étant_donné_un_user_existant_lorsquon_appelle_post_sans_question_uri_on_obtient_une_erreur_400()
 	{
-		$résultat_observé = $this->actingAs($this->user)->json_api("POST", "/user/jdoe/avancements", [
-			"data" => [
-				"type" => "avancement",
-				"attributes" => [
-					"titre" => "Question test",
-					"niveau" => "niveau test",
-				],
-			],
-		]);
-
-		$this->assertResponseStatus(400);
-		$this->assertEquals('{"erreur":{"id":["Le champ id est obligatoire."]}}', $résultat_observé->getContent());
-	}
-
-	public function test_étant_donné_un_user_existant_lorsquon_appelle_post_avec_un_id_invalide_on_obtient_une_erreur_400()
-	{
-		$résultat_observé = $this->actingAs($this->user)->json_api("POST", "/user/jdoe/avancements", [
-			"data" => [
-				"type" => "avancement",
-				"id" => "Q2VjaSBuJ2VzdCBwdXMgdW4gVVJJ",
-				"attributes" => [
-					"titre" => "Question test",
-					"niveau" => "niveau test",
-				],
+		$résultat_observé = $this->actingAs($this->user)->call("POST", "/user/jdoe/avancements", [
+			"avancement" => [
+				"titre" => "Question test",
+				"niveau" => "niveau test",
 			],
 		]);
 
 		$this->assertResponseStatus(400);
 		$this->assertEquals(
-			'{"erreur":{"id":["Le champ id doit avoir le format {username}\/{question_uri}."]}}',
+			'{"erreur":{"question_uri":["Le champ question uri est obligatoire."]}}',
 			$résultat_observé->getContent(),
 		);
 	}
 
-	public function test_étant_donné_un_user_existant_lorsquon_appelle_post_avec_un_question_id_non_encodé_on_obtient_une_erreur_400()
+	public function test_étant_donné_un_user_existant_lorsquon_appelle_post_avec_un_question_uri_non_encodé_on_obtient_une_erreur_400()
 	{
-		$résultat_observé = $this->actingAs($this->user)->json_api("POST", "/user/jdoe/avancements", [
-			"data" => [
-				"type" => "avancement",
-				"id" => "jdoe/http://test.exemple.com/info.yml",
-				"attributes" => [
-					"titre" => "Question test",
-					"niveau" => "niveau test",
-				],
+		$résultat_observé = $this->actingAs($this->user)->call("POST", "/user/jdoe/avancements", [
+			"avancement" => [
+				"titre" => "Question test",
+				"niveau" => "niveau test",
 			],
+			"question_uri" => "http://test.exemple.com/info.yml",
 		]);
 
 		$this->assertResponseStatus(400);
@@ -310,17 +232,14 @@ final class AvancementCtlTests extends ContrôleurTestCase
 		);
 	}
 
-	public function test_étant_donné_un_user_existant_lorsquon_appelle_post_avec_un_id_non_valide_on_obtient_une_erreur_400()
+	public function test_étant_donné_un_user_existant_lorsquon_appelle_post_avec_un_question_uri_non_valide_on_obtient_une_erreur_400()
 	{
-		$résultat_observé = $this->actingAs($this->user)->json_api("POST", "/user/jdoe/avancements", [
-			"data" => [
-				"type" => "avancement",
-				"id" => "jdoe/Q2VjaSBuJ2VzdCBwdXMgdW4gVVJJ",
-				"attributes" => [
-					"titre" => "Question test",
-					"niveau" => "niveau test",
-				],
+		$résultat_observé = $this->actingAs($this->user)->call("POST", "/user/jdoe/avancements", [
+			"avancement" => [
+				"titre" => "Question test",
+				"niveau" => "niveau test",
 			],
+			"question_uri" => "Q2VjaSBuJ2VzdCBwdXMgdW4gVVJJ",
 		]);
 
 		$this->assertResponseStatus(400);
@@ -348,11 +267,8 @@ final class AvancementCtlTests extends ContrôleurTestCase
 				"https://depot.com/roger/questions_prog/nouvelle_question_defaut" => $nouvel_avancement,
 			]);
 
-		$résultat_observé = $this->actingAs($this->user)->json_api("POST", "/user/jdoe/avancements", [
-			"data" => [
-				"type" => "avancement",
-				"id" => "jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcm9nZXIvcXVlc3Rpb25zX3Byb2cvbm91dmVsbGVfcXVlc3Rpb25fZGVmYXV0",
-			],
+		$résultat_observé = $this->actingAs($this->user)->call("POST", "/user/jdoe/avancements", [
+			"question_uri" => "aHR0cHM6Ly9kZXBvdC5jb20vcm9nZXIvcXVlc3Rpb25zX3Byb2cvbm91dmVsbGVfcXVlc3Rpb25fZGVmYXV0",
 		]);
 
 		$this->assertResponseStatus(200);
@@ -380,18 +296,15 @@ final class AvancementCtlTests extends ContrôleurTestCase
 				"https://depot.com/roger/questions_prog/nouvelle_question" => $nouvel_avancement,
 			]);
 
-		$résultat_observé = $this->actingAs($this->user)->json_api("POST", "/user/jdoe/avancements", [
-			"data" => [
-				"type" => "avancement",
-				"id" => "jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcm9nZXIvcXVlc3Rpb25zX3Byb2cvbm91dmVsbGVfcXVlc3Rpb24",
-				"attributes" => [
-					"état" => 2, // Propriétés non modifiables
-					"titre" => "Titre modifié",
-					"niveau" => "Niveau modifié",
-					"date_modification" => 9999999,
-					"date_réussite" => 888888,
-					"extra" => "Infos extra", // Propriétés modifiables
-				],
+		$résultat_observé = $this->actingAs($this->user)->call("POST", "/user/jdoe/avancements", [
+			"question_uri" => "aHR0cHM6Ly9kZXBvdC5jb20vcm9nZXIvcXVlc3Rpb25zX3Byb2cvbm91dmVsbGVfcXVlc3Rpb24",
+			"avancement" => [
+				"état" => 2, // Propriétés non modifiables
+				"titre" => "Titre modifié",
+				"niveau" => "Niveau modifié",
+				"date_modification" => 9999999,
+				"date_réussite" => 888888,
+				"extra" => "Infos extra", // Propriétés modifiables
 			],
 		]);
 
@@ -427,19 +340,16 @@ final class AvancementCtlTests extends ContrôleurTestCase
 				"https://depot.com/roger/questions_prog/fonctions01/appeler_une_fonction" => $avancement_sauvegardé,
 			]);
 
-		$résultat_observé = $this->actingAs($this->user)->json_api("POST", "/user/jdoe/avancements", [
-			"data" => [
-				"type" => "avancement",
-				"id" =>
-					"jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcm9nZXIvcXVlc3Rpb25zX3Byb2cvZm9uY3Rpb25zMDEvYXBwZWxlcl91bmVfZm9uY3Rpb24",
-				"attributes" => [
-					"état" => 1, // Propriétés non modifiables
-					"titre" => "Titre modifié",
-					"niveau" => "Niveau modifié",
-					"date_modification" => 9999999,
-					"date_réussite" => 888888,
-					"extra" => "Infos extra modifiées", // Propriétés modifiables
-				],
+		$résultat_observé = $this->actingAs($this->user)->call("POST", "/user/jdoe/avancements", [
+			"question_uri" =>
+				"aHR0cHM6Ly9kZXBvdC5jb20vcm9nZXIvcXVlc3Rpb25zX3Byb2cvZm9uY3Rpb25zMDEvYXBwZWxlcl91bmVfZm9uY3Rpb24",
+			"avancement" => [
+				"état" => 1, // Propriétés non modifiables
+				"titre" => "Titre modifié",
+				"niveau" => "Niveau modifié",
+				"date_modification" => 9999999,
+				"date_réussite" => 888888,
+				"extra" => "Infos extra modifiées", // Propriétés modifiables
 			],
 		]);
 
@@ -455,15 +365,12 @@ final class AvancementCtlTests extends ContrôleurTestCase
 		$mockAvancementDAO = DAOFactory::getInstance()->get_avancement_dao();
 		$mockAvancementDAO->shouldNotReceive("save");
 
-		$résultat_observé = $this->actingAs($this->user)->json_api("POST", "/user/jdoe/avancements", [
-			"data" => [
-				"type" => "avancement",
-				"id" => "jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcm9nZXIvcXVlc3Rpb25faW5leGlzdGFudGU",
-				"attributes" => [
-					"titre" => "Question test",
-					"niveau" => "niveau test",
-				],
+		$résultat_observé = $this->actingAs($this->user)->call("POST", "/user/jdoe/avancements", [
+			"avancement" => [
+				"titre" => "Question test",
+				"niveau" => "niveau test",
 			],
+			"question_uri" => "aHR0cHM6Ly9kZXBvdC5jb20vcm9nZXIvcXVlc3Rpb25faW5leGlzdGFudGU",
 		]);
 
 		$this->assertResponseStatus(422);
@@ -474,22 +381,34 @@ final class AvancementCtlTests extends ContrôleurTestCase
 	}
 
 	// PUT
-	public function test_étant_donné_un_avancement_existant_lorsquon_appelle_put_avec_un_id_différent_de_lurl_on_obtient_une_erreur_409()
+	public function test_étant_donné_un_avancement_existant_lorsquon_appelle_put_avec_un_question_uri_non_encodé_on_obtient_une_erreur_400()
 	{
-		$résultat_observé = $this->actingAs($this->user)->json_api("PUT", "/avancement/jdoe/test", [
-			"data" => [
-				"type" => "avancement",
-				"id" => "jdoe/autre_uri",
-				"attributes" => [
-					"titre" => "Question test",
-					"niveau" => "niveau test",
-				],
+		$résultat_observé = $this->actingAs($this->user)->call(
+			"PUT",
+			"/avancement/jdoe/http:&#x2F;&#x2F;test.exemple.com&#x2F;info.yml",
+			[
+				"titre" => "Question test",
+				"niveau" => "niveau test",
 			],
+		);
+
+		$this->assertResponseStatus(400);
+		$this->assertEquals(
+			'{"erreur":{"question_uri":["Le champ question_uri doit être un URL encodé en base64."]}}',
+			$résultat_observé->getContent(),
+		);
+	}
+
+	public function test_étant_donné_un_avancement_existant_lorsquon_appelle_put_avec_un_question_uri_non_valide_on_obtient_une_erreur_400()
+	{
+		$résultat_observé = $this->actingAs($this->user)->call("PUT", "/avancement/jdoe/Q2VjaSBuJ2VzdCBwdXMgdW4gVVJJ", [
+			"titre" => "Question test",
+			"niveau" => "niveau test",
 		]);
 
-		$this->assertResponseStatus(409);
+		$this->assertResponseStatus(400);
 		$this->assertEquals(
-			'{"erreur":{"id":["Le champ id ne correspond pas à l\'URI."]}}',
+			'{"erreur":{"question_uri":["Le champ question_uri doit être un URL encodé en base64."]}}',
 			$résultat_observé->getContent(),
 		);
 	}
@@ -512,14 +431,10 @@ final class AvancementCtlTests extends ContrôleurTestCase
 				"https://depot.com/roger/questions_prog/nouvelle_question_defaut" => $nouvel_avancement,
 			]);
 
-		$résultat_observé = $this->actingAs($this->user)->json_api(
+		$résultat_observé = $this->actingAs($this->user)->call(
 			"PUT",
 			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcm9nZXIvcXVlc3Rpb25zX3Byb2cvbm91dmVsbGVfcXVlc3Rpb25fZGVmYXV0",
-			[
-				"data" => [
-					"type" => "avancement",
-				],
-			],
+			[],
 		);
 
 		$this->assertResponseStatus(200);
@@ -547,21 +462,16 @@ final class AvancementCtlTests extends ContrôleurTestCase
 				"https://depot.com/roger/questions_prog/nouvelle_question" => $nouvel_avancement,
 			]);
 
-		$résultat_observé = $this->actingAs($this->user)->json_api(
+		$résultat_observé = $this->actingAs($this->user)->call(
 			"PUT",
 			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcm9nZXIvcXVlc3Rpb25zX3Byb2cvbm91dmVsbGVfcXVlc3Rpb24",
 			[
-				"data" => [
-					"type" => "avancement",
-					"attributes" => [
-						"état" => 2, // Propriétés non modifiables
-						"titre" => "Titre modifié",
-						"niveau" => "Niveau modifié",
-						"date_modification" => 9999999,
-						"date_réussite" => 888888,
-						"extra" => "Infos extra", // Propriétés modifiables
-					],
-				],
+				"état" => 2, // Propriétés non modifiables
+				"titre" => "Titre modifié",
+				"niveau" => "Niveau modifié",
+				"date_modification" => 9999999,
+				"date_réussite" => 888888,
+				"extra" => "Infos extra", // Propriétés modifiables
 			],
 		);
 
@@ -590,14 +500,10 @@ final class AvancementCtlTests extends ContrôleurTestCase
 				"https://depot.com/roger/questions_prog/nouvelle_question_defaut" => $nouvel_avancement,
 			]);
 
-		$résultat_observé = $this->actingAs($this->user)->json_api(
+		$résultat_observé = $this->actingAs($this->user)->call(
 			"PUT",
 			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcm9nZXIvcXVlc3Rpb25zX3Byb2cvbm91dmVsbGVfcXVlc3Rpb25fZGVmYXV0",
-			[
-				"data" => [
-					"type" => "avancement",
-				],
-			],
+			[],
 		);
 
 		$this->assertResponseStatus(200);
@@ -632,21 +538,16 @@ final class AvancementCtlTests extends ContrôleurTestCase
 				"https://depot.com/roger/questions_prog/fonctions01/appeler_une_fonction" => $avancement_sauvegardé,
 			]);
 
-		$résultat_observé = $this->actingAs($this->user)->json_api(
+		$résultat_observé = $this->actingAs($this->user)->call(
 			"PUT",
 			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcm9nZXIvcXVlc3Rpb25zX3Byb2cvZm9uY3Rpb25zMDEvYXBwZWxlcl91bmVfZm9uY3Rpb24",
 			[
-				"data" => [
-					"type" => "avancement",
-					"attributes" => [
-						"état" => 1, // Propriétés non modifiables
-						"titre" => "Titre modifié",
-						"niveau" => "Niveau modifié",
-						"date_modification" => 9999999,
-						"date_réussite" => 888888,
-						"extra" => "Infos extra modifiées", // Propriétés modifiables
-					],
-				],
+				"état" => 1, // Propriétés non modifiables
+				"titre" => "Titre modifié",
+				"niveau" => "Niveau modifié",
+				"date_modification" => 9999999,
+				"date_réussite" => 888888,
+				"extra" => "Infos extra modifiées", // Propriétés modifiables
 			],
 		);
 
@@ -662,15 +563,10 @@ final class AvancementCtlTests extends ContrôleurTestCase
 		$mockAvancementDAO = DAOFactory::getInstance()->get_avancement_dao();
 		$mockAvancementDAO->shouldNotReceive("save");
 
-		$résultat_observé = $this->actingAs($this->user)->json_api(
+		$résultat_observé = $this->actingAs($this->user)->call(
 			"PUT",
 			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcm9nZXIvcXVlc3Rpb25faW5leGlzdGFudGU",
-			[
-				"data" => [
-					"type" => "avancement",
-					"attributes" => [],
-				],
-			],
+			[],
 		);
 
 		$this->assertResponseStatus(422);
@@ -685,17 +581,12 @@ final class AvancementCtlTests extends ContrôleurTestCase
 		$mockAvancementDAO = DAOFactory::getInstance()->get_avancement_dao();
 		$mockAvancementDAO->shouldNotReceive("save");
 
-		$résultat_observé = $this->actingAs($this->user)->json_api(
+		$résultat_observé = $this->actingAs($this->user)->call(
 			"PUT",
 			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcm9nZXIvcXVlc3Rpb25faW5leGlzdGFudGU",
 			[
-				"data" => [
-					"type" => "avancement",
-					"attributes" => [
-						"titre" => "Question test",
-						"niveau" => "niveau test",
-					],
-				],
+				"titre" => "Question test",
+				"niveau" => "niveau test",
 			],
 		);
 
@@ -712,15 +603,10 @@ final class AvancementCtlTests extends ContrôleurTestCase
 		$mockAvancementDAO = DAOFactory::getInstance()->get_avancement_dao();
 		$mockAvancementDAO->shouldNotReceive("save");
 
-		$résultat_observé = $this->actingAs($this->user)->json_api(
+		$résultat_observé = $this->actingAs($this->user)->call(
 			"PATCH",
 			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcm9nZXIvcXVlc3Rpb25zX3Byb2cvbm91dmVsbGVfcXVlc3Rpb25fZGVmYXV0",
-			[
-				"data" => [
-					"type" => "avancement",
-					"attributes" => [],
-				],
-			],
+			[],
 		);
 
 		$this->assertResponseStatus(404);
@@ -732,15 +618,10 @@ final class AvancementCtlTests extends ContrôleurTestCase
 		$mockAvancementDAO = DAOFactory::getInstance()->get_avancement_dao();
 		$mockAvancementDAO->shouldNotReceive("save");
 
-		$résultat_observé = $this->actingAs($this->user)->json_api(
+		$résultat_observé = $this->actingAs($this->user)->call(
 			"PATCH",
 			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcm9nZXIvcXVlc3Rpb25zX3Byb2cvZm9uY3Rpb25zMDEvYXBwZWxlcl91bmVfZm9uY3Rpb24",
-			[
-				"data" => [
-					"type" => "avancement",
-					"attributes" => [],
-				],
-			],
+			[],
 		);
 
 		$this->assertResponseStatus(200);
@@ -775,17 +656,12 @@ final class AvancementCtlTests extends ContrôleurTestCase
 				"https://depot.com/roger/questions_prog/fonctions01/appeler_une_fonction" => $avancement_sauvegardé,
 			]);
 
-		$résultat_observé = $this->actingAs($this->user)->json_api(
+		$résultat_observé = $this->actingAs($this->user)->call(
 			"PATCH",
 			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcm9nZXIvcXVlc3Rpb25zX3Byb2cvZm9uY3Rpb25zMDEvYXBwZWxlcl91bmVfZm9uY3Rpb24",
 			[
-				"data" => [
-					"type" => "avancement",
-					"attributes" => [
-						"état" => 1, // Propriétés non modifiables
-						"extra" => "Infos extra modifiées", // Propriétés modifiables
-					],
-				],
+				"état" => 1, // Propriétés non modifiables
+				"extra" => "Infos extra modifiées", // Propriétés modifiables
 			],
 		);
 

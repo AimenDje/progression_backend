@@ -19,14 +19,15 @@
 use progression\ContrôleurTestCase;
 
 use progression\dao\DAOFactory;
+use progression\dao\exécuteur\ExécutionException;
 use progression\domaine\entité\{Avancement, TestSys, Exécutable, TentativeSys, Résultat};
-use progression\domaine\entité\question\QuestionSys;
+use progression\domaine\entité\question\{Question, QuestionSys};
 use progression\domaine\entité\user\{User, Rôle, État};
 
 use progression\UserAuthentifiable;
 use Carbon\Carbon;
 
-final class TentativeCtl_QuestionSys_Tests extends ContrôleurTestCase
+final class TentativeCtl_QuestionSysV3_Tests extends ContrôleurTestCase
 {
 	public $user;
 	public $avancement_réussi;
@@ -280,17 +281,10 @@ final class TentativeCtl_QuestionSys_Tests extends ContrôleurTestCase
 				"https://depot.com/question_solution_courte_non_réussie" => $nouvel_avancement,
 			]);
 
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fc29sdXRpb25fY291cnRlX25vbl9yw6l1c3NpZQ/tentatives?include=resultats",
-			[
-				"data" => [
-					"type" => "tentative",
-					"attributes" => [
-						"réponse" => "Bonne réponse",
-					],
-				],
-			],
+			["réponse" => "Bonne réponse"],
 		);
 
 		$this->assertEquals(200, $résultat_obtenu->status());
@@ -357,10 +351,10 @@ final class TentativeCtl_QuestionSys_Tests extends ContrôleurTestCase
 				"https://depot.com/question_solution_courte_non_réussie" => $nouvel_avancement,
 			]);
 
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fc29sdXRpb25fY291cnRlX25vbl9yw6l1c3NpZQ/tentatives?include=resultats",
-			["data" => ["type" => "tentative", "attributes" => ["réponse" => "Mauvaise réponse"]]],
+			["réponse" => "Mauvaise réponse"],
 		);
 
 		$this->assertEquals(200, $résultat_obtenu->status());
@@ -419,10 +413,10 @@ final class TentativeCtl_QuestionSys_Tests extends ContrôleurTestCase
 
 		DAOFactory::getInstance()->shouldReceive("get_exécuteur")->andReturn($mockExécuteur);
 
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fdmFsaWTDqWVfcsOpdXNzaWU/tentatives?include=resultats",
-			["data" => ["type" => "tentative", "attributes" => ["conteneur_id" => ""]]],
+			["conteneur_id" => ""],
 		);
 
 		$this->assertEquals(200, $résultat_obtenu->status());

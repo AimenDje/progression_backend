@@ -18,10 +18,10 @@
 
 namespace progression\http\contrôleur;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\MessageBag;
 use progression\http\transformer\RésultatTransformer;
 use progression\http\transformer\dto\GénériqueDTO;
 use progression\domaine\entité\question\{Question, QuestionProg, QuestionSys};
@@ -42,33 +42,33 @@ use progression\dao\exécuteur\ExécutionException;
 
 class RésultatCtl extends Contrôleur
 {
-	public function post(Request $request, string $uri): JsonResponse
+	/**
+	 * @param array<mixed> $attributs
+	 */
+	public function post(string $uri, array $attributs): JsonResponse
 	{
-		Log::debug("RésultatCtl.post. Params : ", [$request->all()]);
+		Log::debug("RésultatCtl.post. Params : ", [$attributs]);
 
 		$chemin = Encodage::base64_decode_url($uri);
 		$question = $this->récupérer_question($chemin);
 
 		$validation = null;
 		if ($question instanceof QuestionProg) {
-			$validation = $this->valider_paramètres_prog($request, $uri);
+			$validation = $this->valider_paramètres_prog($attributs);
 		} elseif ($question instanceof QuestionSys) {
-			$validation = $this->valider_paramètres_sys($request);
+			$validation = $this->valider_paramètres_sys($attributs);
 		}
 
-		if ($validation && $validation->fails()) {
-			Log::notice(
-				"({$request->ip()}) - {$request->method()} {$request->path()} (" . __CLASS__ . ") Paramètres invalides",
-			);
-			return $this->réponse_json(["erreur" => $validation->errors()], 400);
+		if ($validation && !$validation->isEmpty()) {
+			return $this->réponse_json(["erreur" => $validation], 400);
 		}
 
 		if (!$question) {
 			$réponse = $this->réponse_json(["erreur" => "La question " . $chemin . " n'existe pas."], 404);
-		} elseif (isset($request->index) && !array_key_exists($request->index, $question->tests)) {
+		} elseif (isset($attributs["index"]) && !array_key_exists($attributs["index"], $question->tests)) {
 			$réponse = $this->réponse_json(["erreur" => "L'indice de test n'existe pas."], 400);
 		} else {
-			$résultat = $this->traiter_post_Question($request, $chemin, $question);
+			$résultat = $this->traiter_post_Question($attributs, $chemin, $question);
 
 			if (!$résultat) {
 				$réponse = $this->réponse_json(["erreur" => "La tentative n'est pas traitable."], 400);
@@ -93,22 +93,16 @@ class RésultatCtl extends Contrôleur
 		];
 	}
 
-	private function valider_paramètres_prog(Request $request, string $uri)
+	/**
+	 * @param array<mixed> $attributs
+	 */
+	private function valider_paramètres_prog(array $attributs): MessageBag
 	{
 		$TAILLE_CODE_MAX = (int) config("limites.taille_code");
 
 		$validateur = Validator::make(
-			[...$request->all(), "uri" => $uri],
+			$attributs,
 			[
-				"uri" => [
-					"required",
-					function ($attribute, $value, $fail) {
-						$url = Encodage::base64_decode_url($value);
-						if (!$url || Validator::make(["uri" => $url], ["uri" => "url"])->fails()) {
-							$fail("Le champ uri doit être un URL encodé en base64.");
-						}
-					},
-				],
 				"code" => "required|string|between:0,$TAILLE_CODE_MAX",
 				"langage" => "required|string",
 				"test" => "required_without:index",
@@ -116,19 +110,23 @@ class RésultatCtl extends Contrôleur
 			],
 			[
 				"required" => "Le champ :attribute est obligatoire.",
-				"code.between" => "Le code soumis " . mb_strlen($request->code) . " > $TAILLE_CODE_MAX caractères.",
+				"code.between" =>
+					"Le code soumis " . mb_strlen($attributs["code"] ?? "") . " > $TAILLE_CODE_MAX caractères.",
 				"question_uri.required" => "Le champ question_uri est obligatoire.",
 				"test.required_without" => "Le champ test est obligatoire lorsque index n'est pas présent.",
 			],
 		);
 
-		return $validateur;
+		return $validateur->errors();
 	}
 
-	private function valider_paramètres_sys(Request $request)
+	/**
+	 * @param array<mixed> $attributs
+	 */
+	private function valider_paramètres_sys(array $attributs): MessageBag
 	{
 		$validateur = Validator::make(
-			$request->all(),
+			$attributs,
 			[
 				"index" => "required|integer",
 			],
@@ -138,7 +136,7 @@ class RésultatCtl extends Contrôleur
 			],
 		);
 
-		return $validateur;
+		return $validateur->errors();
 	}
 
 	private function récupérer_question(string $chemin): Question|null
@@ -146,11 +144,14 @@ class RésultatCtl extends Contrôleur
 		return (new ObtenirQuestionInt())->get_question($chemin);
 	}
 
-	private function construire_test(Request $request, TestProg $test): TestProg
+	/**
+	 * @param array<mixed> $attributs
+	 */
+	private function construire_test(array $attributs, TestProg $test): TestProg
 	{
-		$test->entrée = $request->test["entrée"] ?? $test->entrée;
-		$test->params = $request->test["params"] ?? $test->params;
-		$test->sortie_attendue = $request->test["sortie_attendue"] ?? $test->sortie_attendue;
+		$test->entrée = $attributs["entrée"] ?? $test->entrée;
+		$test->params = $attributs["params"] ?? $test->params;
+		$test->sortie_attendue = $attributs["sortie_attendue"] ?? $test->sortie_attendue;
 
 		return $test;
 	}
@@ -170,31 +171,36 @@ class RésultatCtl extends Contrôleur
 	}
 
 	/**
+	 * @param array<mixed> $attributs
 	 * @return array<Résultat>
 	 */
-	private function traiter_post_Question(Request $request, string $chemin, Question $question): array|null
+	private function traiter_post_Question(array $attributs, string $chemin, Question $question): array|null
 	{
 		if ($question instanceof QuestionProg) {
+			$index = array_key_exists("index", $attributs) ? $attributs["index"] : null;
 			/**
 			 * @var TestProg $test_question (pseudo-cast pour phpstant)
 			 */
-			$test_question = isset($request->index) ? $question->tests[$request->index] : new TestProg("", "");
-			$test = isset($request->test) ? $this->construire_test($request, $test_question) : $test_question;
+			$test_question = $index === null ? new TestProg("", "") : $question->tests[$index];
+			$test = isset($attributs["test"])
+				? $this->construire_test($attributs["test"], $test_question)
+				: $test_question;
 
-			return $this->traiter_post_QuestionProg($request, $question, $test);
+			return $this->traiter_post_QuestionProg($attributs, $question, $test);
 		} elseif ($question instanceof QuestionSys) {
-			return $this->traiter_post_QuestionSys($request, $chemin, $question);
+			return $this->traiter_post_QuestionSys($attributs, $chemin, $question);
 		} else {
 			return null;
 		}
 	}
 
 	/**
+	 * @param array<mixed> $attributs
 	 * @return array<Résultat>
 	 */
-	private function traiter_post_QuestionProg(Request $request, QuestionProg $question, Test $test): array|null
+	private function traiter_post_QuestionProg(array $attributs, QuestionProg $question, Test $test): array|null
 	{
-		$tentative = new TentativeProg($request->langage, $request->code, (new \DateTime())->getTimestamp());
+		$tentative = new TentativeProg($attributs["langage"], $attributs["code"], (new \DateTime())->getTimestamp());
 
 		$tentative_résultante = $this->soumettre_tentative_prog($question, $tentative, $test);
 
@@ -214,9 +220,10 @@ class RésultatCtl extends Contrôleur
 	}
 
 	/**
+	 * @param array<mixed> $attributs
 	 * @return array<Résultat>
 	 */
-	private function traiter_post_QuestionSys(Request $request, string $chemin, QuestionSys $question): array|null
+	private function traiter_post_QuestionSys(array $attributs, string $chemin, QuestionSys $question): array|null
 	{
 		/* @phpstan-ignore-next-line */
 		$utilisateur_courant = auth()->user()->username;
@@ -230,7 +237,7 @@ class RésultatCtl extends Contrôleur
 			conteneur_id: $dernière_tentative->conteneur_id,
 		);
 
-		$test_index = $request->index;
+		$test_index = $attributs["index"];
 
 		$tentative_résultante = $this->soumettre_tentative_sys($question, $tentative, $test_index);
 

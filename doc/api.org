@@ -30,7 +30,7 @@ Trois méthodes permettent l'authentification pour n'importe quelle requête :
    | domaine     | Domaine LDAP                  | str  | ""     |
 
    Exemple : ~Authorization: Basic Ym9iOnBhc3N3b3JkOmV4ZW1wbGUuY29t~
-   
+
 2. Identifiant et clé d'accès
 
    Dans l'entête ~Authorization~, méthode ~Key~, les paramètres suivants séparés par des deux-points (:) et encodés en base64
@@ -103,7 +103,7 @@ Une clé donnant accès à un sous-ensemble des services ou ressources de l’AP
 *** Identifiant :
 username/nom
 
-*** Propriétés : 
+*** Propriétés :
 
 | Nom        | Type | Valeurs            | Description                                               |
 |------------+------+--------------------+-----------------------------------------------------------|
@@ -164,10 +164,10 @@ URI
 *** Hiérarchie
 
 #+begin_src text
-Question          
-▲                 
-├ QuestionProg    
-├ QuestionSys     
+Question
+▲
+├ QuestionProg
+├ QuestionSys
 └ QuestionBD
 #+end_src
 
@@ -250,11 +250,11 @@ username/question_uri/date_soumission
 *** Hiérarchie
 
 #+begin_src text
-Tentative 
-▲ 
-├ TentativeProg 
-├ TentativeSys 
-├ TentativeBD 
+Tentative
+▲
+├ TentativeProg
+├ TentativeSys
+├ TentativeBD
 #+end_src
 
 *** Propriétés :
@@ -430,7 +430,7 @@ username
 #+begin_src sh :exports none
 if [ -z "$PROGRESSION_API_URL" ]
 then
-	echo -n "https://progression.dti.crosemont.quebec/demo/api/v1"
+	echo -n "http://ordralphabetix.dti.crosemont.quebec:9000"
 else
 	echo -n $PROGRESSION_API_URL
 fi
@@ -449,10 +449,10 @@ curl() {
 export -f curl
 
 # Inscription
-/usr/bin/curl "<<get_api_url()>>/user" -X PUT --data '{"username": "jdoe"}' -H "Content-Type: application/json" | grep -Po '(?<=Token":").*(?=")'
+/usr/bin/curl "<<get_api_url()>>/users" --data '{"data": {"type": "user", "attributes": {"username": "jdoe"}}}' -H "Content-Type: application/vnd.api+json" >> /dev/null
 
 # Récupère le token
-export TOKEN=$(/usr/bin/curl "<<get_api_url()>>/user/jdoe/tokens" -H 'Authorization: basic amRvZTo=' --data '{"data" : {"ressources": {"tout": {"url": ".*", "method": ".*"}}, "expiration": "+30"}}' -H "Content-Type: application/json" | grep -Po '(?<=jwt":")[^"]*')
+export TOKEN=$(/usr/bin/curl "<<get_api_url()>>/user/jdoe/tokens" -H 'Authorization: basic amRvZTo=' --data '{"data" : {"type": "token", "attributes": {"ressources": {"tout": {"url": ".*", "method": ".*"}}, "expiration": "+60"}}}' -H "Content-Type: application/vnd.api+json" | grep -Po '(?<=jwt":")[^"]*' )
 
 #+END_SRC
 
@@ -468,7 +468,7 @@ def decode_b64( b64_str ):
     except:
         return b64_str
 
-def decode_json( json_str ):    
+def decode_json( json_str ):
     try:
         return json.loads(json_str)
     except:
@@ -479,7 +479,7 @@ def formatte_json( json_str ):
         return json.dumps( json_str, ensure_ascii=False, indent=4 )
     except:
         return json_str
-    
+
 print( formatte_json( decode_json( decode_b64( json_str ) ) ) )
 #+end_src
 
@@ -501,6 +501,11 @@ curl "<<get_api_url()>>/user/jdoe" -X PUT --data '{"username": "jdoe"}' -H "Cont
 
 ** Obtenir un token pour ~jdoe~
 
+*** Version <4.0.0
+#+begin_warning
+Le passage des données en format JSON simple est désuet depuis la versions 3.10 et sera retiré à la prochaine révision majeure. Le format JSON:API et l'entête Content-Type adéquate sont préférables.
+#+end_warning
+
 #+BEGIN_SRC bash :eval yes :session *bash* :results none :exports code
 DATA=$(cat <<EOF
 {
@@ -518,8 +523,33 @@ EOF
 )
 #+END_SRC
 
-#+BEGIN_SRC bash :eval yes :session *bash* :results output :exports both :post json_pretty(*this*) 
+#+BEGIN_SRC bash :eval yes :session *bash* :results output :exports both :post json_pretty(*this*)
 curl "<<get_api_url()>>/user/jdoe/tokens" -H 'Authorization: basic amRvZTo=' --data "$DATA" -H "Content-Type: application/json"
+#+END_SRC
+
+*** Version >=4.0.0
+#+BEGIN_SRC bash :eval yes :session *bash* :results none :exports code
+DATA=$(cat <<EOF
+{
+	"data": {
+		"type": "token",
+		"attributes": {
+			"ressources": {
+				"tout": {
+					"url": ".*",
+					"method": ".*"
+				}
+			},
+			"expiration": "+30"
+		}
+	}
+}
+EOF
+)
+#+END_SRC
+
+#+BEGIN_SRC bash :eval yes :session *bash* :results output :exports both :post json_pretty(*this*)
+curl "<<get_api_url()>>/user/jdoe/tokens" -H 'Authorization: basic amRvZTo=' --data "$DATA" -H "Content-Type: application/vnd.api+json"
 #+END_SRC
 
 ** Obtenir le profil de l’utilisateur authentifié ~jdoe~
@@ -531,6 +561,12 @@ curl "<<get_api_url()>>/user/jdoe" -H "Authorization: Bearer $TOKEN"
 
 ** Mettre à jour les préférences de ~jdoe~
 
+*** Version <4.0.0
+
+#+begin_warning
+Le passage des données en format JSON simple est désuet depuis la versions 3.10 et sera retiré à la prochaine révision majeure. Le format JSON:API et l'entête Content-Type adéquate sont préférables.
+#+end_warning
+
 #+begin_src bash :eval yes :session *bash* :results none :exports code
 DATA='{"préférences": "{\"thème\": \"sombre\"}"}'
 #+end_src
@@ -539,7 +575,27 @@ DATA='{"préférences": "{\"thème\": \"sombre\"}"}'
 curl "<<get_api_url()>>/user/jdoe" -X PATCH --data "$DATA" -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN"
 #+end_src
 
-** Obtenir la question «Les fonctions avec paramètres/Rectangle» et ses tests: 
+*** Version >=4.0.0
+
+#+begin_src bash :eval yes :session *bash* :results none :exports code
+DATA=$(cat <<EOF
+{
+	"data": {
+		"type": "user",
+		"attributes": {
+			   "préférences": "{\"thème\": \"sombre\"}"
+		}
+	}
+}
+EOF
+)
+#+end_src
+
+#+begin_src bash :eval yes :session *bash* :results output :exports both :post json_pretty(*this*)
+curl "<<get_api_url()>>/user/jdoe" -X PATCH --data "$DATA" -H "Content-Type: application/vnd.api+json" -H "Authorization: Bearer $TOKEN"
+#+end_src
+
+** Obtenir la question «Les fonctions avec paramètres/Rectangle» et ses tests:
 
 Cette question est disponible à l’URL suivant :
 https://progression.pages.dti.crosemont.quebec/contenu/prog_1/9bdf5f1a-489a-441f-9e6e-2c87bba58bf8/info.yml
@@ -548,13 +604,18 @@ https://progression.pages.dti.crosemont.quebec/contenu/prog_1/9bdf5f1a-489a-441f
 curl "<<get_api_url()>>/question/aHR0cHM6Ly9wcm9ncmVzc2lvbi5wYWdlcy5kdGkuY3Jvc2Vtb250LnF1ZWJlYy9jb250ZW51L3Byb2dfMS85YmRmNWYxYS00ODlhLTQ0MWYtOWU2ZS0yYzg3YmJhNThiZjgvaW5mby55bWw?include=tests" -H "Authorization: Bearer $TOKEN"
 #+END_SRC
 
-** Obtenir la question «Les fonctions avec paramètres/Rectangle», ses tests et ses ébauches: 
+** Obtenir la question «Les fonctions avec paramètres/Rectangle», ses tests et ses ébauches:
 
 #+BEGIN_SRC bash :eval yes :session *bash* :results output :exports both :post json_pretty(*this*)
 curl "<<get_api_url()>>/question/aHR0cHM6Ly9wcm9ncmVzc2lvbi5wYWdlcy5kdGkuY3Jvc2Vtb250LnF1ZWJlYy9jb250ZW51L3Byb2dfMS85YmRmNWYxYS00ODlhLTQ0MWYtOWU2ZS0yYzg3YmJhNThiZjgvaW5mby55bWw?include=tests,ebauches" -H "Authorization: Bearer $TOKEN"
 #+END_SRC
 
 ** Créer l’avancement de jdoe à la question «Les fonctions avec paramètres/Rectangle»
+
+*** Version <4.0.0
+#+begin_warning
+Le passage des données en format JSON simple est désuet depuis la versions 3.10 et sera retiré à la prochaine révision majeure. Le format JSON:API et l'entête Content-Type adéquate sont préférables.
+#+end_warning
 
 #+BEGIN_SRC bash :eval yes :session *bash* :results none :exports code
 DATA=$(cat <<EOF
@@ -567,6 +628,24 @@ EOF
 
 #+BEGIN_SRC bash :eval yes :session *bash* :results output :exports both :post json_pretty(*this*)
 curl --data "$DATA" <<get_api_url()>>/user/jdoe/avancements -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN"
+#+END_SRC
+
+*** Version >=4.0.0
+
+#+BEGIN_SRC bash :eval yes :session *bash* :results none :exports code
+DATA=$(cat <<EOF
+{
+	"data": {
+		"type": "avancement",
+		"id":"aHR0cHM6Ly9wcm9ncmVzc2lvbi5wYWdlcy5kdGkuY3Jvc2Vtb250LnF1ZWJlYy9jb250ZW51L3Byb2dfMS85YmRmNWYxYS00ODlhLTQ0MWYtOWU2ZS0yYzg3YmJhNThiZjgvaW5mby55bWw"
+	}
+}
+EOF
+)
+#+END_SRC
+
+#+BEGIN_SRC bash :eval yes :session *bash* :results output :exports both :post json_pretty(*this*)
+curl --data "$DATA" <<get_api_url()>>/user/jdoe/avancements -H "Content-Type: application/vnd.api+json" -H "Authorization: Bearer $TOKEN"
 #+END_SRC
 
 ** Obtenir l’avancement de ~jdoe~ pour la question «Les fonctions avec paramètres/Rectangle»
@@ -583,6 +662,11 @@ curl "<<get_api_url()>>/ebauche/aHR0cHM6Ly9wcm9ncmVzc2lvbi5wYWdlcy5kdGkuY3Jvc2Vt
 
 ** Soumettre une tentative de solution à la question «Les fonctions avec paramètres/Rectangle» et récupérer les résultats
 
+*** Version <4.0.0
+#+begin_warning
+Le passage des données en format JSON simple est désuet depuis la versions 3.10 et sera retiré à la prochaine révision majeure. Le format JSON:API et l'entête Content-Type adéquate sont préférables.
+#+end_warning
+
 #+BEGIN_SRC bash :eval yes :session *bash* :results none :exports code
 DATA=$(cat <<EOF
 {
@@ -596,6 +680,32 @@ EOF
 #+NAME: get_tentative
 #+BEGIN_SRC bash :eval yes :session *bash* :results output :exports both :post json_pretty(*this*) :cache yes
 curl --data "$DATA" <<get_api_url()>>/avancement/jdoe/aHR0cHM6Ly9wcm9ncmVzc2lvbi5wYWdlcy5kdGkuY3Jvc2Vtb250LnF1ZWJlYy9jb250ZW51L3Byb2dfMS85YmRmNWYxYS00ODlhLTQ0MWYtOWU2ZS0yYzg3YmJhNThiZjgvaW5mby55bWw/tentatives?include=resultats -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN"
+#+END_SRC
+
+
+#+begin_src bash :eval yes :session *bash* :results none :exports none
+sleep 1 #Petit moment d'attente pour s'assurer que la prochaine tentative n'aura pas le même timestamp
+#+end_src
+
+*** Version >=4.0.0
+#+BEGIN_SRC bash :eval yes :session *bash* :results none :exports code
+DATA=$(cat <<EOF
+{
+	"data": {
+		"type": "tentative",
+		"attributes": {
+			"langage":"python",
+			"code":"# Fonction qui calcule et produit en sortie le périmètre du rectangle dont les côtés sont reçus en paramètre. À faire\ndef périmètre( une_largeur, une_longueur ):\n    # -TODO\n    # -VISIBLE\n\n\n    # +VISIBLE\n    # +TODO\n    print(42)\n\n# -TODO\n# Fonction qui calcule et produit en sortie l'aire du rectangle dont les côtés sont reçus en paramètre. À faire\n# +TODO\n\n\n\n# -TODO\n# Programme principal\n# -VISIBLE\n\n# +VISIBLE\n# Entrées\nlargeur = int( input() )\nlongueur = int( input() )\n\n# Appel des fonctions, les côtés du rectangle sont transmis en paramètre. À faire\npérimètre( largeur, longueur )\n# +TODO\n\n\n# -TODO\n# -VISIBLE\n\n\n\n\n\n\n"
+		}
+	}
+}
+EOF
+)
+#+END_SRC
+
+#+NAME: get_tentative
+#+BEGIN_SRC bash :eval yes :session *bash* :results output :exports both :post json_pretty(*this*) :cache yes
+curl --data "$DATA" <<get_api_url()>>/avancement/jdoe/aHR0cHM6Ly9wcm9ncmVzc2lvbi5wYWdlcy5kdGkuY3Jvc2Vtb250LnF1ZWJlYy9jb250ZW51L3Byb2dfMS85YmRmNWYxYS00ODlhLTQ0MWYtOWU2ZS0yYzg3YmJhNThiZjgvaW5mby55bWw/tentatives?include=resultats -H "Content-Type: application/vnd.api+json" -H "Authorization: Bearer $TOKEN"
 #+END_SRC
 
 #+begin_src bash :eval yes :session *bash* :results none :exports none
@@ -643,6 +753,12 @@ curl --data "$DATA" <<get_api_url()>>/user/jdoe/tokens -H "Content-Type: applica
 
 ** Créer ou mettre à jour la sauvegarde de ~jdoe~ pour la question «Les fonctions avec paramètres/Rectangle» et un code ~python~
 
+
+*** Version <4.0.0
+#+begin_warning
+Le passage des données en format JSON simple est désuet depuis la versions 3.10 et sera retiré à la prochaine révision majeure. Le format JSON:API et l'entête Content-Type adéquate sont préférables.
+#+end_warning
+
 #+BEGIN_SRC bash :eval yes :session *bash* :results none :exports code
 DATA=$(cat <<EOF
 {
@@ -657,13 +773,38 @@ EOF
 curl --data "$DATA" <<get_api_url()>>/avancement/jdoe/aHR0cHM6Ly9wcm9ncmVzc2lvbi5wYWdlcy5kdGkuY3Jvc2Vtb250LnF1ZWJlYy9jb250ZW51L3Byb2dfMS85YmRmNWYxYS00ODlhLTQ0MWYtOWU2ZS0yYzg3YmJhNThiZjgvaW5mby55bWw/sauvegardes -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN"
 #+END_SRC
 
-** Obtenir la dernière sauvegarde de ~jdoe~ pour la question «Les fonctions avec paramètres/Rectangle» effectuée avec le langage ~python~: 
+*** Version >=4.0.0
+#+BEGIN_SRC bash :eval yes :session *bash* :results none :exports code
+DATA=$(cat <<EOF
+{
+	"data": {
+		"type": "sauvegarde",
+		"attributes": {
+		  "langage":"python",
+		  "code": "#+TODO\nSystem.out.println('Allo le monde');\n#-TODO"
+		}
+	}
+}
+EOF
+)
+#+END_SRC
+
+#+BEGIN_SRC bash :eval yes :session *bash* :results output :exports both :post json_pretty(*this*)
+curl --data "$DATA" <<get_api_url()>>/avancement/jdoe/aHR0cHM6Ly9wcm9ncmVzc2lvbi5wYWdlcy5kdGkuY3Jvc2Vtb250LnF1ZWJlYy9jb250ZW51L3Byb2dfMS85YmRmNWYxYS00ODlhLTQ0MWYtOWU2ZS0yYzg3YmJhNThiZjgvaW5mby55bWw/sauvegardes -H "Content-Type: application/vnd.api+json" -H "Authorization: Bearer $TOKEN"
+#+END_SRC
+
+** Obtenir la dernière sauvegarde de ~jdoe~ pour la question «Les fonctions avec paramètres/Rectangle» effectuée avec le langage ~python~:
 
 #+BEGIN_SRC bash :eval yes :session *bash* :results output :exports both :post json_pretty(*this*)
 curl "<<get_api_url()>>/sauvegarde/jdoe/aHR0cHM6Ly9wcm9ncmVzc2lvbi5wYWdlcy5kdGkuY3Jvc2Vtb250LnF1ZWJlYy9jb250ZW51L3Byb2dfMS85YmRmNWYxYS00ODlhLTQ0MWYtOWU2ZS0yYzg3YmJhNThiZjgvaW5mby55bWw/python" -H "Authorization: Bearer $TOKEN"
 #+END_SRC
 
 ** Créer une clé d’authentification pour ~jdoe~
+
+*** Version <4.0.0
+#+begin_warning
+Le passage des données en format JSON simple est désuet depuis la versions 3.10 et sera retiré à la prochaine révision majeure. Le format JSON:API et l'entête Content-Type adéquate sont préférables.
+#+end_warning
 
 #+BEGIN_SRC bash :eval yes :session *bash* :results none :exports code
 DATA=$(cat <<EOF
@@ -679,19 +820,42 @@ EOF
 curl --data "$DATA" "<<get_api_url()>>/user/jdoe/cles" -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN"
 #+END_SRC
 
+*** Version >=4.0.0
+#+BEGIN_SRC bash :eval yes :session *bash* :results none :exports code
+DATA=$(cat <<EOF
+{
+	"data": {
+		"type": "cle",
+		"attributes": {
+		  "nom":"cléAuth$(head -c 9 /dev/urandom|base64|tr '/+' '_-')",
+		  "portée":1
+		}
+	}
+}
+EOF
+)
+#+END_SRC
+
+#+BEGIN_SRC bash :eval yes :session *bash* :results output :exports both :post json_pretty(*this*)
+curl --data "$DATA" "<<get_api_url()>>/user/jdoe/cles" -H "Content-Type: application/vnd.api+json" -H "Authorization: Bearer $TOKEN"
+#+END_SRC
+
 ** Authentification par clé d’authentification pour ~jdoe~
 
 #+BEGIN_SRC bash :eval yes :session *bash* :results none :exports none
 DATA=$(cat <<EOF
 {
-  "nom": "cléAuth$(head -c 9 /dev/urandom|base64|tr '/+' '_-')",
-  "portée": "authentification",
-  "expiration": $(( $(date +%s) + 60 ))
-}
+	"data": {
+		"type": "cle",
+		"attributes": {
+		  "nom": "cléAuth$(head -c 9 /dev/urandom|base64|tr '/+' '_-')",
+		  "portée": "authentification",
+		  "expiration": $(( $(date +%s) + 60 ))
+}}}
 EOF
 )
 
-RES_CLE=$(/usr/bin/curl --data "$DATA" "<<get_api_url()>>/user/jdoe/cles" -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN")
+RES_CLE=$(/usr/bin/curl --data "$DATA" "<<get_api_url()>>/user/jdoe/cles" -H "Content-Type: application/vnd.api+json" -H "Authorization: Bearer $TOKEN")
 
 NOM_CLE=$(echo $RES_CLE | grep -Po '(?<="id":"jdoe\\/)[^"]*')
 SECRET=$(echo $RES_CLE | grep -Po '(?<="secret":")\w*')
@@ -700,6 +864,11 @@ SECRET=$(echo $RES_CLE | grep -Po '(?<="secret":")\w*')
 #+BEGIN_SRC bash :eval yes :session *bash* :results none :exports code
 AUTH=$(echo -n "jdoe:$NOM_CLE:$SECRET" | base64 -w0)
 #+END_SRC
+
+*** Version <4.0.0
+#+begin_warning
+Le passage des données en format JSON simple est désuet depuis la versions 3.10 et sera retiré à la prochaine révision majeure. Le format JSON:API et l'entête Content-Type adéquate sont préférables.
+#+end_warning
 
 #+BEGIN_SRC bash :eval yes :session *bash* :results none :exports code
 DATA=$(cat <<EOF
@@ -719,5 +888,32 @@ EOF
 
 #+BEGIN_SRC bash :eval yes :session *bash* :results output :exports both :post json_pretty(*this*)
 curl --data "$DATA" <<get_api_url()>>/user/jdoe/tokens -H "Content-Type: application/json" -H "Authorization: key $AUTH"
+#+END_SRC
+
+*** Version >=4.0.0
+
+#+BEGIN_SRC bash :eval yes :session *bash* :results none :exports code
+DATA=$(cat <<EOF
+{
+	"data": {
+		"type": "token",
+		"attributes": {
+			"expiration" : "+300",
+			"data" : [],
+			"ressources" : {
+			      "get_avancement" : {
+				  	  "url":"^avancement/jdoe/aHR0cHM6Ly9wcm9ncmVzc2lvbi5wYWdlcy5kdGkuY3Jvc2Vtb250LnF1ZWJlYy9jb250ZW51L3Byb2dfMS85YmRmNWYxYS00ODlhLTQ0MWYtOWU2ZS0yYzg3YmJhNThiZjgvaW5mby55bWw$",
+					  "method":"^GET$"
+				  }
+          }
+      }
+	}
+}
+EOF
+)
+#+END_SRC
+
+#+BEGIN_SRC bash :eval yes :session *bash* :results output :exports both :post json_pretty(*this*)
+curl --data "$DATA" <<get_api_url()>>/user/jdoe/tokens -H "Content-Type: application/vnd.api+json" -H "Authorization: key $AUTH"
 #+END_SRC
 

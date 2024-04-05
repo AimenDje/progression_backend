@@ -28,7 +28,7 @@ use progression\domaine\entité\user\{User, Rôle, État};
 use progression\UserAuthentifiable;
 use Carbon\Carbon;
 
-final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
+final class TentativeCtl_QuestionProgV3_Tests extends ContrôleurTestCase
 {
 	public $user;
 	public $avancement_réussi;
@@ -358,45 +358,6 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 		DAOFactory::setInstance($mockDAOFactory);
 	}
 
-	public function test_étant_donné_une_tentative_existante_lorsquon_appelle_get_on_obtient_la_TentativeProg_et_ses_relations_sous_forme_json()
-	{
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
-			"GET",
-			"/tentative/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fcsOpdXNzaWU/1614374490",
-		);
-
-		$this->assertEquals(200, $résultat_obtenu->status());
-		$this->assertJsonStringEqualsJsonFile(
-			__DIR__ . "/résultats_attendus/tentativeCtlTest_prog_réussie.json",
-			$résultat_obtenu->getContent(),
-		);
-	}
-
-	public function test_étant_donné_une_tentative_existante_lorsquon_appelle_get_en_incluant_les_commentaires_on_obtient_la_TentativeProg_et_ses_commentaires_sous_forme_json()
-	{
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
-			"GET",
-			"/tentative/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fcsOpdXNzaWU/1614374490?include=commentaires",
-		);
-
-		$this->assertEquals(200, $résultat_obtenu->status());
-		$this->assertJsonStringEqualsJsonFile(
-			__DIR__ . "/résultats_attendus/tentativeCtlTest_prog_réussie_avec_commentaires.json",
-			$résultat_obtenu->getContent(),
-		);
-	}
-
-	public function test_étant_donné_une_tentative_inexistante_lorsquon_appelle_get_on_obtient_une_erreur_404()
-	{
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
-			"GET",
-			"/tentative/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fcsOpdXNzaWU/9999999999",
-		);
-
-		$this->assertEquals(404, $résultat_obtenu->status());
-		$this->assertEquals('{"erreur":"Ressource non trouvée."}', $résultat_obtenu->getContent());
-	}
-
 	public function test_étant_donné_un_avancement_inexistant_et_une_tentative_réussie_lorsquon_appelle_post_lavancement_et_la_tentative_sont_sauvegardés_et_on_obtient_la_TentativeProg_réussie()
 	{
 		$nouvelle_tentative = new TentativeProg(
@@ -445,17 +406,12 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 			})
 			->andReturn([1653690241 => $nouvelle_tentative]);
 
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vbm91dmVsbGVfcXVlc3Rpb24/tentatives?include=resultats",
 			[
-				"data" => [
-					"type" => "tentative",
-					"attributes" => [
-						"langage" => "réussi",
-						"code" => "#+TODO\nprint(\"Hello world!\")",
-					],
-				],
+				"langage" => "réussi",
+				"code" => "#+TODO\nprint(\"Hello world!\")",
 			],
 		);
 
@@ -514,17 +470,12 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 			})
 			->andReturn([1653690241 => $nouvelle_tentative]);
 
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fcsOpdXNzaWU/tentatives?include=resultats",
 			[
-				"data" => [
-					"type" => "tentative",
-					"attributes" => [
-						"langage" => "réussi",
-						"code" => "#+TODO\nprint(\"Hello world!\")",
-					],
-				],
+				"langage" => "réussi",
+				"code" => "#+TODO\nprint(\"Hello world!\")",
 			],
 		);
 
@@ -582,17 +533,12 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 			})
 			->andReturn([1653690241 => $nouvelle_tentative]);
 
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fbm9uX3LDqXVzc2ll/tentatives?include=resultats",
 			[
-				"data" => [
-					"type" => "tentative",
-					"attributes" => [
-						"langage" => "réussi",
-						"code" => "#+TODO\nprint(\"Hello world!\")",
-					],
-				],
+				"langage" => "réussi",
+				"code" => "#+TODO\nprint(\"Hello world!\")",
 			],
 		);
 
@@ -650,17 +596,12 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 			})
 			->andReturn([1653690241 => $nouvelle_tentative]);
 
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fbm9uX3LDqXVzc2ll/tentatives?include=resultats",
 			[
-				"data" => [
-					"type" => "tentative",
-					"attributes" => [
-						"langage" => "non_réussi",
-						"code" => "#+TODO\nprint(\"Hello world!\")",
-					],
-				],
+				"langage" => "non_réussi",
+				"code" => "#+TODO\nprint(\"Hello world!\")",
 			],
 		);
 
@@ -718,17 +659,12 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 			})
 			->andReturn([1653690241 => $nouvelle_tentative]);
 
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fbm9uX3LDqXVzc2ll/tentatives?include=resultats",
 			[
-				"data" => [
-					"type" => "tentative",
-					"attributes" => [
-						"langage" => "erreur",
-						"code" => "#+TODO\nprint(\"Hello world!\")",
-					],
-				],
+				"langage" => "erreur",
+				"code" => "#+TODO\nprint(\"Hello world!\")",
 			],
 		);
 
@@ -741,17 +677,10 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_une_tentative_sans_code_lorsquelle_est_soumise_on_obtient_une_erreur_de_validation()
 	{
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fbm9uX3LDqXVzc2ll/tentatives",
-			[
-				"data" => [
-					"type" => "tentative",
-					"attributes" => [
-						"langage" => "réussi",
-					],
-				],
-			],
+			["langage" => "réussi"],
 		);
 
 		$this->assertEquals(400, $résultat_obtenu->status());
@@ -760,17 +689,12 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_url_de_compilebox_inaccessible_lorsquon_appelle_post_on_obtient_Service_non_disponible()
 	{
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fbm9uX3LDqXVzc2ll/tentatives",
 			[
-				"data" => [
-					"type" => "tentative",
-					"attributes" => [
-						"langage" => "pas d'exécuteur",
-						"code" => "#+TODO\nprint(\"on ne se rendra pas à exécuter ceci\")",
-					],
-				],
+				"langage" => "pas d'exécuteur",
+				"code" => "#+TODO\nprint(\"on ne se rendra pas à exécuter ceci\")",
 			],
 		);
 
@@ -780,17 +704,12 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_une_tentative_avec_un_code_sans_TODO_lorsquelle_est_soumise_on_obtient_Tentative_intraitable()
 	{
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fbm9uX3LDqXVzc2ll/tentatives",
 			[
-				"data" => [
-					"type" => "tentative",
-					"attributes" => [
-						"langage" => "réussi",
-						"code" => "print(\"Hello world!\")",
-					],
-				],
+				"langage" => "réussi",
+				"code" => "print(\"Hello world!\")",
 			],
 		);
 
@@ -800,19 +719,10 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_une_tentative_avec_une_question_inexistante_lorsquelle_est_soumise_on_obtient_Tentative_intraitable()
 	{
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
-			"POST",
-			"/avancement/jdoe/aW5leGlzdGFudGU/tentatives",
-			[
-				"data" => [
-					"type" => "tentative",
-					"attributes" => [
-						"langage" => "réussi",
-						"code" => "print(\"Hello world!\")",
-					],
-				],
-			],
-		);
+		$résultat_obtenu = $this->actingAs($this->user)->call("POST", "/avancement/jdoe/aW5leGlzdGFudGU/tentatives", [
+			"langage" => "réussi",
+			"code" => "print(\"Hello world!\")",
+		]);
 
 		$this->assertEquals(400, $résultat_obtenu->status());
 		$this->assertEquals('{"erreur":"Question inexistante."}', $résultat_obtenu->getContent());
@@ -820,17 +730,12 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_une_tentative_avec_un_langage_inconnu_lorsquelle_est_soumise_on_obtient_Tentative_intraitable()
 	{
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fbm9uX3LDqXVzc2ll/tentatives",
 			[
-				"data" => [
-					"type" => "tentative",
-					"attributes" => [
-						"langage" => "inconnu",
-						"code" => "print(\"Hello world!\")",
-					],
-				],
+				"langage" => "inconnu",
+				"code" => "print(\"Hello world!\")",
 			],
 		);
 
@@ -846,17 +751,12 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 		$mockTentativeDAO = DAOFactory::getInstance()->get_tentative_prog_dao();
 		$mockTentativeDAO->shouldNotReceive("save")->withAnyArgs();
 
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fcsOpdXNzaWU/tentatives",
 			[
-				"data" => [
-					"type" => "tentative",
-					"attributes" => [
-						"langage" => "réussi",
-						"code" => "$testCode",
-					],
-				],
+				"langage" => "réussi",
+				"code" => "$testCode",
 			],
 		);
 
@@ -883,17 +783,12 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 			return [$q => $a];
 		});
 
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fcsOpdXNzaWU/tentatives",
 			[
-				"data" => [
-					"type" => "tentative",
-					"attributes" => [
-						"langage" => "réussi",
-						"code" => "$testCode",
-					],
-				],
+				"langage" => "réussi",
+				"code" => "$testCode",
 			],
 		);
 

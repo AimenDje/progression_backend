@@ -19,7 +19,6 @@
 use progression\ContrôleurTestCase;
 
 use Illuminate\Support\Facades\Config;
-use progression\http\contrôleur\GénérateurDeToken;
 use progression\domaine\entité\user\{User, État, Rôle};
 use progression\dao\DAOFactory;
 use progression\UserAuthentifiable;
@@ -83,8 +82,13 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 		Config::set("authentification.local", false);
 		Config::set("authentification.ldap", false);
 
-		$résultat_observé = $this->call("PUT", "/user/bob", [
-			"username" => "bob",
+		$résultat_observé = $this->json_api("PUT", "/user/bob", [
+			"data" => [
+				"type" => "user",
+				"attributes" => [
+					"username" => "bob",
+				],
+			],
 		]);
 
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
@@ -102,8 +106,13 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 		Config::set("authentification.local", false);
 		Config::set("authentification.ldap", false);
 
-		$résultat_observé = $this->call("PUT", "/user/bob", [
-			"username" => "autre_nom",
+		$résultat_observé = $this->json_api("PUT", "/user/bob", [
+			"data" => [
+				"type" => "user",
+				"attributes" => [
+					"username" => "autre_nom",
+				],
+			],
 		]);
 
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
@@ -117,8 +126,13 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 		Config::set("authentification.local", false);
 		Config::set("authentification.ldap", false);
 
-		$résultat_observé = $this->call("PUT", "/user/roger", [
-			"username" => "autre_nom",
+		$résultat_observé = $this->json_api("PUT", "/user/roger", [
+			"data" => [
+				"type" => "user",
+				"attributes" => [
+					"username" => "autre_nom",
+				],
+			],
 		]);
 
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
@@ -149,8 +163,13 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
 		$mockExpéditeurDao->shouldNotReceive("envoyer_courriel_de_validation");
 
-		$résultat_observé = $this->call("PUT", "/user/Marcel", [
-			"username" => "Marcel",
+		$résultat_observé = $this->json_api("PUT", "/user/Marcel", [
+			"data" => [
+				"type" => "user",
+				"attributes" => [
+					"username" => "Marcel",
+				],
+			],
 		]);
 
 		$this->assertEquals(200, $résultat_observé->status());
@@ -175,10 +194,15 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 			->with(Mockery::any(), "jane@gmail.com")
 			->andReturn(new User(username: "jane", date_inscription: 0, courriel: "jane@gmail.com"));
 
-		$résultat_observé = $this->call("PUT", "/user/johnny", [
-			"username" => "johnny",
-			"courriel" => "jane@gmail.com",
-			"password" => "Test1234",
+		$résultat_observé = $this->json_api("PUT", "/user/johnny", [
+			"data" => [
+				"type" => "user",
+				"attributes" => [
+					"username" => "johnny",
+					"courriel" => "jane@gmail.com",
+					"password" => "Test1234",
+				],
+			],
 		]);
 
 		$this->assertEquals(409, $résultat_observé->status());
@@ -192,10 +216,15 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
 		$mockExpéditeurDao->shouldNotReceive("envoyer_courriel_de_validation");
 
-		$résultat_observé = $this->call("PUT", "/user/bobby", [
-			"username" => "bobby",
-			"courriel" => "bobby.com",
-			"password" => "Test1234",
+		$résultat_observé = $this->json_api("PUT", "/user/bobby", [
+			"data" => [
+				"type" => "user",
+				"attributes" => [
+					"username" => "bobby",
+					"courriel" => "bobby.com",
+					"password" => "Test1234",
+				],
+			],
 		]);
 
 		$this->assertEquals(400, $résultat_observé->status());
@@ -212,10 +241,15 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
 		$mockExpéditeurDao->shouldNotReceive("envoyer_courriel_de_validation");
 
-		$résultat_observé = $this->call("PUT", "/user/bobby", [
-			"username" => "bobby",
-			"courriel" => "bobby@gmail.com",
-			"password" => "pasbon",
+		$résultat_observé = $this->json_api("PUT", "/user/bobby", [
+			"data" => [
+				"type" => "user",
+				"attributes" => [
+					"username" => "bobby",
+					"courriel" => "bobby@gmail.com",
+					"password" => "pasbon",
+				],
+			],
 		]);
 
 		$this->assertEquals(400, $résultat_observé->status());
@@ -252,10 +286,15 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
 		$mockExpéditeurDao->shouldReceive("envoyer_courriel_de_validation")->once();
 
-		$résultat_observé = $this->call("POST", "/users", [
-			"username" => "Marcel2",
-			"courriel" => "marcel2@gmail.com",
-			"password" => "Test1234",
+		$résultat_observé = $this->json_api("POST", "/users", [
+			"data" => [
+				"type" => "user",
+				"attributes" => [
+					"username" => "Marcel2",
+					"courriel" => "marcel2@gmail.com",
+					"password" => "Test1234",
+				],
+			],
 		]);
 
 		$this->assertEquals(200, $résultat_observé->status());
@@ -277,9 +316,14 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
 		$mockExpéditeurDao->shouldNotReceive("envoyer_courriel_de_validation");
 
-		$résultat_observé = $this->call("POST", "/users", [
-			"courriel" => "marcel2@gmail.com",
-			"password" => "Test1234",
+		$résultat_observé = $this->json_api("POST", "/users", [
+			"data" => [
+				"type" => "user",
+				"attributes" => [
+					"courriel" => "marcel2@gmail.com",
+					"password" => "Test1234",
+				],
+			],
 		]);
 
 		$this->assertEquals(400, $résultat_observé->status());
@@ -300,9 +344,14 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
 		$mockExpéditeurDao->shouldReceive("envoyer_courriel_de_validation")->once();
 
-		$résultat_observé = $this->actingAs($this->user)->call("PUT", "/user/nouveau", [
-			"username" => "nouveau",
-			"courriel" => "nouveau@progressionmail.com",
+		$résultat_observé = $this->actingAs($this->user)->json_api("PUT", "/user/nouveau", [
+			"data" => [
+				"type" => "user",
+				"attributes" => [
+					"username" => "nouveau",
+					"courriel" => "nouveau@progressionmail.com",
+				],
+			],
 		]);
 
 		$this->assertEquals(200, $résultat_observé->status());
@@ -319,10 +368,15 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
 		$mockExpéditeurDao->shouldNotReceive("envoyer_courriel_de_validation");
 
-		$résultat_observé = $this->call("PUT", "/user/bob", [
-			"username" => "bob",
-			"courriel" => "bob@progressionmail.com",
-			"password" => "Test1234",
+		$résultat_observé = $this->json_api("PUT", "/user/bob", [
+			"data" => [
+				"type" => "user",
+				"attributes" => [
+					"username" => "bob",
+					"courriel" => "bob@progressionmail.com",
+					"password" => "Test1234",
+				],
+			],
 		]);
 
 		$this->assertEquals(409, $résultat_observé->status());
@@ -343,9 +397,14 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
 		$mockExpéditeurDao->shouldNotReceive("envoyer_courriel_de_validation");
 
-		$résultat_observé = $this->call("PUT", "/user/bob", [
-			"username" => "bob",
-			"courriel" => "bob@gmail.com",
+		$résultat_observé = $this->json_api("PUT", "/user/bob", [
+			"data" => [
+				"type" => "user",
+				"attributes" => [
+					"username" => "bob",
+					"courriel" => "bob@gmail.com",
+				],
+			],
 		]);
 
 		$this->assertEquals(400, $résultat_observé->status());
@@ -369,9 +428,14 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
 		$mockExpéditeurDao->shouldNotReceive("envoyer_courriel_de_validation");
 
-		$résultat_observé = $this->call("PUT", "/user/bob", [
-			"username" => "bob",
-			"password" => "Test1234",
+		$résultat_observé = $this->json_api("PUT", "/user/bob", [
+			"data" => [
+				"type" => "user",
+				"attributes" => [
+					"username" => "bob",
+					"password" => "Test1234",
+				],
+			],
 		]);
 
 		$this->assertEquals(400, $résultat_observé->status());
@@ -389,10 +453,15 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
 		$mockExpéditeurDao->shouldNotReceive("envoyer_courriel_de_validation");
 
-		$résultat_observé = $this->call("PUT", "/user/zozo", [
-			"username" => "autre_nom",
-			"courriel" => "zozo@gmail.com",
-			"password" => "Test1234",
+		$résultat_observé = $this->json_api("PUT", "/user/zozo", [
+			"data" => [
+				"type" => "user",
+				"attributes" => [
+					"username" => "autre_nom",
+					"courriel" => "zozo@gmail.com",
+					"password" => "Test1234",
+				],
+			],
 		]);
 
 		$this->assertEquals(400, $résultat_observé->status());
@@ -409,10 +478,15 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
 		$mockExpéditeurDao->shouldNotReceive("envoyer_courriel_de_validation");
 
-		$résultat_observé = $this->call("PUT", "/user/B@B", [
-			"username" => "B@B",
-			"courriel" => "test@progressionmail.com",
-			"password" => "Test01234",
+		$résultat_observé = $this->json_api("PUT", "/user/B@B", [
+			"data" => [
+				"type" => "user",
+				"attributes" => [
+					"username" => "B@B",
+					"courriel" => "test@progressionmail.com",
+					"password" => "Test01234",
+				],
+			],
 		]);
 
 		$this->assertEquals(400, $résultat_observé->status());
@@ -429,9 +503,14 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
 		$mockExpéditeurDao->shouldNotReceive("envoyer_courriel_de_validation");
 
-		$résultat_observé = $this->call("PUT", "/user/Marcel", [
-			"courriel" => "test@progressionmail.com",
-			"password" => "Test01234",
+		$résultat_observé = $this->json_api("PUT", "/user/Marcel", [
+			"data" => [
+				"type" => "user",
+				"attributes" => [
+					"courriel" => "test@progressionmail.com",
+					"password" => "Test01234",
+				],
+			],
 		]);
 
 		$this->assertEquals(400, $résultat_observé->status());
@@ -448,9 +527,14 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
 		$mockExpéditeurDao->shouldNotReceive("envoyer_courriel_de_validation");
 
-		$résultat_observé = $this->call("PUT", "/user/Marcel", [
-			"username" => "Marcel",
-			"courriel" => "marcel@gmail.com",
+		$résultat_observé = $this->json_api("PUT", "/user/Marcel", [
+			"data" => [
+				"type" => "user",
+				"attributes" => [
+					"username" => "Marcel",
+					"courriel" => "marcel@gmail.com",
+				],
+			],
 		]);
 
 		$this->assertEquals(400, $résultat_observé->status());
@@ -467,10 +551,15 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
 		$mockExpéditeurDao->shouldNotReceive("envoyer_courriel_de_validation");
 
-		$résultat_observé = $this->call("PUT", "/user/Marcel", [
-			"username" => "Marcel",
-			"courriel" => "marcel@gmail.com",
-			"password" => "",
+		$résultat_observé = $this->json_api("PUT", "/user/Marcel", [
+			"data" => [
+				"type" => "user",
+				"attributes" => [
+					"username" => "Marcel",
+					"courriel" => "marcel@gmail.com",
+					"password" => "",
+				],
+			],
 		]);
 
 		$this->assertEquals(400, $résultat_observé->status());
@@ -487,7 +576,12 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
 		$mockExpéditeurDao->shouldNotReceive("envoyer_courriel_de_validation");
 
-		$résultat_observé = $this->call("PUT", "/user/Marcel", []);
+		$résultat_observé = $this->json_api("PUT", "/user/Marcel", [
+			"data" => [
+				"type" => "user",
+				"attributes" => [],
+			],
+		]);
 
 		$this->assertEquals(400, $résultat_observé->status());
 		$this->assertEquals(
@@ -503,9 +597,14 @@ final class UserCréationCtlTests extends ContrôleurTestCase
 		$mockExpéditeurDao = DAOFactory::getInstance()->get_expéditeur();
 		$mockExpéditeurDao->shouldNotReceive("envoyer_courriel_de_validation");
 
-		$résultat_observé = $this->call("PUT", "/user/Marcel", [
-			"username" => "Marcel",
-			"password" => "Test1234",
+		$résultat_observé = $this->json_api("PUT", "/user/Marcel", [
+			"data" => [
+				"type" => "user",
+				"attributes" => [
+					"username" => "Marcel",
+					"password" => "Test1234",
+				],
+			],
 		]);
 
 		$this->assertEquals(400, $résultat_observé->status());

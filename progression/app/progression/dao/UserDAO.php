@@ -66,7 +66,7 @@ class UserDAO extends EntitéDAO
 	}
 
 	/**
-	 * @return array<User>
+	 * @return non-empty-array<string,User>
 	 */
 	public function save(string $username, User $user): array
 	{

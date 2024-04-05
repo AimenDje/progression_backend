@@ -63,12 +63,17 @@ final class TokenCtlTests extends ContrôleurTestCase
 		Config::set("app.version", "1.2.3");
 		Config::set("jwt.secret", "secret");
 
-		$résultat_obtenu = $this->actingAs($this->user)->call("POST", "/user/utilisateur_lambda/tokens", [
-			"data" => ["données" => "une donnée"],
-			"ressources" => [
-				"ressource" => ["url" => "test", "method" => "POST"],
+		$résultat_obtenu = $this->actingAs($this->user)->json_api("POST", "/user/utilisateur_lambda/tokens", [
+			"data" => [
+				"type" => "token",
+				"attributes" => [
+					"data" => ["données" => "une donnée"],
+					"ressources" => [
+						"ressource" => ["url" => "test", "method" => "POST"],
+					],
+					"expiration" => 0,
+				],
 			],
-			"expiration" => 0,
 		]);
 		$résultat_observé = $résultat_obtenu;
 
@@ -84,13 +89,18 @@ final class TokenCtlTests extends ContrôleurTestCase
 		Config::set("app.version", "1.2.3");
 		Config::set("jwt.secret", "secret");
 
-		$résultat_obtenu = $this->actingAs($this->user)->call("POST", "/user/utilisateur_lambda/tokens", [
-			"data" => ["données" => "une donnée"],
-			"ressources" => [
-				"ressource" => ["url" => "test", "method" => "POST"],
-				"autre_ressource" => ["url" => "autre_test", "method" => "POST"],
+		$résultat_obtenu = $this->actingAs($this->user)->json_api("POST", "/user/utilisateur_lambda/tokens", [
+			"data" => [
+				"type" => "token",
+				"attributes" => [
+					"data" => ["données" => "une donnée"],
+					"ressources" => [
+						"ressource" => ["url" => "test", "method" => "POST"],
+						"autre_ressource" => ["url" => "autre_test", "method" => "POST"],
+					],
+					"expiration" => 0,
+				],
 			],
-			"expiration" => 0,
 		]);
 		$résultat_observé = $résultat_obtenu;
 
@@ -106,15 +116,20 @@ final class TokenCtlTests extends ContrôleurTestCase
 		Config::set("app.version", "1.2.3");
 		Config::set("jwt.secret", "secret");
 
-		$résultat_obtenu = $this->actingAs($this->user)->call("POST", "/user/utilisateur_lambda/tokens", [
-			"data" => ["données" => "une autre donnée"],
-			"ressources" => [
-				"ressources_test" => [
-					"url" => "test",
-					"method" => "POST",
+		$résultat_obtenu = $this->actingAs($this->user)->json_api("POST", "/user/utilisateur_lambda/tokens", [
+			"data" => [
+				"type" => "token",
+				"attributes" => [
+					"data" => ["données" => "une autre donnée"],
+					"ressources" => [
+						"ressources_test" => [
+							"url" => "test",
+							"method" => "POST",
+						],
+					],
+					"expiration" => 1685831340,
 				],
 			],
-			"expiration" => 1685831340,
 		]);
 		$résultat_observé = $résultat_obtenu;
 
@@ -130,15 +145,20 @@ final class TokenCtlTests extends ContrôleurTestCase
 		Config::set("app.version", "1.2.3");
 		Config::set("jwt.secret", "secret");
 
-		$résultat_obtenu = $this->actingAs($this->user)->call("POST", "/user/utilisateur_lambda/tokens", [
-			"data" => ["données" => "une autre donnée"],
-			"ressources" => [
-				"ressources_test" => [
-					"url" => "test",
-					"method" => "POST",
+		$résultat_obtenu = $this->actingAs($this->user)->json_api("POST", "/user/utilisateur_lambda/tokens", [
+			"data" => [
+				"type" => "token",
+				"attributes" => [
+					"data" => ["données" => "une autre donnée"],
+					"ressources" => [
+						"ressources_test" => [
+							"url" => "test",
+							"method" => "POST",
+						],
+					],
+					"expiration" => "+300",
 				],
 			],
-			"expiration" => "+300",
 		]);
 		$résultat_observé = $résultat_obtenu;
 
@@ -151,15 +171,20 @@ final class TokenCtlTests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_token_qui_donne_accès_à_un_date_dexpiration_invalide_lorsquon_effectue_un_post_on_obtient_une_erreur_400()
 	{
-		$résultat_obtenu = $this->actingAs($this->user)->call("POST", "/user/utilisateur_lambda/tokens", [
-			"data" => ["données" => "une autre donnée"],
-			"ressources" => [
-				"ressources_test" => [
-					"url" => "test",
-					"method" => "POST",
+		$résultat_obtenu = $this->actingAs($this->user)->json_api("POST", "/user/utilisateur_lambda/tokens", [
+			"data" => [
+				"type" => "token",
+				"attributes" => [
+					"data" => ["données" => "une autre donnée"],
+					"ressources" => [
+						"ressources_test" => [
+							"url" => "test",
+							"method" => "POST",
+						],
+					],
+					"expiration" => "demain",
 				],
 			],
-			"expiration" => "demain",
 		]);
 		$résultat_observé = $résultat_obtenu;
 
@@ -172,8 +197,13 @@ final class TokenCtlTests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_token_sans_ressources_lorsquon_effectue_un_post_on_obtient_une_erreur_400()
 	{
-		$résultat_obtenu = $this->actingAs($this->user)->call("POST", "/user/utilisateur_lambda/tokens", [
-			"expiration" => 0,
+		$résultat_obtenu = $this->actingAs($this->user)->json_api("POST", "/user/utilisateur_lambda/tokens", [
+			"data" => [
+				"type" => "token",
+				"attributes" => [
+					"expiration" => 0,
+				],
+			],
 		]);
 		$résultat_observé = $résultat_obtenu;
 
@@ -186,9 +216,14 @@ final class TokenCtlTests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_token_sans_expiration_lorsquon_effectue_un_post_on_obtient_une_erreur_400()
 	{
-		$résultat_obtenu = $this->actingAs($this->user)->call("POST", "/user/utilisateur_lambda/tokens", [
-			"ressources" => [
-				"test" => ["url" => "ressources", "method" => "POST"],
+		$résultat_obtenu = $this->actingAs($this->user)->json_api("POST", "/user/utilisateur_lambda/tokens", [
+			"data" => [
+				"type" => "token",
+				"attributes" => [
+					"ressources" => [
+						"test" => ["url" => "ressources", "method" => "POST"],
+					],
+				],
 			],
 		]);
 		$résultat_observé = $résultat_obtenu;
@@ -202,8 +237,13 @@ final class TokenCtlTests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_token_sans_ressource_ni_expiration_lorsquon_effectue_un_post_on_obtient_une_erreur_400()
 	{
-		$résultat_obtenu = $this->actingAs($this->user)->call("POST", "/user/utilisateur_lambda/tokens", [
-			"ressources" => [],
+		$résultat_obtenu = $this->actingAs($this->user)->json_api("POST", "/user/utilisateur_lambda/tokens", [
+			"data" => [
+				"type" => "token",
+				"attributes" => [
+					"ressources" => [],
+				],
+			],
 		]);
 		$résultat_observé = $résultat_obtenu;
 
@@ -219,13 +259,18 @@ final class TokenCtlTests extends ContrôleurTestCase
 		Config::set("app.version", "1.2.3");
 		Config::set("jwt.secret", "secret");
 
-		$résultat_obtenu = $this->actingAs($this->user)->call("POST", "/user/utilisateur_lambda/tokens", [
-			"data" => ["données" => "une donnée"],
-			"ressources" => [
-				"ressources" => ["url" => "test", "method" => "POST"],
+		$résultat_obtenu = $this->actingAs($this->user)->json_api("POST", "/user/utilisateur_lambda/tokens", [
+			"data" => [
+				"type" => "token",
+				"attributes" => [
+					"data" => ["données" => "une donnée"],
+					"ressources" => [
+						"ressources" => ["url" => "test", "method" => "POST"],
+					],
+					"expiration" => 0,
+					"fingerprint" => false,
+				],
 			],
-			"expiration" => 0,
-			"fingerprint" => false,
 		]);
 		$résultat_observé = $résultat_obtenu;
 
@@ -245,16 +290,21 @@ final class TokenCtlTests extends ContrôleurTestCase
 		Config::set("jwt.secret", "secret");
 		Config::set("app.mode", "prod");
 
-		$résultat_obtenu = $this->actingAs($this->user)->call("POST", "user/utilisateur_lambda/tokens", [
-			"data" => ["données" => "une autre donnée"],
-			"ressources" => [
-				"ressources_test" => [
-					"url" => "test",
-					"method" => "POST",
+		$résultat_obtenu = $this->actingAs($this->user)->json_api("POST", "user/utilisateur_lambda/tokens", [
+			"data" => [
+				"type" => "token",
+				"attributes" => [
+					"data" => ["données" => "une autre donnée"],
+					"ressources" => [
+						"ressources_test" => [
+							"url" => "test",
+							"method" => "POST",
+						],
+					],
+					"fingerprint" => true,
+					"expiration" => 1685831340,
 				],
 			],
-			"fingerprint" => true,
-			"expiration" => 1685831340,
 		]);
 		$résultat_observé = $résultat_obtenu;
 
@@ -277,16 +327,21 @@ final class TokenCtlTests extends ContrôleurTestCase
 		Config::set("app.version", "1.2.3");
 		Config::set("jwt.secret", "secret");
 
-		$résultat_obtenu = $this->actingAs($this->user)->call("POST", "user/utilisateur_lambda/tokens", [
-			"data" => ["données" => "une autre donnée"],
-			"ressources" => [
-				"ressources_test" => [
-					"url" => "test",
-					"method" => "POST",
+		$résultat_obtenu = $this->actingAs($this->user)->json_api("POST", "user/utilisateur_lambda/tokens", [
+			"data" => [
+				"type" => "token",
+				"attributes" => [
+					"data" => ["données" => "une autre donnée"],
+					"ressources" => [
+						"ressources_test" => [
+							"url" => "test",
+							"method" => "POST",
+						],
+					],
+					"fingerprint" => true,
+					"expiration" => "+300",
 				],
 			],
-			"fingerprint" => true,
-			"expiration" => "+300",
 		]);
 		$résultat_observé = $résultat_obtenu;
 

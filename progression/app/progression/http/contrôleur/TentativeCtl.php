@@ -18,9 +18,10 @@
 
 namespace progression\http\contrôleur;
 
-use Illuminate\Http\{JsonResponse, Request};
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\MessageBag;
 use progression\http\transformer\{TentativeProgTransformer, TentativeSysTransformer, TentativeBDTransformer};
 use progression\domaine\interacteur\{
 	ObtenirAvancementInt,
@@ -41,7 +42,7 @@ use Carbon\Carbon;
 
 class TentativeCtl extends Contrôleur
 {
-	public function get(Request $request, string $username, string $question_uri, int $timestamp): JsonResponse
+	public function get(string $username, string $question_uri, int $timestamp): JsonResponse
 	{
 		$tentative = $this->obtenir_tentative($username, $question_uri, $timestamp);
 
@@ -65,9 +66,12 @@ class TentativeCtl extends Contrôleur
 		return $this->préparer_réponse($réponse);
 	}
 
-	public function post(Request $request, $username, $question_uri)
+	/**
+	 * @param array<mixed> $attributs
+	 */
+	public function post(string $username, string $question_uri, array $attributs): JsonResponse
 	{
-		Log::debug("TentativeCtl.post. Params : ", [$request->all(), $username]);
+		Log::debug("TentativeCtl.post. Params : ", [$username, $question_uri, $attributs]);
 
 		$chemin = Encodage::base64_decode_url($question_uri);
 
@@ -75,16 +79,15 @@ class TentativeCtl extends Contrôleur
 
 		if ($question instanceof Question) {
 			if ($question instanceof QuestionProg) {
-				$validation = $this->valider_paramètres_prog($request);
-				if ($validation->fails()) {
-					$réponse = $this->réponse_json(["erreur" => $validation->errors()], 400);
+				$validation = $this->valider_paramètres_prog($attributs);
+				if (!$validation->isEmpty()) {
+					$réponse = $this->réponse_json(["erreur" => $validation], 400);
 				} else {
-					$réponse = $this->traiter_post_QuestionProg($request, $username, $chemin, $question);
+					$réponse = $this->traiter_post_QuestionProg($attributs, $username, $chemin, $question);
 				}
 			} elseif ($question instanceof QuestionSys) {
-				$réponse = $this->traiter_post_QuestionSys($request, $username, $chemin, $question);
+				$réponse = $this->traiter_post_QuestionSys($attributs, $username, $chemin, $question);
 			} else {
-				Log::notice("({$request->ip()}) - {$request->method()} {$request->path()} (" . __CLASS__ . ")");
 				$réponse = $this->réponse_json(["erreur" => "Question de type non implémentée."], 501);
 			}
 		} else {
@@ -121,14 +124,24 @@ class TentativeCtl extends Contrôleur
 		return $tentative;
 	}
 
-	private function traiter_post_QuestionProg(Request $request, $username, $chemin, $question)
-	{
-		Log::debug("TentativeCtl.traiter_post_QuestionProg. Params : ", [$request->all(), $username]);
+	/**
+	 * @param array<mixed> $attributs
+	 */
+	private function traiter_post_QuestionProg(
+		array $attributs,
+		string $username,
+		string $chemin,
+		QuestionProg $question,
+	): JsonResponse {
+		Log::debug("TentativeCtl.traiter_post_QuestionProg. Params : ", [$username, $chemin, $question, $attributs]);
 
+		/**
+		 * @var array<TestProg> $tests
+		 */
 		$tests = $question->tests;
 
 		$timestamp = Carbon::now()->getTimestamp();
-		$tentative = new TentativeProg($request->langage, $request->code, $timestamp);
+		$tentative = new TentativeProg($attributs["langage"], $attributs["code"], $timestamp);
 
 		$tentative_résultante = $this->soumettre_tentative_prog($question, $tentative, $tests);
 		if (!$tentative_résultante) {
@@ -155,21 +168,28 @@ class TentativeCtl extends Contrôleur
 		return $this->préparer_réponse($réponse);
 	}
 
-	private function traiter_post_QuestionSys(Request $request, $username, $chemin, $question)
-	{
-		Log::debug("TentativeCtl.traiter_post_QuestionSys. Params : ", [$request->all(), $username]);
+	/**
+	 * @param array<mixed> $attributs
+	 */
+	private function traiter_post_QuestionSys(
+		array $attributs,
+		string $username,
+		string $chemin,
+		QuestionSys $question,
+	): JsonResponse {
+		Log::debug("TentativeCtl.traiter_post_QuestionSys. Params : ", [$username, $chemin, $question, $attributs]);
 
-		if (!$question->solution && !$request->conteneur_id) {
+		if (!$question->solution && empty($attributs["conteneur_id"])) {
 			$this->détruire_conteneur_courant($username, $chemin);
 			$conteneur_id = "";
 		} else {
-			$conteneur_id = $request->conteneur_id;
+			$conteneur_id = $attributs["conteneur_id"] ?? null;
 		}
 
 		$timestamp = Carbon::now()->getTimestamp();
 		$tentative = new TentativeSys(
 			conteneur_id: $conteneur_id,
-			réponse: $request->réponse,
+			réponse: $attributs["réponse"] ?? null,
 			date_soumission: $timestamp,
 		);
 
@@ -196,12 +216,15 @@ class TentativeCtl extends Contrôleur
 		return $this->préparer_réponse($réponse);
 	}
 
-	private function valider_paramètres_prog($request)
+	/**
+	 * @param array<mixed> $params
+	 */
+	private function valider_paramètres_prog(array $params): MessageBag
 	{
 		$TAILLE_CODE_MAX = (int) config("limites.taille_code");
 
-		return Validator::make(
-			$request->all(),
+		$validateur = Validator::make(
+			$params,
 			[
 				"langage" => "required|string",
 				"code" => "required|string|between:0,$TAILLE_CODE_MAX",
@@ -209,9 +232,11 @@ class TentativeCtl extends Contrôleur
 			[
 				"required" => "Le champ :attribute est obligatoire.",
 				"string" => "Le champ :attribute doit être une chaîne de caractères.",
-				"code.between" => "Le code soumis " . mb_strlen($request->code) . " > :max caractères.",
+				"code.between" => "Le code soumis " . mb_strlen($params["code"] ?? "") . " > :max caractères.",
 			],
 		);
+
+		return $validateur->errors();
 	}
 
 	private function récupérer_question($chemin)
@@ -219,21 +244,6 @@ class TentativeCtl extends Contrôleur
 		$questionInt = new ObtenirQuestionInt();
 
 		return $questionInt->get_question($chemin);
-	}
-
-	private function construire_test($test, string|null $entrée, string|null $params, string|null $sortie_attendue)
-	{
-		if ($entrée !== null) {
-			$test->entrée = $entrée;
-		}
-		if ($params !== null) {
-			$test->params = $params;
-		}
-		if ($sortie_attendue !== null) {
-			$test->sortie_attendue = $sortie_attendue;
-		}
-
-		return $test;
 	}
 
 	/**

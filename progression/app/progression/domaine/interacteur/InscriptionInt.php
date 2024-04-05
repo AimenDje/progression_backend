@@ -27,7 +27,7 @@ use Carbon\Carbon;
 class InscriptionInt extends Interacteur
 {
 	/**
-	 * @return array<User>
+	 * @return non-empty-array<string,User>
 	 */
 	public function effectuer_inscription_locale(
 		string $username,
@@ -38,7 +38,7 @@ class InscriptionInt extends Interacteur
 		$dao = $this->source_dao->get_user_dao();
 		$user = $dao->get_user($username);
 
-		if (!$user) {
+		if ($user === null) {
 			if (!$password) {
 				throw new RessourceInvalideException("Le mot de passe ne peut pas être laissé vide");
 			} else {
@@ -54,7 +54,7 @@ class InscriptionInt extends Interacteur
 		} else {
 			if (!$password) {
 				$this->effectuer_renvoi_de_courriel($user);
-				return [$user->username => $user];
+				return ["{$user->username}" => $user];
 			} else {
 				throw new DuplicatException("Un utilisateur du même nom existe déjà.");
 			}
@@ -71,7 +71,7 @@ class InscriptionInt extends Interacteur
 	}
 
 	/**
-	 * @return array<User>
+	 * @return non-empty-array<string,User>
 	 */
 	public function effectuer_inscription_sans_mdp(
 		string $username,
@@ -99,7 +99,7 @@ class InscriptionInt extends Interacteur
 	}
 
 	/**
-	 * @return array<User>
+	 * @return non-empty-array<string,User>
 	 */
 	private function effectuer_inscription_avec_mdp(
 		string $username,
@@ -116,7 +116,7 @@ class InscriptionInt extends Interacteur
 	}
 
 	/**
-	 * @return array<User>
+	 * @return non-empty-array<string,User>
 	 */
 	private function créer_et_sauvegarder_user(string $username, string $courriel, string $password, Rôle $rôle): array
 	{

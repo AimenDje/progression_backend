@@ -25,8 +25,8 @@ $router->group(["middleware" => ["auth_optionnelle"]], function () use ($router)
 	$router->get("/", "ConfigCtl@get");
 
 	// Inscription
-	$router->put("/user/{username}", "UserCréationCtl@put");
-	$router->post("/users", "UserCréationCtl@post");
+	$router->put("/user/{username}", "ContrôleurFrontal@put_user");
+	$router->post("/users", "ContrôleurFrontal@post_user");
 });
 
 $router->group(["middleware" => ["auth"]], function () use ($router) {
@@ -44,12 +44,12 @@ $router->group(["middleware" => ["auth"]], function () use ($router) {
 	$router->get("/test/{question_uri}/{numero:[[:digit:]]+}", "TestCtl@get");
 
 	// Résultat
-	$router->post("/question/{uri}/resultats", "RésultatCtl@post");
+	$router->post("/question/{uri}/resultats", "ContrôleurFrontal@post_résultat");
 });
 
 $router->group(["middleware" => ["auth", "étatValidé"]], function () use ($router) {
 	// Token
-	$router->post("/user/{username}/tokens", "TokenCtl@post");
+	$router->post("/user/{username}/tokens", "ContrôleurFrontal@post_token");
 });
 
 $router->group(["middleware" => ["auth", "permissionsRessources"]], function () use ($router) {
@@ -57,15 +57,16 @@ $router->group(["middleware" => ["auth", "permissionsRessources"]], function () 
 	$router->get("/avancement/{username}/{question_uri}", "AvancementCtl@get");
 	$router->get("/avancement/{username}/{chemin}/relationships/tentatives", "NotImplementedCtl@get");
 	$router->get("/avancement/{username}/{chemin}/tentatives", "NotImplementedCtl@get");
-	$router->put("/avancement/{username}/{question_uri}", "AvancementCtl@put");
-	$router->patch("/avancement/{username}/{question_uri}", "AvancementCtl@patch");
-	$router->post("/user/{username}/avancements", "AvancementCtl@post");
+
+	$router->put("/avancement/{username}/{question_uri}", "ContrôleurFrontal@put_avancement");
+	$router->patch("/avancement/{username}/{question_uri}", "ContrôleurFrontal@patch_avancement");
+	$router->post("/user/{username}/avancements", "ContrôleurFrontal@post_avancement");
 
 	// Avancements
 	$router->get("/user/{username}/avancements", "AvancementsCtl@get");
 
 	// Clé
-	$router->post("/user/{username}/cles", "CléCtl@post");
+	$router->post("/user/{username}/cles", "ContrôleurFrontal@post_clé");
 	$router->get("/cle/{username}/{nom}", "CléCtl@get");
 
 	// Commentaire
@@ -82,12 +83,12 @@ $router->group(["middleware" => ["auth", "permissionsRessources"]], function () 
 	$router->post("/test/{username}/{question_uri}/{numero:[[:digit:]]+}", "NotImplementedCtl@get");
 
 	// Sauvegarde
-	$router->post("/avancement/{username}/{question_uri}/sauvegardes", "SauvegardeCtl@post");
+	$router->post("/avancement/{username}/{question_uri}/sauvegardes", "ContrôleurFrontal@post_sauvegarde");
 	$router->get("/sauvegarde/{username}/{question_uri}/{langage}", "SauvegardeCtl@get");
 	$router->get("/avancement/{username}/{question_uri}/sauvegardes", "NotImplementedCtl@get");
 
 	// Tentative
-	$router->post("/avancement/{username}/{question_uri}/tentatives", "TentativeCtl@post");
+	$router->post("/avancement/{username}/{question_uri}/tentatives", "ContrôleurFrontal@post_tentative");
 	$router->get("/tentative/{username}/{question_uri}/{timestamp:[[:digit:]]{10}}", "TentativeCtl@get");
 	$router->get(
 		"/tentative/{username}/{question_uri}/{timestamp:[[:digit:]]{10}}/relationships/resultats",
@@ -97,6 +98,6 @@ $router->group(["middleware" => ["auth", "permissionsRessources"]], function () 
 
 	// User
 	$router->get("/user/{username}", "UserCtl@get");
-	$router->patch("/user/{username}", "UserModificationCtl@patch");
+	$router->patch("/user/{username}", "ContrôleurFrontal@patch_user");
 	$router->get("/user/{username}/relationships/avancements", "NotImplementedCtl@get");
 });
