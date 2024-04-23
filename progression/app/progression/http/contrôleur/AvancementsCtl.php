@@ -20,6 +20,7 @@ namespace progression\http\contrôleur;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\MessageBag;
 use progression\domaine\interacteur\{
 	ObtenirAvancementsInt,
 	SauvegarderAvancementInt,
@@ -33,11 +34,10 @@ use progression\domaine\entité\Avancement;
 
 class AvancementsCtl extends Contrôleur
 {
-	public function get(Request $request, $username)
+	public function get(string $username)
 	{
-		Log::debug("AvancementsCtl.get. Params : ", [$request->all(), $username]);
+		Log::debug("AvancementsCtl.get. Params : ", [$username]);
 
-		$réponse = null;
 		$avancements = $this->obtenir_avancements($username);
 		$réponse = $this->valider_et_préparer_réponse($avancements, $username);
 

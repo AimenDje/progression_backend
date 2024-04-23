@@ -18,7 +18,7 @@
 
 namespace progression\domaine\interacteur;
 
-use progression\domaine\entité\{Avancement, Question, TestSys, TentativeSys};
+use progression\domaine\entité\{TestSys, TentativeSys};
 use progression\dao\DAOException;
 use progression\dao\exécuteur\ExécutionException;
 
@@ -33,6 +33,7 @@ class SoumettreTentativeSysInt extends Interacteur
 		} catch (ExécutionException $e) {
 			throw new IntéracteurException($e->getMessage(), 400);
 		}
+
 		if ($question->solution) {
 			if ($this->vérifier_réponse_courte($question, $tentativeTraitée)) {
 				$tentativeTraitée->réussi = true;

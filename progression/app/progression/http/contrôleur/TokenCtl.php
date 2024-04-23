@@ -18,65 +18,39 @@
 
 namespace progression\http\contrôleur;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\Validator as ValidatorImpl;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\MessageBag;
 use progression\http\transformer\TokenTransformer;
 use progression\http\transformer\dto\GénériqueDTO;
 use Carbon\Carbon;
 
-use Composer\Semver\Comparator;
-
 class TokenCtl extends Contrôleur
 {
-	public function post(Request $request, string $username): JsonResponse
+	/**
+	 * @param array<mixed> $attributs
+	 */
+	public function post(string $username, array $attributs): JsonResponse
 	{
-		Log::debug("TokenCtl.post. Params : ", [$request->all()]);
+		Log::debug("TokenCtl.post. Params : ", [$username, $attributs]);
 
-		// Désuétude V 4.0.0
-		// Le corps du token doit être passé directement dans la requête et non dans un objet data.
-		assert(
-			Comparator::lessThan(strval(config("app.version")), "4.0.0"),
-			"Fonctionnalité désuète. Doit être retirée",
-		);
-		$data_in = $request->all();
-		if (array_key_exists("data", $data_in)) {
-			if (array_key_exists("ressources", $data_in["data"] ?? [])) {
-				$data_in["ressources"] = $data_in["data"]["ressources"];
-			}
-			if (array_key_exists("expiration", $data_in["data"] ?? [])) {
-				$data_in["expiration"] = $data_in["data"]["expiration"];
-			}
-			if (array_key_exists("fingerprint", $data_in["data"] ?? [])) {
-				$data_in["fingerprint"] = $data_in["data"]["fingerprint"];
-			}
-			if (array_key_exists("data", $data_in["data"] ?? [])) {
-				$data_in["data"] = $data_in["data"]["data"];
-			}
-			if (array_key_exists("ressources", $data_in["data"] ?? [])) {
-				unset($data_in["data"]);
-			}
-		}
-		// Fin désuétude
-
-		$validateur = $this->valider_paramètres($data_in);
-		$data_in = (object) $data_in;
+		$validateur = $this->valider_paramètres($attributs);
 
 		if ($validateur->stopOnFirstFailure()->fails()) {
 			$réponse = $this->réponse_json(["erreur" => $validateur->errors()], 400);
 		} else {
-			$ressources = $data_in->ressources;
+			$ressources = $attributs["ressources"];
 			$expiration =
-				gettype($data_in->expiration) == "string"
-					? $this->calculer_expiration($data_in->expiration)
-					: $data_in->expiration;
-			$data = $data_in->data ?? [];
+				gettype($attributs["expiration"]) == "string"
+					? $this->calculer_expiration($attributs["expiration"])
+					: $attributs["expiration"];
+			$data = $attributs["data"] ?? [];
 
 			$contexte = null;
 			$fingerprint = null;
-			if (isset($data_in->fingerprint) && $data_in->fingerprint) {
+			if (isset($attributs["fingerprint"]) && $attributs["fingerprint"]) {
 				$contexte = $this->getContexteAléatoire();
 				$fingerprint = hash("sha256", $contexte);
 			}

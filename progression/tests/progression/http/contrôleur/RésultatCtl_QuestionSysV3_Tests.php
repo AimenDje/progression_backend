@@ -24,7 +24,7 @@ use progression\domaine\entité\question\QuestionSys;
 use progression\domaine\entité\user\{User, Rôle, État};
 use progression\UserAuthentifiable;
 
-final class RésultatCtl_QuestionSys_Tests extends ContrôleurTestCase
+final class RésultatCtl_QuestionSysV3_Tests extends ContrôleurTestCase
 {
 	public function setUp(): void
 	{
@@ -251,16 +251,11 @@ final class RésultatCtl_QuestionSys_Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_test_unique_valide_lorsquil_est_soumis_on_obtient_le_résultat_réussi_pour_le_test_fourni()
 	{
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/question/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fZGVfc2FsdXRhdGlvbnM/resultats",
 			[
-				"data" => [
-					"type" => "resultat",
-					"attributes" => [
-						"index" => 0,
-					],
-				],
+				"index" => 0,
 			],
 		);
 
@@ -274,16 +269,11 @@ final class RésultatCtl_QuestionSys_Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_test_unique_avec_code_de_retour_non_nul_lorsquil_est_soumis_on_obtient_le_résultat_non_réussi_pour_le_test_fourni()
 	{
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/question/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fZGVfc2FsdXRhdGlvbnM/resultats",
 			[
-				"data" => [
-					"type" => "resultat",
-					"attributes" => [
-						"index" => 1,
-					],
-				],
+				"index" => 1,
 			],
 		);
 
@@ -297,16 +287,11 @@ final class RésultatCtl_QuestionSys_Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_test_unique_avec_sortie_inattendue_lorsquil_est_soumis_on_obtient_le_résultat_non_réussi_pour_le_test_fourni()
 	{
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/question/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fZGVfc2FsdXRhdGlvbnM/resultats",
 			[
-				"data" => [
-					"type" => "resultat",
-					"attributes" => [
-						"index" => 2,
-					],
-				],
+				"index" => 2,
 			],
 		);
 
@@ -320,16 +305,11 @@ final class RésultatCtl_QuestionSys_Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_test_unique_caché_lorsquil_est_soumis_on_obtient_le_résultat_caviardé()
 	{
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/question/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fZGVfc2FsdXRhdGlvbnM/resultats",
 			[
-				"data" => [
-					"type" => "resultat",
-					"attributes" => [
-						"index" => 3,
-					],
-				],
+				"index" => 3,
 			],
 		);
 
@@ -343,15 +323,10 @@ final class RésultatCtl_QuestionSys_Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_test_unique_sans_numéro_de_test_lorsquil_est_soumis_on_obtient_une_erreur_400()
 	{
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/question/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fZGVfc2FsdXRhdGlvbnM/resultats",
-			[
-				"data" => [
-					"type" => "resultat",
-					"attributes" => [],
-				],
-			],
+			[],
 		);
 
 		$this->assertEquals(400, $résultat_obtenu->status());
@@ -359,16 +334,11 @@ final class RésultatCtl_QuestionSys_Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_test_unique_avec_un_numéro_de_test_inexistant_lorsquil_est_soumis_on_obtient_une_erreur_400()
 	{
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/question/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fZGVfc2FsdXRhdGlvbnM/resultats",
 			[
-				"data" => [
-					"type" => "resultat",
-					"attributes" => [
-						"index" => 66,
-					],
-				],
+				"index" => 66,
 			],
 		);
 
@@ -377,16 +347,11 @@ final class RésultatCtl_QuestionSys_Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_test_unique_avec_un_numéro_de_test_non_numérique_lorsquil_est_soumis_on_obtient_une_erreur_400()
 	{
-		$résultat_obtenu = $this->actingAs($this->user)->json_api(
+		$résultat_obtenu = $this->actingAs($this->user)->call(
 			"POST",
 			"/question/aHR0cHM6Ly9kZXBvdC5jb20vcXVlc3Rpb25fZGVfc2FsdXRhdGlvbnM/resultats",
 			[
-				"data" => [
-					"type" => "resultat",
-					"attributes" => [
-						"index" => "zéro",
-					],
-				],
+				"index" => "zéro",
 			],
 		);
 

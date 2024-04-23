@@ -25,7 +25,7 @@ RUN apt install -y openjdk-17-jre
 RUN curl -sSL --output /usr/local/bin/ktlint https://github.com/pinterest/ktlint/releases/download/0.46.1/ktlint && chmod a+x /usr/local/bin/ktlint
 
 # Installation du validateur
-RUN pip3 install --break-system-packages progression_qc==3.0.0
+RUN pip3 install --break-system-packages progression_qc==3.0.1
 
 # Ajout d'extensions PHP
 RUN docker-php-ext-install -j$(nproc) mysqli ldap zip pdo pdo_mysql

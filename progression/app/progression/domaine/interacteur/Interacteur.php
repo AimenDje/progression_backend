@@ -22,7 +22,7 @@ use progression\dao\DAOFactory;
 
 class Interacteur
 {
-	protected $source_dao;
+	protected DAOFactory $source_dao;
 
 	function __construct($sourceDAO = null)
 	{

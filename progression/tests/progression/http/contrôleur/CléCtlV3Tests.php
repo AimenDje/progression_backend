@@ -23,7 +23,7 @@ use progression\domaine\entité\clé\{Clé, Portée};
 use progression\domaine\entité\user\{User, Rôle, État};
 use progression\UserAuthentifiable;
 
-final class CléCtlTests extends ContrôleurTestCase
+final class CléCtlV3Tests extends ContrôleurTestCase
 {
 	public $user;
 
@@ -74,78 +74,11 @@ final class CléCtlTests extends ContrôleurTestCase
 		DAOFactory::setInstance($mockDAOFactory);
 	}
 
-	// GET
-	public function test_étant_donné_une_clé_existante_et_un_utilisateur_normal_connecté_lorsquon_demande_la_clé_par_nom_on_obtient_un_objet_clé_sans_secret()
-	{
-		$résultat_observé = $this->actingAs($this->user)->json_api("GET", "/cle/jdoe/cle%20de%20test/");
-
-		$this->assertEquals(200, $résultat_observé->status());
-		$this->assertJsonStringEqualsJsonString(
-			'{
-               "data": {
-                 "type": "cle",
-                 "id": "jdoe/cle de test",
-                 "attributes": {
-                   "secret": null,
-                   "création": 1625709495,
-                   "expiration": 1625713000,
-                   "portée": "auth"
-                 },
-                 "links": {
-                   "self": "https://example.com/cle/jdoe/cle de test",
-                   "user": "https://example.com/user/jdoe"
-                 }
-               }
-             }',
-			$résultat_observé->getContent(),
-		);
-	}
-
-	public function test_étant_donné_un_utilisateur_normal_connecté_lorsquon_demande_une_clé_inexistante_on_obtient_une_erreur_404()
-	{
-		$résultat_observé = $this->actingAs($this->user)->json_api("GET", "/cle/jdoe/cle%20inexistante/");
-
-		$this->assertEquals(404, $résultat_observé->status());
-		$this->assertEquals('{"erreur":"Ressource non trouvée."}', $résultat_observé->getContent());
-	}
-
-	public function test_étant_donné_un_utilisateur_admin_connecté_lorsquon_demande_une_clé_pour_un_autre_utilisateur_on_obtient_un_objet_clé_sans_secret()
-	{
-		$résultat_observé = $this->actingAs($this->admin)->json_api("GET", "/cle/jdoe/cle%20de%20test/");
-
-		$this->assertEquals(200, $résultat_observé->status());
-		$this->assertJsonStringEqualsJsonString(
-			'{
-               "data": {
-                 "type": "cle",
-                 "id": "jdoe/cle de test",
-                 "attributes": {
-                   "secret": null,
-                   "création": 1625709495,
-                   "expiration": 1625713000,
-                   "portée": "auth"
-                 },
-                 "links": {
-                   "self": "https://example.com/cle/jdoe/cle de test",
-                   "user": "https://example.com/user/jdoe"
-                 }
-               }
-             }',
-			$résultat_observé->getContent(),
-		);
-	}
-
 	// POST
 	public function test_étant_donné_un_utilisateur_normal_connecté_lorsquil_requiert_une_clé_dauthentification_on_obtient_une_clé_avec_un_secret_généré_aléatoirement_sans_expiration()
 	{
-		$résultat_observé = $this->actingAs($this->user)->json_api("POST", "/user/jdoe/cles", [
-			"data" => [
-				"type" => "cle",
-				"id" => "jdoe/nouvelle_cle",
-				"attributes" => [
-					"nom" => "nouvelle_cle",
-				],
-			],
+		$résultat_observé = $this->actingAs($this->user)->call("POST", "/user/jdoe/cles", [
+			"nom" => "nouvelle_cle",
 		]);
 
 		$this->assertEquals(200, $résultat_observé->status());
@@ -158,15 +91,9 @@ final class CléCtlTests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_utilisateur_normal_connecté_lorsquil_requiert_une_clé_dauthentification_avec_expiration_0_on_obtient_une_clé_avec_un_secret_généré_aléatoirement_sans_expiration()
 	{
-		$résultat_observé = $this->actingAs($this->user)->json_api("POST", "/user/jdoe/cles", [
-			"data" => [
-				"type" => "cle",
-				"id" => "jdoe/nouvelle_cle",
-				"attributes" => [
-					"nom" => "nouvelle_cle",
-					"expiration" => 0,
-				],
-			],
+		$résultat_observé = $this->actingAs($this->user)->call("POST", "/user/jdoe/cles", [
+			"nom" => "nouvelle_cle",
+			"expiration" => 0,
 		]);
 
 		$this->assertEquals(200, $résultat_observé->status());
@@ -180,15 +107,9 @@ final class CléCtlTests extends ContrôleurTestCase
 	public function test_étant_donné_un_utilisateur_normal_connecté_lorsquil_requiert_une_clé_dauthentification_avec_expiration_on_obtient_une_clé_avec_un_secret_généré_aléatoirement_avec_expiration()
 	{
 		$expiration = time() + 100;
-		$résultat_observé = $this->actingAs($this->user)->json_api("POST", "/user/jdoe/cles", [
-			"data" => [
-				"type" => "cle",
-				"id" => "jdoe/nouvelle_cle",
-				"attributes" => [
-					"nom" => "nouvelle_cle",
-					"expiration" => $expiration,
-				],
-			],
+		$résultat_observé = $this->actingAs($this->user)->call("POST", "/user/jdoe/cles", [
+			"nom" => "nouvelle_cle",
+			"expiration" => $expiration,
 		]);
 
 		$this->assertEquals(200, $résultat_observé->status());
@@ -202,15 +123,9 @@ final class CléCtlTests extends ContrôleurTestCase
 	public function test_étant_donné_un_utilisateur_normal_connecté_lorsquil_requiert_une_clé_dauthentification_avec_expiration_passée_on_obtient_une_erreur_400()
 	{
 		$expiration = time() - 100;
-		$résultat_observé = $this->actingAs($this->user)->json_api("POST", "/user/jdoe/cles", [
-			"data" => [
-				"type" => "cle",
-				"id" => "jdoe/nouvelle_cle",
-				"attributes" => [
-					"nom" => "nouvelle_cle",
-					"expiration" => $expiration,
-				],
-			],
+		$résultat_observé = $this->actingAs($this->user)->call("POST", "/user/jdoe/cles", [
+			"nom" => "nouvelle_cle",
+			"expiration" => $expiration,
 		]);
 
 		$this->assertEquals(400, $résultat_observé->status());
@@ -223,15 +138,9 @@ final class CléCtlTests extends ContrôleurTestCase
 	public function test_étant_donné_un_utilisateur_normal_connecté_lorsquil_requiert_une_clé_dauthentification_avec_expiration_non_entière_on_obtient_une_erreur_400()
 	{
 		$expiration = time() + 100.5;
-		$résultat_observé = $this->actingAs($this->user)->json_api("POST", "/user/jdoe/cles", [
-			"data" => [
-				"type" => "cle",
-				"id" => "jdoe/nouvelle_cle",
-				"attributes" => [
-					"nom" => "nouvelle_cle",
-					"expiration" => $expiration,
-				],
-			],
+		$résultat_observé = $this->actingAs($this->user)->call("POST", "/user/jdoe/cles", [
+			"nom" => "nouvelle_cle",
+			"expiration" => $expiration,
 		]);
 
 		$this->assertEquals(400, $résultat_observé->status());
@@ -244,15 +153,9 @@ final class CléCtlTests extends ContrôleurTestCase
 	public function test_étant_donné_un_utilisateur_normal_connecté_lorsquil_requiert_une_clé_dauthentification_avec_expiration_non_numérique_on_obtient_une_erreur_400()
 	{
 		$expiration = "patate";
-		$résultat_observé = $this->actingAs($this->user)->json_api("POST", "/user/jdoe/cles", [
-			"data" => [
-				"type" => "cle",
-				"id" => "jdoe/nouvelle_cle",
-				"attributes" => [
-					"nom" => "nouvelle_cle",
-					"expiration" => $expiration,
-				],
-			],
+		$résultat_observé = $this->actingAs($this->user)->call("POST", "/user/jdoe/cles", [
+			"nom" => "nouvelle_cle",
+			"expiration" => $expiration,
 		]);
 
 		$this->assertEquals(400, $résultat_observé->status());

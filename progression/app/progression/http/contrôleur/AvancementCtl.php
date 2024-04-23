@@ -18,11 +18,17 @@
 
 namespace progression\http\contrôleur;
 
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Gate;
-use progression\domaine\interacteur\{ObtenirAvancementInt, SauvegarderAvancementInt, IntéracteurException};
+use Illuminate\Support\MessageBag;
+use progression\domaine\interacteur\{
+	ObtenirAvancementInt,
+	SauvegarderAvancementInt,
+	IntéracteurException,
+	ModifierAvancementInt,
+};
 use progression\http\transformer\AvancementTransformer;
 use progression\http\transformer\dto\AvancementDTO;
 use progression\util\Encodage;
@@ -31,9 +37,9 @@ use progression\domaine\entité\question\État;
 
 class AvancementCtl extends Contrôleur
 {
-	public function get(Request $request, $username, $question_uri)
+	public function get(string $username, string $question_uri): JsonResponse
 	{
-		Log::debug("AvancementCtl.get. Params : ", [$request->all(), $username, $question_uri]);
+		Log::debug("AvancementCtl.get. Params : ", [$username, $question_uri]);
 
 		$avancement = $this->obtenir_avancement($username, $question_uri);
 		$réponse = $this->valider_et_préparer_réponse($avancement, $username, $question_uri);
@@ -42,20 +48,62 @@ class AvancementCtl extends Contrôleur
 		return $réponse;
 	}
 
-	public function post(Request $request, $username)
+	/**
+	 * @param array<string> $attributs
+	 */
+	public function patch(string $username, string $question_uri, array $attributs): JsonResponse
 	{
-		Log::debug("AvancementCtl.post. Params : ", [$request->all(), $username]);
+		Log::debug("AvancementCtl.patch. Params : ", [$username, $question_uri, $attributs]);
 
-		$validateur = $this->valider_paramètres($request);
+		$avancement_existant = $this->obtenir_avancement($username, $question_uri);
+
+		if (!$avancement_existant) {
+			return $this->préparer_réponse(null);
+		}
+
+		$avancement_original = clone $avancement_existant;
+		if (array_key_exists("extra", $attributs)) {
+			$avancement_existant = (new ModifierAvancementInt())->modifier_extra(
+				$avancement_existant,
+				$attributs["extra"],
+			);
+		}
+
+		if ($avancement_existant != $avancement_original) {
+			$avancement_retourné = $this->sauvegarder_avancement($username, $question_uri, $avancement_existant);
+
+			$id = array_key_first($avancement_retourné);
+			$réponse = $this->valider_et_préparer_réponse(
+				$avancement_retourné[$id],
+				$username,
+				Encodage::base64_encode_url($id),
+			);
+		} else {
+			$réponse = $this->valider_et_préparer_réponse($avancement_original, $username, $question_uri);
+		}
+
+		Log::debug("AvancementCtl.patch. Retour : ", [$réponse]);
+		return $réponse;
+	}
+
+	/**
+	 * @param array<string> $attributs
+	 */
+	public function post(string $username, string $question_uri, array $attributs): JsonResponse
+	{
+		Log::debug("AvancementCtl.post. Params : ", [$username, $question_uri, $attributs]);
+
+		$attributs["question_uri"] = $question_uri;
+		$validateur = $this->valider_paramètres($attributs);
 
 		$réponse = null;
 		if ($validateur->fails()) {
 			$réponse = $this->réponse_json(["erreur" => $validateur->errors()], 400);
 		} else {
-			$avancement = $this->construire_avancement($username, $request->question_uri, $request->avancement ?? []);
+			$avancement = $this->construire_avancement($username, $question_uri, $attributs);
 
-			if ($request->avancement != null || $avancement->état === État::DEBUT) {
-				$avancement_retourné = $this->sauvegarder_avancement($username, $request->question_uri, $avancement);
+			if ($avancement != null || $avancement->état === État::DEBUT) {
+				$avancement_retourné = $this->sauvegarder_avancement($username, $question_uri, $avancement);
 
 				$id = array_key_first($avancement_retourné);
 				$réponse = $this->valider_et_préparer_réponse(
@@ -65,7 +113,7 @@ class AvancementCtl extends Contrôleur
 				);
 			} else {
 				$avancement_retourné = $avancement;
-				$réponse = $this->valider_et_préparer_réponse($avancement_retourné, $username, $request->question_uri);
+				$réponse = $this->valider_et_préparer_réponse($avancement_retourné, $username, $question_uri);
 			}
 		}
 
@@ -118,10 +166,13 @@ class AvancementCtl extends Contrôleur
 		return $réponse;
 	}
 
-	private function valider_paramètres($request)
+	/**
+	 * @param array<mixed> $params
+	 */
+	private function valider_paramètres(array $params)
 	{
 		$validateur = Validator::make(
-			$request->all(),
+			$params,
 			[
 				"question_uri" => [
 					"required",
@@ -132,7 +183,7 @@ class AvancementCtl extends Contrôleur
 						}
 					},
 				],
-				"avancement.extra" => "string",
+				"extra" => "string",
 			],
 			[
 				"required" => "Le champ :attribute est obligatoire.",
@@ -157,7 +208,7 @@ class AvancementCtl extends Contrôleur
 
 	private function sauvegarder_avancement($username, $question_uri, $avancement)
 	{
-		Log::debug("AvancementCtl.sauvegarder_avancement. Params : ", [$username, $question_uri]);
+		Log::debug("AvancementCtl.sauvegarder_avancement. Params : ", [$username, $question_uri, $avancement]);
 
 		$avancementInt = new SauvegarderAvancementInt();
 		$chemin = Encodage::base64_decode_url($question_uri);

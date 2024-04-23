@@ -23,7 +23,7 @@ use progression\domaine\entité\{Sauvegarde};
 use progression\domaine\entité\user\{User, Rôle, État};
 use progression\UserAuthentifiable;
 
-final class SauvegardeCtlTests extends ContrôleurTestCase
+final class SauvegardeCtlV3Tests extends ContrôleurTestCase
 {
 	public $user;
 
@@ -66,45 +66,16 @@ final class SauvegardeCtlTests extends ContrôleurTestCase
 		DAOFactory::setInstance($mockDAOFactory);
 	}
 
-	public function test_étant_donné_une_sauvegarde_existante_lorsquon_fait_une_requête_get_on_obtient_une_sauvegarde()
-	{
-		$résultat_observé = $this->actingAs($this->user)->json_api(
-			"GET",
-			"/sauvegarde/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcm9nZXIvcXVlc3Rpb25zX3Byb2cvZm9uY3Rpb25zMDEvYXBwZWxlcl91bmVfZm9uY3Rpb24/python",
-		);
-
-		$this->assertEquals(200, $résultat_observé->status());
-		$this->assertJsonStringEqualsJsonFile(
-			__DIR__ . "/résultats_attendus/sauvegardeCtlTests_sauvegarde.json",
-			$résultat_observé->getContent(),
-		);
-	}
-
-	public function test_étant_donné_une_sauvegarde_inexistante_lorsquon_fait_une_requête_get_on_obtient_un_message_une_erreur_404()
-	{
-		$résultat_observé = $this->actingAs($this->user)->json_api(
-			"GET",
-			"/sauvegarde/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcm9nZXIvcXVlc3Rpb25zX3Byb2cvZm9uY3Rpb25zMDEvYXBwZWxlcl91bmVfZm9uY3Rpb24/java",
-		);
-
-		$this->assertEquals(404, $résultat_observé->status());
-		$this->assertEquals('{"erreur":"Ressource non trouvée."}', $résultat_observé->getContent());
-	}
-
 	public function test_étant_donné_une_sauvegarde_sans_langage_lorquon_fait_une_requête_post_on_obtient_une_erreur_400()
 	{
-		$résultat_observé = $this->actingAs($this->user)->json_api(
+		$résultat_observé = $this->actingAs($this->user)->call(
 			"POST",
 			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcm9nZXIvcXVlc3Rpb25zX3Byb2cvZm9uY3Rpb25zMDEvYXBwZWxlcl91bmVfZm9uY3Rpb24/sauvegardes",
 			[
-				"data" => [
-					"type" => "sauvegarde",
-					"attributes" => [
-						"code" => "print(\"Hello world!\")",
-					],
-				],
+				"code" => "print(\"Hello world!\")",
 			],
 		);
+
 		$this->assertEquals(400, $résultat_observé->status());
 		$this->assertEquals(
 			'{"erreur":{"langage":["Le champ langage est obligatoire."]}}',
@@ -114,37 +85,29 @@ final class SauvegardeCtlTests extends ContrôleurTestCase
 
 	public function test_étant_donné_une_sauvegarde_sans_code_lorquon_fait_une_requête_post_on_obtient_une_erreur_400()
 	{
-		$résultat_observé = $this->actingAs($this->user)->json_api(
+		$résultat_observé = $this->actingAs($this->user)->call(
 			"POST",
 			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcm9nZXIvcXVlc3Rpb25zX3Byb2cvZm9uY3Rpb25zMDEvYXBwZWxlcl91bmVfZm9uY3Rpb24/sauvegardes",
 			[
-				"data" => [
-					"type" => "sauvegarde",
-					"attributes" => [
-						"langage" => "python",
-					],
-				],
+				"langage" => "python",
 			],
 		);
+
 		$this->assertEquals(400, $résultat_observé->status());
 		$this->assertEquals('{"erreur":{"code":["Le champ code est obligatoire."]}}', $résultat_observé->getContent());
 	}
 
 	public function test_étant_donné_un_username_luri_dune_question_un_code_et_un_langage_lorsquon_appelle_post_on_obtient_une_sauvegarde()
 	{
-		$résultat_observé = $this->actingAs($this->user)->json_api(
+		$résultat_observé = $this->actingAs($this->user)->call(
 			"POST",
 			"/avancement/jdoe/aHR0cHM6Ly9kZXBvdC5jb20vcm9nZXIvcXVlc3Rpb25zX3Byb2cvZm9uY3Rpb25zMDEvYXBwZWxlcl91bmVfZm9uY3Rpb24/sauvegardes",
 			[
-				"data" => [
-					"type" => "sauvegarde",
-					"attributes" => [
-						"langage" => "python",
-						"code" => "print(\"Hello world!\")",
-					],
-				],
+				"langage" => "python",
+				"code" => "print(\"Hello world!\")",
 			],
 		);
+
 		$this->assertEquals(200, $résultat_observé->status());
 		$this->assertJsonStringEqualsJsonFile(
 			__DIR__ . "/résultats_attendus/sauvegardeCtlTests_sauvegarde.json",
