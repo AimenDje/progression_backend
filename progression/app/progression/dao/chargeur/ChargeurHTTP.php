@@ -16,19 +16,27 @@
    along with Progression.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace progression\dao\question;
+namespace progression\dao\chargeur;
 
-use progression\dao\DAOException;
+use progression\dao\chargeur\ChargeurException;
 use ErrorException;
 
 class ChargeurHTTP extends Chargeur
 {
-	public function get_url($url)
+	public function get_url(string $url): string
 	{
-		return @file_get_contents($url);
+		$output = @file_get_contents($url);
+		if ($output === false) {
+			throw new ChargeurException("Impossible de récupérer la question");
+		}
+
+		return $output;
 	}
 
-	public function get_entêtes($url)
+	/**
+	 * @return array<mixed>
+	 */
+	public function get_entêtes(string $url): array
 	{
 		$opts = [
 			"http" => [
@@ -39,11 +47,11 @@ class ChargeurHTTP extends Chargeur
 		try {
 			$entêtes = get_headers($url, true, $context);
 		} catch (ErrorException $erreur) {
-			throw new DAOException("Impossible de récupérer la question");
+			throw new ChargeurException("Impossible de récupérer la question");
 		}
 
 		if ($entêtes === false) {
-			throw new DAOException("Impossible de récupérer les entêtes de l'URL {$url}");
+			throw new ChargeurException("Impossible de récupérer les entêtes de l'URL {$url}");
 		}
 
 		return $entêtes;

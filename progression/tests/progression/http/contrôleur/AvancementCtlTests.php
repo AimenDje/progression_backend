@@ -18,7 +18,7 @@
 use progression\ContrôleurTestCase;
 
 use progression\dao\DAOFactory;
-use progression\dao\question\ChargeurException;
+use progression\dao\chargeur\ChargeurException;
 use progression\domaine\entité\question\{Question, QuestionProg, État};
 use progression\domaine\entité\{Avancement, TentativeProg, Sauvegarde, Commentaire};
 use progression\domaine\entité\user\{User, Rôle};

@@ -16,26 +16,9 @@
    along with Progression.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace progression\dao\banque;
+namespace progression\dao\chargeur;
+use Exception;
 
-use BadMethodCallException;
-
-class ChargeurBanqueQuestion extends ChargeurBanque
+class ChargeurException extends Exception
 {
-	public function récupérer_banque($uri)
-	{
-		$scheme = parse_url(strtolower($uri), PHP_URL_SCHEME);
-
-		if ($scheme == "file") {
-			$sortie = $this->source->get_chargeur_banque_fichier()->récupérer_banque($uri);
-		} elseif ($scheme == "https") {
-			$sortie = $this->source->get_chargeur_banque_http()->récupérer_banque($uri);
-		} else {
-			throw new BadMethodCallException("Schéma d'URI invalide");
-		}
-
-		$sortie["uri"] = $uri;
-
-		return $sortie;
-	}
 }

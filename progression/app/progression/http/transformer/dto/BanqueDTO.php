@@ -21,7 +21,7 @@ namespace progression\http\transformer\dto;
 use progression\http\contrôleur\BanqueCtl;
 
 class BanqueDTO extends GénériqueDTO
-{	
+{
 	public function __construct(mixed $id, mixed $objet, array $liens)
 	{
 		parent::__construct($id, $objet, $liens);

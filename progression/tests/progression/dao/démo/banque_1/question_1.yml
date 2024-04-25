@@ -1,0 +1,6 @@
+type: prog
+titre: Question 1
+ébauches:
+  python: "print(42)"
+tests:
+  - sortie: 42

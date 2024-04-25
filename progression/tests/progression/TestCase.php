@@ -20,6 +20,7 @@ namespace progression;
 
 use Laravel\Lumen\Testing\TestCase as BaseTestCase;
 use progression\dao\DAOFactory;
+use progression\dao\chargeur\ChargeurFactory;
 use Mockery;
 
 abstract class TestCase extends BaseTestCase
@@ -37,6 +38,7 @@ abstract class TestCase extends BaseTestCase
 	public function tearDown(): void
 	{
 		DAOFactory::setInstance(null);
+		ChargeurFactory::set_instance(null);
 		Mockery::close();
 
 		//Réinitialise l'environnement

@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Log;
 use progression\domaine\entité\Avancement;
 use progression\domaine\entité\question\{Question, QuestionProg, QuestionSys, QuestionBD};
 use progression\dao\DAOException;
-use progression\dao\question\ChargeurException;
+use progression\dao\chargeur\ChargeurException;
 use progression\domaine\interacteur\IntégritéException;
 
 class SauvegarderAvancementInt extends Interacteur

@@ -20,6 +20,9 @@ namespace progression\dao;
 
 use progression\TestCase;
 use progression\dao\EntitéDAO;
+use progression\dao\chargeur\Chargeur;
+use progression\domaine\entité\question\{QuestionProg, QuestionSys};
+use progression\domaine\entité\{Exécutable, TestProg, TestSys};
 use progression\domaine\entité\banque\Banque;
 use progression\domaine\entité\banque\QuestionBanque;
 
@@ -41,48 +44,75 @@ final class BanqueDAOTests extends TestCase
 	{
 		$résultat_observé = (new BanqueDAO())->get_tous("joe");
 
-        $résultats_attendu = [];
-        
-        $this->assertEquals($résultats_attendu, $résultat_observé);
+		$résultats_attendu = [];
+
+		$this->assertEquals($résultats_attendu, $résultat_observé);
 	}
 
-    public function test_étant_donné_un_utilisateur_existant_qui_na_pas_de_banque_lorsquon_récupère_toutes_les_banques_on_obtient_une_liste_vide()
-    {
+	public function test_étant_donné_un_utilisateur_existant_qui_na_pas_de_banque_lorsquon_récupère_toutes_les_banques_on_obtient_une_liste_vide()
+	{
 		$résultat_observé = (new BanqueDAO())->get_tous("jdoe");
 
-        $résultats_attendu = [];
-        
-        $this->assertEquals($résultats_attendu, $résultat_observé);
+		$résultats_attendu = [];
+
+		$this->assertEquals($résultats_attendu, $résultat_observé);
 	}
 
+	public function test_étant_donné_un_utilisateur_qui_possède_deux_banques_de_questions_lorsquon_récupère_ses_banque_on_obtient_les_deux_banques()
+	{
+		$résultats_attendu = [
+			1 => new Banque(
+				"Test banque de questions 1 - fichier yaml valide",
+				"file://progression/tests/progression/dao/démo/banque_1/contenu.yml",
+			),
+			2 => new Banque(
+				"Test banque de questions 2 - fichier yaml valide",
+				"file://progression/tests/progression/dao/démo/banque_2/contenu.yml",
+			),
+		];
 
-    /*
-      public function test_étant_donné_un_utilisateur_existant_qui_a_une_banque_avec_une_erreur_dans_le_contenu_yml_lorsquon_récupère_toutes_les_banques_on_obtient_une_liste_contenant_une_banque_avec_les_questions_si_elles_sont_lisibles()
-      {
-        $résultat_observé = (new BanqueDAO())->get_tous("bob");
+		$résultat_observé = (new BanqueDAO())->get_tous("bob");
+		$this->assertEquals($résultats_attendu, $résultat_observé);
+	}
 
+	public function test_étant_donné_un_utilisateur_qui_possède_deux_banques_de_questions_lorsquon_récupère_ses_banque_et_leurs_questions_on_obtient_les_deux_banques_et_les_questions()
+	{
+		$questions_1 = [
+			new QuestionProg(
+				titre: "Question 1",
+				exécutables: ["python" => new Exécutable(code: "print(42)", lang: "python")],
+				tests: [new TestProg(sortie_attendue: 42)],
+			),
+			new QuestionProg(
+				titre: "Question 2",
+				exécutables: ["python" => new Exécutable(code: "print(42)", lang: "python")],
+				tests: [new TestProg(sortie_attendue: 42)],
+			),
+		];
+		$questions_2 = [
+			new QuestionSys(titre: "Question 3", image: "ubuntu", tests: [new TestSys(validation: "true")]),
+			new QuestionSys(titre: "Question 4", image: "ubuntu", tests: [new TestSys(validation: "true")]),
+		];
 
-        $résultats_attendu = [];
-        
-        $banque = new Banque("Test banque de questions 1 - fichier yaml invalide","https://git.dti.crosemont.quebec/Julien_Giguere/progression_questions-test/-/raw/main/QuestionsYAML/contenu.yml");    
-            
-        $questionBanque1 = new QuestionBanque("Question1","https://git.dti.crosemont.quebec/asarkes/progression_questions-test/-/raw/main/QuestionsYAML/exemple-anayees.yml");
-        $banque->ajouterQuestionsBanque($questionBanque1);
+		$résultats_attendu = [
+			1 => new Banque(
+				"Test banque de questions 1 - fichier yaml valide",
+				"file://progression/tests/progression/dao/démo/banque_1/contenu.yml",
+				$questions_1,
+			),
+			2 => new Banque(
+				"Test banque de questions 2 - fichier yaml valide",
+				"file://progression/tests/progression/dao/démo/banque_2/contenu.yml",
+				$questions_2,
+			),
+		];
 
-        $questionBanque2 = new QuestionBanque("erreur de lecture du fichier contenu.yml","");
-        $banque->ajouterQuestionsBanque($questionBanque2);
+		$résultat_observé = (new BanqueDAO())->get_tous("bob", ["questions"]);
 
-        $questionBanque3 = new QuestionBanque("Question3","https://git.dti.crosemont.quebec/asarkes/progression_questions-test/-/raw/main/QuestionsYAML/exemple-anayees-1.yml");
-        $banque->ajouterQuestionsBanque($questionBanque3);
+		$this->assertEquals($résultats_attendu, $résultat_observé);
+	}
 
-        array_push($résultats_attendu, $banque);
-       
-        $this->assertEquals($résultats_attendu, $résultat_observé);
-        }*/
+	// public function test_étant_donné_un_utilisateur_existant_qui_a_une_banque_lorsquon_récupère_toutes_les_banques_on_obtient_une_liste_contenant_sa_banque()
 
-    // public function test_étant_donné_un_utilisateur_existant_qui_a_une_banque_lorsquon_récupère_toutes_les_banques_on_obtient_une_liste_contenant_sa_banque()
-    
-    // public function test_étant_donné_un_utilisateur_existant_qui_a_plusieurs_banques_lorsquon_récupère_toutes_les_banques_on_obtient_une_liste_contenant_ses_banques()
-
-    
+	// public function test_étant_donné_un_utilisateur_existant_qui_a_plusieurs_banques_lorsquon_récupère_toutes_les_banques_on_obtient_une_liste_contenant_ses_banques()
 }

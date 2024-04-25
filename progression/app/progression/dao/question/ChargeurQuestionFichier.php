@@ -19,10 +19,14 @@
 namespace progression\dao\question;
 
 use RuntimeException;
+use progression\dao\chargeur\{Chargeur, ChargeurException};
 
 class ChargeurQuestionFichier extends Chargeur
 {
-	public function récupérer_question($uri)
+	/**
+	 * @return array<mixed>
+	 */
+	public function récupérer_fichier(string $uri): array
 	{
 		$output = null;
 		$err_code = null;
@@ -35,7 +39,7 @@ class ChargeurQuestionFichier extends Chargeur
 		);
 
 		if ($err_code == Chargeur::ERR_CHARGEMENT) {
-			return null;
+			throw new ChargeurException("Le fichier {$uri} ne peut pas être chargé. (err: {$err_code})");
 		}
 
 		if ($err_code != 0) {

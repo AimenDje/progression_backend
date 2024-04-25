@@ -37,7 +37,7 @@ use progression\domaine\interacteur\{
 use progression\util\Encodage;
 use RuntimeException;
 use DomainException;
-use progression\dao\question\ChargeurException;
+use progression\dao\chargeur\ChargeurException;
 use progression\dao\exécuteur\ExécutionException;
 
 class RésultatCtl extends Contrôleur

@@ -19,17 +19,18 @@
 namespace progression\dao\question;
 
 use BadMethodCallException;
+use progression\dao\chargeur\Chargeur;
 
 class ChargeurQuestion extends Chargeur
 {
-	public function récupérer_question($uri)
+	public function récupérer_fichier(string $uri): array
 	{
 		$scheme = parse_url(strtolower($uri), PHP_URL_SCHEME);
 
 		if ($scheme == "file") {
-			$sortie = $this->source->get_chargeur_question_fichier()->récupérer_question($uri);
+			$sortie = $this->source->get_chargeur_question_fichier()->récupérer_fichier($uri);
 		} elseif ($scheme == "https") {
-			$sortie = $this->source->get_chargeur_question_http()->récupérer_question($uri);
+			$sortie = $this->source->get_chargeur_question_http()->récupérer_fichier($uri);
 		} else {
 			throw new BadMethodCallException("Schéma d'URI invalide");
 		}

@@ -26,7 +26,7 @@ use progression\domaine\interacteur\{ObtenirQuestionInt, IntéracteurException};
 use progression\http\transformer\{QuestionProgTransformer, QuestionSysTransformer};
 use progression\http\transformer\dto\{QuestionDTO, QuestionProgDTO};
 use progression\util\Encodage;
-use progression\dao\question\ChargeurException;
+use progression\dao\chargeur\ChargeurException;
 
 class QuestionCtl extends Contrôleur
 {

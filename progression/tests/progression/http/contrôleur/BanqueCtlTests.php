@@ -17,24 +17,24 @@
  */
 use progression\ContrôleurTestCase;
 use progression\dao\DAOFactory;
-use progression\dao\question\ChargeurException;
+use progression\dao\chargeur\ChargeurException;
 use progression\domaine\entité\banque\Banque;
 
 final class BanqueCtlTests extends ContrôleurTestCase
 {
-    public $user;
+	public $user;
 
-    public function setUp(): void
-    {
-      parent::setUp();
-  
-      $this->user = new UserAuthentifiable(
-        username: "jdoe",
-        date_inscription: 0,
-        rôle: Rôle::NORMAL,
-        état: État::ACTIF,
-      );
-      /*
+	public function setUp(): void
+	{
+		parent::setUp();
+
+		$this->user = new UserAuthentifiable(
+			username: "jdoe",
+			date_inscription: 0,
+			rôle: Rôle::NORMAL,
+			état: État::ACTIF,
+		);
+		/*
         public function test_étant_donné()
         {
 
@@ -59,5 +59,5 @@ final class BanqueCtlTests extends ContrôleurTestCase
         {
         
       }*/
-    }
+	}
 }

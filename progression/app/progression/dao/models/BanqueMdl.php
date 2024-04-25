@@ -23,14 +23,14 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class BanqueMdl extends Model
 {
-    protected $table = "banque";
+	protected $table = "banque";
 	public $timestamps = false;
-	
+
 	protected $guarded = [];
-    
-    public function user(): HasOne
-    {
-        return $this->hasOne(UserMdl::class, "id", "user_id");
-    }
+
+	public function user(): HasOne
+	{
+		return $this->hasOne(UserMdl::class, "id", "user_id");
+	}
 }
 ?>

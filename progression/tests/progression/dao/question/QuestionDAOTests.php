@@ -20,6 +20,7 @@ namespace progression\dao\question;
 
 use progression\domaine\entité\question\{Question, QuestionProg, QuestionSys};
 use progression\domaine\entité\{Exécutable, TestProg, TestSys};
+use progression\dao\chargeur\{ChargeurException, ChargeurFactory};
 use progression\TestCase;
 use Mockery;
 
@@ -33,7 +34,8 @@ final class QuestionDAOTests extends TestCase
 
 	public function test_étant_donné_un_uri_de_question_inexistant_lorqsuon_la_charge_on_obtient_null()
 	{
-		$this->assertNull((new QuestionDAO())->get_question("file://inexistant.yml"));
+		$this->expectException(ChargeurException::class);
+		(new QuestionDAO())->get_question("file://inexistant.yml");
 	}
 
 	public function test_étant_donné_un_fichier_de_question_minimal_lorsquon_charge_la_question_on_obtien_les_valeurs_par_défaut()
@@ -123,7 +125,7 @@ final class QuestionDAOTests extends TestCase
 	public function test_étant_donné_un_fichier_de_question_sys_valide_sans_solution_courte_lorsquon_charge_la_question_on_obtient_un_objet_QuestionSys_correspondant()
 	{
 		$mockChargeurFichier = Mockery::mock("progression\\dao\\question\\ChargeurQuestionFichier");
-		$mockChargeurFichier->shouldReceive("récupérer_question")->andReturn([
+		$mockChargeurFichier->shouldReceive("récupérer_fichier")->andReturn([
 			"type" => "sys",
 			"titre" => "Toutes les permissions",
 			"niveau" => "débutant",
@@ -145,10 +147,8 @@ final class QuestionDAOTests extends TestCase
 				],
 			],
 		]);
-		$mockFactory = Mockery::mock("progression\\dao\\question\\ChargeurFactory");
-		$mockFactory->shouldReceive("get_chargeur_question_fichier")->andReturn($mockChargeurFichier);
 
-		ChargeurFactory::set_instance($mockFactory);
+		ChargeurFactory::get_instance()->set_chargeur_fichier($mockChargeurFichier);
 
 		$résultat_attendu = new QuestionSys();
 		$résultat_attendu->titre = "Toutes les permissions";
@@ -176,8 +176,8 @@ final class QuestionDAOTests extends TestCase
 
 	public function test_étant_donné_un_fichier_de_question_sys_valide_avec_une_solution_courte_lorsquon_charge_la_question_on_obtient_un_objet_QuestionSys_correspondant()
 	{
-		$mockChargeurFichier = Mockery::mock("progression\\dao\\question\\ChargeurQuestionFichier");
-		$mockChargeurFichier->shouldReceive("récupérer_question")->andReturn([
+		$mockChargeurFichier = Mockery::mock("progression\\dao\\question\\ChargeurQuestionFichier")->makePartial();
+		$mockChargeurFichier->shouldReceive("récupérer_fichier")->andReturn([
 			"type" => "sys",
 			"titre" => "Toutes les permissions",
 			"niveau" => "débutant",
@@ -196,10 +196,8 @@ final class QuestionDAOTests extends TestCase
 				],
 			],
 		]);
-		$mockFactory = Mockery::mock("progression\\dao\\question\\ChargeurFactory");
-		$mockFactory->shouldReceive("get_chargeur_question_fichier")->andReturn($mockChargeurFichier);
 
-		ChargeurFactory::set_instance($mockFactory);
+		ChargeurFactory::get_instance()->set_chargeur_fichier($mockChargeurFichier);
 
 		$résultat_attendu = new QuestionSys();
 		$résultat_attendu->titre = "Toutes les permissions";

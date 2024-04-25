@@ -18,49 +18,32 @@
 
 namespace progression\domaine\entité\banque;
 
+use progression\domaine\entité\question\Question;
+
 use InvalidArgumentException;
 
 class Banque
 {
 	public string $nom;
 	public string $url;
-	public $questions;
-    
-    public function __construct(
-        string $nom, 
-        string $url,
-    ) {
-        $this->nom = $nom;
-        $this->url = $url;
-		$this->questions = array();
-    }
 
-	public function ajouterQuestionsBanque(QuestionBanque $questions) {
-		
-		$this->questions[] = $questions;
-	}
+	/**
+	 * @var array<Question> $questions
+	 */
+	public array $questions;
 
-	public function getQuestions() {
-        return $this->questions;
-    }
-
-    public function getQuestionParNom($nom) {
-        foreach ($this->questions as $question) {
-            if ($question->nom === $nom) {
-                return $question;
-            }
-        }
-        return null; 
-    }
-}
-
-class QuestionBanque
-{
-	public string $nom;
-	public string $url;
-
-	public function __construct(string $nom, string $url) {
+	/**
+	 * @param array<Question> $questions
+	 */
+	public function __construct(string $nom, string $url, array $questions = [])
+	{
 		$this->nom = $nom;
 		$this->url = $url;
+		$this->questions = $questions;
+	}
+
+	public function ajouterQuestionsBanque(Question $question): void
+	{
+		$this->questions[] = $question;
 	}
 }

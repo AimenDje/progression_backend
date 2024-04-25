@@ -21,21 +21,22 @@ namespace progression\dao\question;
 use RuntimeException;
 use progression\TestCase;
 use ZipArchive;
+use progression\dao\chargeur\{ChargeurArchive, ChargeurException};
 
-final class ChargeurQuestionArchiveTests extends TestCase
+final class ChargeurArchiveTests extends TestCase
 {
 	private $contenu_tmp;
 
 	public function setUp(): void
 	{
 		parent::setUp();
-		$this->contenu_tmp = scandir("/tmp");
+		$this->contenu_tmp = scandir(getenv("TEMPDIR"));
 	}
 
 	public function tearDown(): void
 	{
 		// Le contenu du répertoire /tmp n'a pas changé
-		$this->assertEquals($this->contenu_tmp, scandir("/tmp"));
+		$this->assertEquals($this->contenu_tmp, scandir(getenv("TEMPDIR")));
 
 		parent::tearDown();
 	}
@@ -98,7 +99,7 @@ final class ChargeurQuestionArchiveTests extends TestCase
 
 		$uri = __DIR__ . "/démo/boucle_énumérée.zip";
 
-		$résultat_obtenu = (new ChargeurQuestionArchive())->récupérer_question($uri, "zip");
+		$résultat_obtenu = (new ChargeurArchive())->récupérer_fichier($uri, "zip");
 
 		$this->assertEquals($résultat_attendu, $résultat_obtenu);
 	}
@@ -108,7 +109,7 @@ final class ChargeurQuestionArchiveTests extends TestCase
 		$uri = __DIR__ . "/démo/inconnu.inc";
 
 		try {
-			$résultat_obtenu = (new ChargeurQuestionArchive())->récupérer_question($uri, "inc");
+			$résultat_obtenu = (new ChargeurArchive())->récupérer_fichier($uri, "inc");
 			$this->fail();
 		} catch (ChargeurException $résultat_obtenu) {
 			$this->assertEquals("Type d'archive inc non implémenté.", $résultat_obtenu->getMessage());
@@ -120,7 +121,7 @@ final class ChargeurQuestionArchiveTests extends TestCase
 		$uri = __DIR__ . "/démo/inexistant.zip";
 
 		try {
-			$résultat_obtenu = (new ChargeurQuestionArchive())->récupérer_question($uri, "zip");
+			$résultat_obtenu = (new ChargeurArchive())->récupérer_fichier($uri, "zip");
 			$this->fail();
 		} catch (ChargeurException $résultat_obtenu) {
 			$this->assertStringMatchesFormat(
@@ -135,7 +136,7 @@ final class ChargeurQuestionArchiveTests extends TestCase
 		$uri = __DIR__ . "/démo/invalide.zip";
 
 		try {
-			$résultat_obtenu = (new ChargeurQuestionArchive())->récupérer_question($uri, "zip");
+			$résultat_obtenu = (new ChargeurArchive())->récupérer_fichier($uri, "zip");
 			$this->fail();
 		} catch (ChargeurException $résultat_obtenu) {
 			$this->assertStringMatchesFormat(

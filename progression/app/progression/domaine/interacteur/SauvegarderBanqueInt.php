@@ -21,29 +21,28 @@ namespace progression\domaine\interacteur;
 use progression\domaine\entité\banque\Banque;
 use progression\domaine\entité\user\User;
 
-class SauvegarderBanqueInt extends interacteur
+class SauvegarderBanqueInt extends Interacteur
 {
+	/**
+	 * @return array<int, Banque>
+	 */
 	public function sauvegarder(string $username, string $nom, string $url): array
-    {
-        if (empty($nom)) {
-            throw new RessourceInvalideException("Le nom ne peut être vide");
-        }
-        if (empty($url)) {
-            throw new RessourceInvalideException("L'url ne peut être invalide");
-        }
-    
-        $user_dao = $this->source_dao->get_user_dao();
-        $user = $user_dao->get_user($username);
-        if (empty($user)) {
-            throw new RessourceInvalideException("L'utilisateur ne peut être invalide");
-        }
-        $dao = $this->source_dao->get_banque_dao();
+	{
+		if (empty($nom)) {
+			throw new RessourceInvalideException("Le nom ne peut être vide");
+		}
+		if (empty($url)) {
+			throw new RessourceInvalideException("L'url ne peut être invalide");
+		}
 
-        $banque = new Banque(
-            $nom,
-            $url,
-            $user
-        );
-        return $dao->save($username, $banque);
-    }
+		$user_dao = $this->source_dao->get_user_dao();
+		$user = $user_dao->get_user($username);
+		if (empty($user)) {
+			throw new RessourceInvalideException("L'utilisateur ne peut être invalide");
+		}
+		$dao = $this->source_dao->get_banque_dao();
+
+		$banque = new Banque($nom, $url, $user);
+		return $dao->save($username, $banque);
+	}
 }

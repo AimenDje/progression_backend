@@ -18,9 +18,14 @@
 
 namespace progression\dao\banque;
 
+use progression\domaine\entité\banque\Banque;
+
 class DécodeurBanque
 {
-	public static function load($banque, $infos_banque)
+	/**
+	 * @param array<mixed> $infos_banque
+	 */
+	public static function load(Banque $banque, array $infos_banque): Banque
 	{
 		$banque->nom = $infos_banque["nom"] ?? null;
 		$banque->url = $infos_banque["url"] ?? null;

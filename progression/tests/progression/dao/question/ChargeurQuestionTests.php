@@ -22,19 +22,23 @@ use BadMethodCallException;
 use progression\TestCase;
 use Mockery;
 
+use progression\dao\chargeur\ChargeurFactory;
+
 final class ChargeurQuestionTests extends TestCase
 {
 	public function setUp(): void
 	{
 		parent::setUp();
 
-		$mockChargeur = Mockery::mock("progression\\dao\\question\\ChargeurQuestionFichier");
-		$mockChargeur->shouldReceive("récupérer_question")->andReturn([]);
+		$mockChargeurFichier = Mockery::mock("progression\\dao\\question\\ChargeurQuestionFichier");
+		$mockChargeurFichier->shouldReceive("récupérer_fichier")->andReturn([]);
+		$mockChargeurHTTP = Mockery::mock("progression\\dao\\chargeur\\ChargeurRessourceHTTP");
+		$mockChargeurHTTP->shouldReceive("récupérer_fichier")->andReturn([]);
 
 		// ChargeurFactory
-		$mockChargeurFactory = Mockery::mock("progression\\dao\\question\\ChargeurFactory");
-		$mockChargeurFactory->shouldReceive("get_chargeur_question_fichier")->andReturn($mockChargeur);
-		$mockChargeurFactory->shouldReceive("get_chargeur_question_http")->andReturn($mockChargeur);
+		$mockChargeurFactory = Mockery::mock("progression\\dao\\chargeur\\ChargeurFactory");
+		$mockChargeurFactory->shouldReceive("get_chargeur_question_fichier")->andReturn($mockChargeurFichier);
+		$mockChargeurFactory->shouldReceive("get_chargeur_question_http")->andReturn($mockChargeurHTTP);
 
 		ChargeurFactory::set_instance($mockChargeurFactory);
 	}
@@ -47,21 +51,21 @@ final class ChargeurQuestionTests extends TestCase
 
 	public function test_étant_donné_un_uri_de_fichier_lorsquon_charge_la_question_on_obtient_un_tableau_associatif_avec_un_uri_correct()
 	{
-		$résultat_obtenu = (new ChargeurQuestion())->récupérer_question("file://test_de_fichier");
+		$résultat_obtenu = (new ChargeurQuestion())->récupérer_fichier("file://test_de_fichier");
 
 		$this->assertEquals("file://test_de_fichier", $résultat_obtenu["uri"]);
 	}
 
 	public function test_étant_donné_un_uri_https_prog_lorsquon_charge_la_question_on_obtient_un_tableau_associatif_avec_un_uri_correct()
 	{
-		$résultat_obtenu = (new ChargeurQuestion())->récupérer_question("https://test_de_http");
+		$résultat_obtenu = (new ChargeurQuestion())->récupérer_fichier("https://test_de_http");
 
 		$this->assertEquals("https://test_de_http", $résultat_obtenu["uri"]);
 	}
 
 	public function test_étant_donné_un_uri_https_en_majuscules_prog_lorsquon_charge_la_question_on_obtient_un_tableau_associatif_avec_un_uri_correct()
 	{
-		$résultat_obtenu = (new ChargeurQuestion())->récupérer_question("HTTPS://test_de_http");
+		$résultat_obtenu = (new ChargeurQuestion())->récupérer_fichier("HTTPS://test_de_http");
 
 		$this->assertEquals("HTTPS://test_de_http", $résultat_obtenu["uri"]);
 	}
@@ -69,7 +73,7 @@ final class ChargeurQuestionTests extends TestCase
 	public function test_étant_donné_un_uri_invalide_charge_la_question_on_obtient_une_exception()
 	{
 		try {
-			$résultat_obtenu = (new ChargeurQuestion())->récupérer_question("invalide://test_de_http");
+			$résultat_obtenu = (new ChargeurQuestion())->récupérer_fichier("invalide://test_de_http");
 
 			$this->fail();
 		} catch (BadMethodCallException $e) {

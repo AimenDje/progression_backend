@@ -21,7 +21,7 @@ use progression\domaine\entité\question\{Question, QuestionSys, Type};
 use progression\domaine\entité\TestSys;
 use progression\domaine\entité\user\{User, Rôle, État};
 use progression\dao\DAOFactory;
-use progression\dao\question\ChargeurException;
+use progression\dao\chargeur\ChargeurException;
 use progression\UserAuthentifiable;
 
 final class QuestionSysCtlTests extends ContrôleurTestCase

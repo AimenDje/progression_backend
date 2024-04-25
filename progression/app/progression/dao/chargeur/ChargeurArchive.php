@@ -16,15 +16,16 @@
    along with Progression.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace progression\dao\banque;
+namespace progression\dao\chargeur;
 
 use ZipArchive;
-use progression\dao\question\ChargeurException;
 
-
-class ChargeurBanqueArchive extends Chargeur
+class ChargeurArchive extends Chargeur
 {
-	public function récupérer_banque($chemin_archive, $type_archive = false)
+	/**
+	 * @return array<mixed>
+	 */
+	public function récupérer_fichier(string $chemin_archive, string|false $type_archive = false): array
 	{
 		if (!$type_archive) {
 			throw new ChargeurException(
@@ -39,13 +40,13 @@ class ChargeurBanqueArchive extends Chargeur
 		$archiveExtraite = null;
 
 		$nom_unique = uniqid("archive_", true);
-		$destination = sys_get_temp_dir() . "/$nom_unique";
+		$destination = getenv("TEMPDIR") . "/$nom_unique";
 
-		self::extraire_zip($chemin_archive, $destination);
 		try {
+			self::extraire_zip($chemin_archive, $destination);
 			$question = $this->source
-				->get_chargeur_question_fichier()
-				->récupérer_question("file://" . $destination . "/info.yml");
+				->get_chargeur_fichier()
+				->récupérer_fichier("file://" . $destination . "/info.yml");
 		} catch (ChargeurException $e) {
 			throw $e;
 		} finally {
@@ -55,7 +56,7 @@ class ChargeurBanqueArchive extends Chargeur
 		return $question;
 	}
 
-	private function extraire_zip($chemin_archive, $destination)
+	private function extraire_zip(string $chemin_archive, string $destination): void
 	{
 		$zip = new ZipArchive();
 		$res = $zip->open($chemin_archive);
@@ -70,7 +71,7 @@ class ChargeurBanqueArchive extends Chargeur
 		$zip->close();
 	}
 
-	private function supprimer_fichiers($cheminCible)
+	private function supprimer_fichiers(string $cheminCible): void
 	{
 		if (PHP_OS === "Windows") {
 			exec(sprintf("rd /s /q %s", escapeshellarg($cheminCible)));

@@ -228,32 +228,12 @@ INSERT INTO commentaire(tentative_id, message, date, créateur_id, numéro_ligne
 
 INSERT INTO banque(id, nom, url, user_id) VALUES(
   1,
-  "Test banque de questions 1 - fichier yaml invalide",
-  "https://git.dti.crosemont.quebec/Julien_Giguere/progression_questions-test/-/raw/main/QuestionsYAML/contenu.yml",
+  "Test banque de questions 1 - fichier yaml valide",
+  "file://progression/tests/progression/dao/démo/banque_1/contenu.yml",
   2
 ), (
   2,
-  "Test banque de questions 2",
-  "https://git.dti.crosemont.quebec/asarkes/progression_questions-test/-/raw/main/QuestionsYAML/contenu.yml",
-  3
-), (
-  3,
-  "Test banque de questions 3",
-  "https://git.dti.crosemont.quebec/asarkes/progression_questions-test/-/raw/main/QuestionsYAML/contenu.yml",
-  4
-), (
-  4,
-  "Test banque de questions 4",
-  "https://git.dti.crosemont.quebec/asarkes/progression_questions-test/-/raw/main/QuestionsYAML/contenu.yml",
-  4
-), (
-  5,
-  "Test banque de questions 5",
-  "https://git.dti.crosemont.quebec/asarkes/progression_questions-test/-/raw/main/QuestionsYAML/contenu.yml",
-  4
-), (
-  6,
-  "Test banque de questions 6",
-  "https://git.dti.crosemont.quebec/asarkes/progression_questions-test/-/raw/main/QuestionsYAML/contenu.yml",
-  4
+  "Test banque de questions 2 - fichier yaml valide",
+  "file://progression/tests/progression/dao/démo/banque_2/contenu.yml",
+  2
 );

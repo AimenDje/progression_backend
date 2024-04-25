@@ -19,7 +19,7 @@
 namespace progression\domaine\interacteur;
 
 use progression\dao\DAOException;
-use progression\dao\question\ChargeurException;
+use progression\dao\chargeur\ChargeurException;
 use DomainException, LengthException, BadMethodCallException;
 
 class ObtenirQuestionInt extends Interacteur

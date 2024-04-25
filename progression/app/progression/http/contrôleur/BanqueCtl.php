@@ -21,18 +21,20 @@ namespace progression\http\contrôleur;
 use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-use progression\domaine\interacteur\{ObtenirBanquesInt, SauvegarderBanqueInt};
-use progression\http\transformer\dto\BanqueDTO;
-use progression\http\transformer\BanqueTransformer;
-use progression\util\Encodage;
+use Illuminate\Validation\Validator as ValidatorImpl;
+
 use progression\domaine\entité\banque\Banque;
+use progression\domaine\interacteur\{ObtenirBanquesInt, SauvegarderBanqueInt};
+use progression\http\transformer\BanqueTransformer;
+use progression\http\transformer\dto\BanqueDTO;
+use progression\util\Encodage;
 
 class BanqueCtl extends Contrôleur
 {
-    /**
-     * @param string $username
-     */
-    public function get(Request $request, string $username) : JsonResponse
+	/**
+	 * @param string $username
+	 */
+	public function get(Request $request, string $username): JsonResponse
 	{
 		Log::debug("BanquesCtl.get. Params : ", [$request->all(), $username]);
 
@@ -44,7 +46,7 @@ class BanqueCtl extends Contrôleur
 		return $réponse;
 	}
 
-	public function post(Request $request, $username)
+	public function post(Request $request, string $username): JsonResponse
 	{
 		Log::debug("BanqueCtl.post. Params : ", [$request->all(), $username]);
 
@@ -54,25 +56,26 @@ class BanqueCtl extends Contrôleur
 		if ($validateur->fails()) {
 			$réponse = $this->réponse_json(["erreur" => $validateur->errors()], 400);
 		} else {
-            $sauvegarderBanqueInt = new SauvegarderBanqueInt();
-            $banque_retourné = $sauvegarderBanqueInt->sauvegarder($username, $request->banque["nom"], $request->banque["url"]);
+			$sauvegarderBanqueInt = new SauvegarderBanqueInt();
+			$banque_retourné = $sauvegarderBanqueInt->sauvegarder(
+				$username,
+				$request->banque["nom"],
+				$request->banque["url"],
+			);
 
-            $id = array_key_first($banque_retourné);
-            $réponse = $this->valider_et_préparer_réponse(
-                $banque_retourné,
-                $username,
-                );
-        }
+			$id = array_key_first($banque_retourné);
+			$réponse = $this->valider_et_préparer_réponse($banque_retourné, $username);
+		}
 
 		Log::debug("BanqueCtl.post. Retour : ", [$réponse]);
 
 		return $réponse;
 	}
 
-    /**
-     * @return array<Banque>
-     */
-	private function obtenir_banques(string $username) : array
+	/**
+	 * @return array<Banque>
+	 */
+	private function obtenir_banques(string $username): array
 	{
 		Log::debug("BanquesCtl.obtenir_banques. Params : ", [$username]);
 
@@ -84,10 +87,10 @@ class BanqueCtl extends Contrôleur
 		return $banques;
 	}
 
-    /**
-     * @param array<Banque> $banques
-     */    
-	private function valider_et_préparer_réponse(array $banques, string  $username) : JsonResponse
+	/**
+	 * @param array<Banque> $banques
+	 */
+	private function valider_et_préparer_réponse(array $banques, string $username): JsonResponse
 	{
 		Log::debug("BanquesCtl.valider_et_préparer_réponse. Params : ", [$banques]);
 
@@ -96,14 +99,7 @@ class BanqueCtl extends Contrôleur
 		} else {
 			$dtos = [];
 			foreach ($banques as $id => $banque) {
-				array_push(
-					$dtos,
-					new BanqueDTO(
-						id: $id,
-                        objet: $banque,
-						liens: BanqueCtl::get_liens($username),
-					),
-				);
+				array_push($dtos, new BanqueDTO(id: $id, objet: $banque, liens: BanqueCtl::get_liens($username)));
 			}
 			$réponse = $this->collection($dtos, new BanqueTransformer());
 		}
@@ -114,26 +110,26 @@ class BanqueCtl extends Contrôleur
 		return $réponse;
 	}
 
-    /**
+	/**
 	 * @return array<string>
 	 */
 	public static function get_liens(string $username): array
 	{
 		$urlBase = Contrôleur::$urlBase;
 		return [
-			"self" => "{$urlBase}/user/{$username}"
+			"self" => "{$urlBase}/user/{$username}",
 		];
 	}
 
-    private function valider_paramètres($request)
+	private function valider_paramètres(Request $request): ValidatorImpl
 	{
 		$validateur = Validator::make(
 			$request->all(),
 			[
-                "banque" => [
-                    "nom" => "required",
-                    "url" => "required",
-                ],
+				"banque" => [
+					"nom" => "required",
+					"url" => "required",
+				],
 			],
 			[
 				"required" => "Le champ :attribute est obligatoire.",
@@ -141,14 +137,5 @@ class BanqueCtl extends Contrôleur
 		);
 
 		return $validateur;
-	}
-
-    protected function préparer_réponse($réponse, $code = 200)
-	{
-		$request = app(Request::class);
-		
-        Log::info("({$request->ip()}) - {$request->method()} {$request->path()} (" . get_class($this) . ")");
-			return $this->réponse_json($réponse, $code);
-		
 	}
 }

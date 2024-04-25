@@ -20,6 +20,7 @@ namespace progression\dao\question;
 
 use DomainException;
 use progression\TestCase;
+use progression\dao\chargeur\ChargeurException;
 
 final class ChargeurQuestionFichierTests extends TestCase
 {
@@ -64,7 +65,7 @@ final class ChargeurQuestionFichierTests extends TestCase
 
 		$uri = "file://" . __DIR__ . "/démo/boucles/boucle_énumérée/info.yml";
 
-		$résultat_obtenu = (new ChargeurQuestionFichier())->récupérer_question($uri);
+		$résultat_obtenu = (new ChargeurQuestionFichier())->récupérer_fichier($uri);
 
 		$this->assertEquals($résultat_attendu, $résultat_obtenu);
 	}
@@ -74,7 +75,7 @@ final class ChargeurQuestionFichierTests extends TestCase
 		$uri = "file://" . __DIR__ . "/démo/yaml_invalide/info.yml";
 
 		try {
-			$résultat_obtenu = (new ChargeurQuestionFichier())->récupérer_question($uri);
+			$résultat_obtenu = (new ChargeurQuestionFichier())->récupérer_fichier($uri);
 			$this->fail();
 		} catch (ChargeurException $résultat_obtenu) {
 			$this->assertEquals("Le fichier {$uri} est invalide. (err: 1)", $résultat_obtenu->getMessage());
@@ -86,17 +87,19 @@ final class ChargeurQuestionFichierTests extends TestCase
 		$uri = "file://" . __DIR__ . "/démo/question_invalide/info.yml";
 
 		try {
-			$résultat_obtenu = (new ChargeurQuestionFichier())->récupérer_question($uri);
+			$résultat_obtenu = (new ChargeurQuestionFichier())->récupérer_fichier($uri);
 			$this->fail();
 		} catch (ChargeurException $résultat_obtenu) {
 			$this->assertEquals("Le fichier {$uri} est invalide. (err: 1)", $résultat_obtenu->getMessage());
 		}
 	}
 
-	public function test_étant_donné_un_uri_de_fichier_non_existant_lorsquon_charge_la_question_on_obtient_null()
+	public function test_étant_donné_un_uri_de_fichier_non_existant_lorsquon_charge_la_question_on_obtient_une_ChargeurException()
 	{
 		$uri = "file://" . __DIR__ . "/démo/inexistant/info.yml";
 
-		$this->assertNull((new ChargeurQuestionFichier())->récupérer_question($uri));
+		$this->expectException(ChargeurException::class);
+
+		(new ChargeurQuestionFichier())->récupérer_fichier($uri);
 	}
 }

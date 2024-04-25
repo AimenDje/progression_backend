@@ -19,33 +19,46 @@
 namespace progression\dao\banque;
 
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\App;
 use DomainException, RuntimeException;
-use progression\dao\question\ChargeurException;
+use progression\dao\chargeur\{Chargeur, ChargeurException};
 
-
-class ChargeurBanqueFichier extends ChargeurBanque
+class ChargeurBanqueFichier extends Chargeur
 {
-	public function récupérer_banque($uri)
+	/**
+	 * @return array<string>
+	 */
+	public function récupérer_fichier(string $uri): array
 	{
 		$output = null;
 		$err_code = null;
 
-		//Les limites doivent être suffisamment basses pour empêcher les «abus» (inclusion récursive, fichiers volumineux, etc.)
-		exec(
-			"ulimit -s 256 && ulimit -t 3" . escapeshellarg($uri) . " 2>/dev/null",
-			$output,
-			$err_code,
-		);
+		$scheme = parse_url($uri, PHP_URL_SCHEME);
 
-		if ($err_code == ChargeurBanque::ERR_CHARGEMENT) {
-			return null;
+		if ($scheme == "file") {
+			// Pour fins de tests seulement.
+			if (App::environment() != "local") {
+				throw new \Error("ChargeurBanqueFichier : Pour fins de tests seulement.");
+			}
+			$uri = preg_replace("/^file:\/\//", "", $uri);
+			if ($uri == null) {
+				throw new \Error("Erreur ${uri}");
+			}
+
+			$output = file_get_contents($uri);
+		} elseif ($scheme == "http" || $scheme == "https") {
+			$ressource = fopen($uri, "r");
+			if ($ressource === false) {
+				throw new ChargeurException("La ressource {$uri} n'est pas lisible.");
+			}
+			$output = stream_get_contents($ressource);
 		}
 
-		if ($err_code != 0) {
-			throw new ChargeurException("Le fichier {$uri} est invalide. (err: {$err_code})");
+		if ($output === false || $output === null) {
+			throw new ChargeurException("Le fichier {$uri} n'est pas lisible.");
 		}
 
-		$info = yaml_parse(implode("\n", $output));
+		$info = yaml_parse($output);
 		if ($info === false) {
 			throw new RuntimeException("Le fichier {$uri} ne peut pas être décodé. Le format produit est invalide.");
 		}

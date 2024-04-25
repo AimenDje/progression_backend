@@ -25,13 +25,13 @@ class ObtenirBanquesInt extends Interacteur
 {
 	/**
 	 * @param mixed $includes
-     * @return array<Banque>
+	 * @return array<Banque>
 	 * liste de niveaux de sous-objets à inclure; true pour inclure tous les niveaux.
 	 */
-	function get_banques(string $username = null, mixed $includes = []): array
+	function get_banques(string $username, mixed $includes = []): array
 	{
 		$dao = $this->source_dao->get_banque_dao();
-		$banques = $dao->get_tous( $username, $includes);
+		$banques = $dao->get_tous($username, $includes);
 
 		return $banques;
 	}

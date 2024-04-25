@@ -16,20 +16,39 @@
    along with Progression.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace progression\dao\question;
+namespace progression\dao\chargeur;
 
 class Chargeur
 {
 	const ERR_CHARGEMENT = 255;
 
-	protected $source = null;
+	protected ChargeurFactory $source;
 
-	public function __construct($source = null)
+	public function __construct(ChargeurFactory|null $source = null)
 	{
 		if ($source == null) {
 			$this->source = ChargeurFactory::get_instance();
 		} else {
 			$this->source = $source;
 		}
+	}
+
+	/**
+	 * @return array<mixed>
+	 */
+	public function récupérer_fichier(string $uri): array
+	{
+		$scheme = parse_url($uri, PHP_URL_SCHEME);
+
+		if ($scheme == "file") {
+			$chargeur = $this->source->get_chargeur_fichier();
+			$infos_question = $chargeur->récupérer_fichier($uri);
+		} elseif ($scheme == "http" || $scheme == "https") {
+			$infos_question = $this->source->get_chargeur_ressource_http()->récupérer_fichier($uri);
+		} else {
+			throw new \BadMethodCallException("Schéma d'URI invalide");
+		}
+
+		return $infos_question;
 	}
 }

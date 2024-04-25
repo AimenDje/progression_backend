@@ -23,7 +23,7 @@ use \InvalidArgumentException;
 
 final class BanqueTests extends TestCase
 {
-    /*
+	/*
       public function test_étant_donné_une_Banque_instanciée_avec_tous_ses_paramètres_lorsquon_récupère_ses_attributs_on_obtient_des_valeurs_identiques() {
 		/*$id_attendu = 1;
           $nom_attendu = "Test 1";
