@@ -19,7 +19,7 @@ mysql --default-character-set=utf8 -h $DB_HOST -uroot -p$DB_PASSWORD $DB_DATABAS
 # Tests unitaires
 if [ -z "$test_simple" ]
 then
-	$DIR/../vendor/bin/phpunit -d memory_limit=-1 --configuration $DIR/../phpunit.xml || exit 1
+	$DIR/../vendor/bin/phpunit -d memory_limit=-1 --stop-on-failure --stop-on-error --stop-on-incomplete --configuration $DIR/../phpunit.xml || exit 1
 else
 	$DIR/../vendor/bin/phpunit --configuration $DIR/../phpunit.xml --filter "$test_simple" || exit 1
 fi
