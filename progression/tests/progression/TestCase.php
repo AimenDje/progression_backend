@@ -40,6 +40,10 @@ abstract class TestCase extends BaseTestCase
 		Mockery::close();
 
 		//Réinitialise l'environnement
+		if ($this->env === null) {
+			throw new \Error("L'environnement n'a pas été sauvegardé. Avez-vous oublié d'appeler parent::setUp?");
+		}
+
 		foreach ($this->env as $k => $e) {
 			putenv("{$k}={$e}");
 		}
