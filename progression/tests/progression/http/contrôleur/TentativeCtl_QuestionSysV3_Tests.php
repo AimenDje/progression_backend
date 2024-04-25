@@ -23,9 +23,9 @@ use progression\dao\exécuteur\ExécutionException;
 use progression\domaine\entité\{Avancement, TestSys, Exécutable, TentativeSys, Résultat};
 use progression\domaine\entité\question\{Question, QuestionSys};
 use progression\domaine\entité\user\{User, Rôle, État};
+use Carbon\Carbon;
 
 use progression\UserAuthentifiable;
-use Carbon\Carbon;
 
 final class TentativeCtl_QuestionSysV3_Tests extends ContrôleurTestCase
 {
@@ -38,8 +38,6 @@ final class TentativeCtl_QuestionSysV3_Tests extends ContrôleurTestCase
 	public function setUp(): void
 	{
 		parent::setUp();
-
-		Carbon::setTestNow(Carbon::create(2022, 05, 27, 22, 24, 01));
 
 		$this->user = new UserAuthentifiable(
 			username: "jdoe",
@@ -241,7 +239,7 @@ final class TentativeCtl_QuestionSysV3_Tests extends ContrôleurTestCase
 			conteneur_id: "leConteneurDeLaNouvelleTentative",
 			url_terminal: "https://tty.com/abcde",
 			réponse: "Bonne réponse",
-			date_soumission: 1653690241,
+			date_soumission: 990446400,
 			réussi: true,
 			tests_réussis: 1,
 			feedback: "Bon travail!",
@@ -252,7 +250,7 @@ final class TentativeCtl_QuestionSysV3_Tests extends ContrôleurTestCase
 		$mockTentativeDAO
 			->shouldReceive("save")
 			->withArgs(function ($user, $uri, $t) use ($nouvelle_tentative) {
-				if ($t->date_soumission - time() > 1) {
+				if ($t->date_soumission - Carbon::now()->getTimestamp() > 1) {
 					throw "Temps d'exécution >1s {$t->date_soumission}";
 				}
 				$t->date_soumission = $nouvelle_tentative->date_soumission;
@@ -260,7 +258,7 @@ final class TentativeCtl_QuestionSysV3_Tests extends ContrôleurTestCase
 					$uri == "https://depot.com/question_solution_courte_non_réussie" &&
 					$t == $nouvelle_tentative;
 			})
-			->andReturn([1653690241 => $nouvelle_tentative]);
+			->andReturn([990446400 => $nouvelle_tentative]);
 
 		$nouvel_avancement = new Avancement(
 			tentatives: [$this->tentative_solution_courte_non_réussie, $nouvelle_tentative],
@@ -311,7 +309,7 @@ final class TentativeCtl_QuestionSysV3_Tests extends ContrôleurTestCase
 			conteneur_id: "leConteneurDeLaNouvelleTentative",
 			url_terminal: "https://tty.com/abcde",
 			réponse: "Mauvaise réponse",
-			date_soumission: 1653690241,
+			date_soumission: 990446400,
 			réussi: false,
 			tests_réussis: 0,
 			feedback: "Encore un effort!",
@@ -322,7 +320,7 @@ final class TentativeCtl_QuestionSysV3_Tests extends ContrôleurTestCase
 		$mockTentativeDAO
 			->shouldReceive("save")
 			->withArgs(function ($user, $uri, $t) use ($nouvelle_tentative) {
-				if ($t->date_soumission - time() > 1) {
+				if ($t->date_soumission - Carbon::now()->getTimestamp() > 1) {
 					throw "Temps d'exécution >1s {$t->date_soumission}";
 				}
 				$t->date_soumission = $nouvelle_tentative->date_soumission;
@@ -330,7 +328,7 @@ final class TentativeCtl_QuestionSysV3_Tests extends ContrôleurTestCase
 					$uri == "https://depot.com/question_solution_courte_non_réussie" &&
 					$t == $nouvelle_tentative;
 			})
-			->andReturn([1653690241 => $nouvelle_tentative]);
+			->andReturn([990446400 => $nouvelle_tentative]);
 
 		$nouvel_avancement = new Avancement(
 			tentatives: [$this->tentative_solution_courte_non_réussie, $nouvelle_tentative],
@@ -389,7 +387,7 @@ final class TentativeCtl_QuestionSysV3_Tests extends ContrôleurTestCase
 		$nouvelle_tentative = new TentativeSys(
 			conteneur_id: "leConteneurDeLaNouvelleTentative",
 			url_terminal: "https://tty.com/abcde",
-			date_soumission: 1653690241,
+			date_soumission: 990446400,
 			réussi: false,
 			tests_réussis: 0,
 			résultats: [new Résultat()],
@@ -404,7 +402,7 @@ final class TentativeCtl_QuestionSysV3_Tests extends ContrôleurTestCase
 		);
 
 		$mockTentativeDAO = DAOFactory::getInstance()->get_tentative_sys_dao();
-		$mockTentativeDAO->shouldReceive("save")->andReturn([1653690241 => $nouvelle_tentative]);
+		$mockTentativeDAO->shouldReceive("save")->andReturn([990446400 => $nouvelle_tentative]);
 
 		$mockAvancementDAO = DAOFactory::getInstance()->get_avancement_dao();
 		$mockAvancementDAO->shouldReceive("save")->andReturn([

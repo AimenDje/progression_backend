@@ -136,7 +136,7 @@ class TokenCtl extends Contrôleur
 	private function calculer_expiration(string $expiration): int
 	{
 		if ("$expiration"[0] == "+") {
-			return intval(Carbon::now()->timestamp) + intval(substr($expiration, 1));
+			return intval(Carbon::now()->getTimestamp()) + intval(substr($expiration, 1));
 		} else {
 			return intval($expiration);
 		}

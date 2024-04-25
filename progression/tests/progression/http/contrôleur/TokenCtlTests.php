@@ -23,15 +23,12 @@ use progression\dao\DAOFactory;
 use progression\http\contrôleur\GénérateurAléatoire;
 use progression\domaine\entité\user\{User, Rôle, État};
 use progression\UserAuthentifiable;
-use Carbon\Carbon;
 
 final class TokenCtlTests extends ContrôleurTestCase
 {
 	public function setUp(): void
 	{
 		parent::setUp();
-
-		Carbon::setTestNowAndTimezone(Carbon::create(2001, 5, 21, 12));
 
 		$this->user = new UserAuthentifiable(
 			username: "utilisateur_lambda",

@@ -39,6 +39,7 @@ use RuntimeException;
 use DomainException;
 use progression\dao\question\ChargeurException;
 use progression\dao\exécuteur\ExécutionException;
+use Carbon\Carbon;
 
 class RésultatCtl extends Contrôleur
 {
@@ -200,7 +201,7 @@ class RésultatCtl extends Contrôleur
 	 */
 	private function traiter_post_QuestionProg(array $attributs, QuestionProg $question, Test $test): array|null
 	{
-		$tentative = new TentativeProg($attributs["langage"], $attributs["code"], (new \DateTime())->getTimestamp());
+		$tentative = new TentativeProg($attributs["langage"], $attributs["code"], Carbon::now()->getTimestamp());
 
 		$tentative_résultante = $this->soumettre_tentative_prog($question, $tentative, $test);
 
@@ -233,7 +234,7 @@ class RésultatCtl extends Contrôleur
 		}
 
 		$tentative = new TentativeSys(
-			date_soumission: (new \DateTime())->getTimestamp(),
+			date_soumission: Carbon::now()->getTimestamp(),
 			conteneur_id: $dernière_tentative->conteneur_id,
 		);
 

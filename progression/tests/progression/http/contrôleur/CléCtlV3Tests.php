@@ -22,6 +22,7 @@ use progression\dao\DAOFactory;
 use progression\domaine\entité\clé\{Clé, Portée};
 use progression\domaine\entité\user\{User, Rôle, État};
 use progression\UserAuthentifiable;
+use Carbon\Carbon;
 
 final class CléCtlV3Tests extends ContrôleurTestCase
 {
@@ -106,7 +107,7 @@ final class CléCtlV3Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_utilisateur_normal_connecté_lorsquil_requiert_une_clé_dauthentification_avec_expiration_on_obtient_une_clé_avec_un_secret_généré_aléatoirement_avec_expiration()
 	{
-		$expiration = time() + 100;
+		$expiration = Carbon::now()->getTimestamp() + 100;
 		$résultat_observé = $this->actingAs($this->user)->call("POST", "/user/jdoe/cles", [
 			"nom" => "nouvelle_cle",
 			"expiration" => $expiration,
@@ -122,7 +123,7 @@ final class CléCtlV3Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_utilisateur_normal_connecté_lorsquil_requiert_une_clé_dauthentification_avec_expiration_passée_on_obtient_une_erreur_400()
 	{
-		$expiration = time() - 100;
+		$expiration = Carbon::now()->getTimestamp() - 100;
 		$résultat_observé = $this->actingAs($this->user)->call("POST", "/user/jdoe/cles", [
 			"nom" => "nouvelle_cle",
 			"expiration" => $expiration,
@@ -137,7 +138,7 @@ final class CléCtlV3Tests extends ContrôleurTestCase
 
 	public function test_étant_donné_un_utilisateur_normal_connecté_lorsquil_requiert_une_clé_dauthentification_avec_expiration_non_entière_on_obtient_une_erreur_400()
 	{
-		$expiration = time() + 100.5;
+		$expiration = Carbon::now()->getTimestamp() + 100.5;
 		$résultat_observé = $this->actingAs($this->user)->call("POST", "/user/jdoe/cles", [
 			"nom" => "nouvelle_cle",
 			"expiration" => $expiration,

@@ -27,6 +27,7 @@ use progression\http\transformer\SauvegardeTransformer;
 use progression\http\transformer\dto\GénériqueDTO;
 use progression\util\Encodage;
 use progression\domaine\entité\Sauvegarde;
+use Carbon\Carbon;
 
 class SauvegardeCtl extends Contrôleur
 {
@@ -128,7 +129,7 @@ class SauvegardeCtl extends Contrôleur
 	): array {
 		Log::debug("SauvegardeCtl.sauvegarder_sauvegarde. Params : ", [$username, $question_uri, $langage, $attributs]);
 
-		$sauvegarde = new Sauvegarde((new \DateTime())->getTimestamp(), $attributs["code"]);
+		$sauvegarde = new Sauvegarde(Carbon::now()->getTimestamp(), $attributs["code"]);
 		$sauvegardeInt = new EnregistrerSauvegardeInt();
 
 		$chemin = Encodage::base64_decode_url($question_uri);

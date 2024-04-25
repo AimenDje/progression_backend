@@ -56,8 +56,6 @@ final class AuthenticateTests extends TestCase
 			état: État::EN_ATTENTE_DE_VALIDATION,
 		);
 
-		Carbon::setTestNowAndTimezone(Carbon::create(2001, 5, 21, 12));
-
 		// UserDAO
 		$mockUserDAO = Mockery::mock("progression\\dao\\UserDAO");
 		$mockUserDAO
@@ -103,7 +101,7 @@ final class AuthenticateTests extends TestCase
 		$mockCléDAO
 			->shouldReceive("get_clé")
 			->with("bob", "cleValide01")
-			->andReturn(new Clé(null, (new \DateTime())->getTimestamp(), 0, Portée::AUTH));
+			->andReturn(new Clé(null, Carbon::now()->getTimestamp(), 0, Portée::AUTH));
 		$mockCléDAO->shouldReceive("vérifier")->with("bob", "cleValide01", "secret")->andReturn(true);
 		$mockCléDAO->shouldReceive("get_clé")->andReturn(null);
 		$mockCléDAO->shouldReceive("vérifier")->andReturn(false);

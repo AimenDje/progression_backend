@@ -22,19 +22,19 @@ use progression\domaine\entité\clé\{Clé, Portée};
 use progression\dao\DAOFactory;
 use progression\TestCase;
 use Mockery;
+use Carbon\Carbon;
 
 final class GénérerCléAuthentificationIntTests extends TestCase
 {
 	public function setUp(): void
 	{
 		parent::setUp();
+
 		$mockCléDAO = Mockery::mock("progression\\dao\\CléDAO");
 		$mockCléDAO
 			->allows("get_clé")
 			->with("jdoe", "clé existante")
-			->andReturn(
-				new Clé(null, (new \DateTime())->getTimestamp(), (new \DateTime())->getTimestamp() + 1, Portée::AUTH),
-			);
+			->andReturn(new Clé(null, Carbon::now()->getTimestamp(), Carbon::now()->getTimestamp() + 1, Portée::AUTH));
 		$mockCléDAO->allows("get_clé")->andReturn(null);
 
 		$mockDAOFactory = Mockery::mock("progression\\dao\\DAOFactory");
@@ -46,7 +46,7 @@ final class GénérerCléAuthentificationIntTests extends TestCase
 	{
 		$mockCléDAO = DAOFactory::getInstance()->get_clé_dao();
 
-		$clé_test = new Clé("", new \DateTime(), 0, Portée::AUTH);
+		$clé_test = new Clé("", Carbon::now()->getTimestamp(), 0, Portée::AUTH);
 
 		$mockCléDAO
 			->shouldReceive("save")

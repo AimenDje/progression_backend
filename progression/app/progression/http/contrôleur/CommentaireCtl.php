@@ -27,6 +27,7 @@ use progression\domaine\interacteur\{SauvegarderCommentaireInt, IntéracteurExce
 use progression\http\transformer\CommentaireTransformer;
 use progression\http\transformer\dto\GénériqueDTO;
 use progression\util\Encodage;
+use Carbon\Carbon;
 
 class CommentaireCtl extends Contrôleur
 {
@@ -58,7 +59,7 @@ class CommentaireCtl extends Contrôleur
 						new Commentaire(
 							$request->message,
 							$user,
-							(new \DateTime())->getTimestamp(),
+							Carbon::now()->getTimestamp(),
 							$request->numéro_ligne,
 						),
 					);

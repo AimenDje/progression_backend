@@ -21,6 +21,7 @@ namespace progression;
 use Laravel\Lumen\Testing\TestCase as BaseTestCase;
 use progression\dao\DAOFactory;
 use Mockery;
+use Carbon\Carbon;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -29,6 +30,8 @@ abstract class TestCase extends BaseTestCase
 	public function setUp(): void
 	{
 		parent::setUp();
+
+		Carbon::setTestNow(Carbon::create(2001, 5, 21, 12));
 
 		//Sauvegarde de l'environnement
 		$this->env = getenv(null);
@@ -43,6 +46,8 @@ abstract class TestCase extends BaseTestCase
 		foreach ($this->env as $k => $e) {
 			putenv("{$k}={$e}");
 		}
+
+		Carbon::setTestNow();
 
 		parent::tearDown();
 	}
