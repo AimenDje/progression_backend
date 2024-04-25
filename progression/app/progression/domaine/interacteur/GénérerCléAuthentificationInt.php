@@ -19,6 +19,7 @@
 namespace progression\domaine\interacteur;
 
 use progression\domaine\entité\clé\{Clé, Portée};
+use Carbon\Carbon;
 
 class GénérerCléAuthentificationInt extends Interacteur
 {
@@ -41,7 +42,7 @@ class GénérerCléAuthentificationInt extends Interacteur
 		}
 
 		$secret = bin2hex(random_bytes(20));
-		$clé = new Clé($secret, time(), $expiration, Portée::AUTH);
+		$clé = new Clé($secret, Carbon::now()->getTimestamp(), $expiration, Portée::AUTH);
 
 		return $dao->save($username, $nom, $clé);
 	}

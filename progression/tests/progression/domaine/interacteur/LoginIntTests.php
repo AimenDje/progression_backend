@@ -24,6 +24,7 @@ use progression\domaine\entité\user\User;
 use progression\TestCase;
 use Illuminate\Support\Facades\Config;
 use Mockery;
+use Carbon\Carbon;
 
 final class LoginIntTests extends TestCase
 {
@@ -56,23 +57,18 @@ final class LoginIntTests extends TestCase
 		$mockCléDAO
 			->shouldReceive("get_clé")
 			->with("bob", "clé valide")
-			->andReturn(new Clé("secret", (new \DateTime())->getTimestamp(), 0, Portée::AUTH));
+			->andReturn(new Clé("secret", Carbon::now()->getTimestamp(), 0, Portée::AUTH));
 		$mockCléDAO->shouldReceive("vérifier")->with("bob", "clé valide", "secret")->andReturn(true);
 		$mockCléDAO
 			->shouldReceive("get_clé")
 			->with("bob", "cle_expiree")
 			->andReturn(
-				new Clé(
-					"secret",
-					(new \DateTime())->getTimestamp() - 2,
-					(new \DateTime())->getTimestamp() - 1,
-					Portée::AUTH,
-				),
+				new Clé("secret", Carbon::now()->getTimestamp() - 2, Carbon::now()->getTimestamp() - 1, Portée::AUTH),
 			);
 		$mockCléDAO
 			->shouldReceive("get_clé")
 			->with("bob", "clé révoquée")
-			->andReturn(new Clé("secret", (new \DateTime())->getTimestamp(), 0, Portée::RÉVOQUÉE));
+			->andReturn(new Clé("secret", Carbon::now()->getTimestamp(), 0, Portée::RÉVOQUÉE));
 		$mockCléDAO->shouldReceive("get_clé")->with("bob", "clé inexistante")->andReturn(null);
 		$mockCléDAO->shouldReceive("vérifier")->andReturn(false);
 

@@ -18,6 +18,8 @@
 
 namespace progression\domaine\entité\clé;
 
+use Carbon\Carbon;
+
 class Clé
 {
 	public $secret;
@@ -35,8 +37,8 @@ class Clé
 
 	public function est_valide()
 	{
-		return $this->création <= (new \DateTime())->getTimestamp() &&
-			($this->expiration == 0 || $this->expiration > (new \DateTime())->getTimestamp()) &&
+		return $this->création <= Carbon::now()->getTimestamp() &&
+			($this->expiration == 0 || $this->expiration > Carbon::now()->getTimestamp()) &&
 			$this->portée != Portée::RÉVOQUÉE;
 	}
 }

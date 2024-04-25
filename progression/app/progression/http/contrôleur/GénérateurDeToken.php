@@ -57,7 +57,7 @@ class GénérateurDeToken
 	): string {
 		$payload = [
 			"username" => $username,
-			"current" => Carbon::now()->timestamp,
+			"current" => Carbon::now()->getTimestamp(),
 			"expired" => $expiration,
 			"data" => $data,
 			"ressources" => $ressources,

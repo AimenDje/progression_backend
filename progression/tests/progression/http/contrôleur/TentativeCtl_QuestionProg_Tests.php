@@ -24,9 +24,9 @@ use progression\dao\exécuteur\ExécutionException;
 use progression\domaine\entité\question\QuestionProg;
 use progression\domaine\entité\{Avancement, TestProg, Exécutable, TentativeProg, Commentaire, Résultat};
 use progression\domaine\entité\user\{User, Rôle, État};
+use Carbon\Carbon;
 
 use progression\UserAuthentifiable;
-use Carbon\Carbon;
 
 final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 {
@@ -39,8 +39,6 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 	public function setUp(): void
 	{
 		parent::setUp();
-
-		Carbon::setTestNow(Carbon::create(2022, 05, 27, 22, 24, 01));
 
 		$this->user = new UserAuthentifiable(
 			username: "jdoe",
@@ -402,7 +400,7 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 		$nouvelle_tentative = new TentativeProg(
 			langage: "réussi",
 			code: "#+TODO\nprint(\"Hello world!\")",
-			date_soumission: 1653690241,
+			date_soumission: 990446400,
 			réussi: true,
 			tests_réussis: 2,
 			temps_exécution: 551,
@@ -437,13 +435,13 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 			->shouldReceive("save")
 			->once()
 			->withArgs(function ($user, $uri, $t) use ($nouvelle_tentative) {
-				if ($t->date_soumission - time() > 1) {
+				if ($t->date_soumission - Carbon::now()->getTimestamp() > 1) {
 					throw "Temps d'exécution >1s {$t->date_soumission}";
 				}
 				$t->date_soumission = $nouvelle_tentative->date_soumission;
 				return $user == "jdoe" && $uri == "https://depot.com/nouvelle_question" && $t == $nouvelle_tentative;
 			})
-			->andReturn([1653690241 => $nouvelle_tentative]);
+			->andReturn([990446400 => $nouvelle_tentative]);
 
 		$résultat_obtenu = $this->actingAs($this->user)->json_api(
 			"POST",
@@ -471,7 +469,7 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 		$nouvelle_tentative = new TentativeProg(
 			langage: "réussi",
 			code: "#+TODO\nprint(\"Hello world!\")",
-			date_soumission: 1653690241,
+			date_soumission: 990446400,
 			réussi: true,
 			tests_réussis: 2,
 			temps_exécution: 551,
@@ -506,13 +504,13 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 			->shouldReceive("save")
 			->once()
 			->withArgs(function ($user, $uri, $t) use ($nouvelle_tentative) {
-				if ($t->date_soumission - time() > 1) {
+				if ($t->date_soumission - Carbon::now()->getTimestamp() > 1) {
 					throw "Temps d'exécution >1s {$t->date_soumission}";
 				}
 				$t->date_soumission = $nouvelle_tentative->date_soumission;
 				return $user == "jdoe" && $uri == "https://depot.com/question_réussie" && $t == $nouvelle_tentative;
 			})
-			->andReturn([1653690241 => $nouvelle_tentative]);
+			->andReturn([990446400 => $nouvelle_tentative]);
 
 		$résultat_obtenu = $this->actingAs($this->user)->json_api(
 			"POST",
@@ -540,7 +538,7 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 		$nouvelle_tentative = new TentativeProg(
 			langage: "réussi",
 			code: "#+TODO\nprint(\"Hello world!\")",
-			date_soumission: 1653690241,
+			date_soumission: 990446400,
 			réussi: true,
 			tests_réussis: 2,
 			temps_exécution: 551,
@@ -574,13 +572,13 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 		$mockTentativeDAO
 			->shouldReceive("save")
 			->withArgs(function ($user, $uri, $t) use ($nouvelle_tentative) {
-				if ($t->date_soumission - time() > 1) {
+				if ($t->date_soumission - Carbon::now()->getTimestamp() > 1) {
 					throw "Temps d'exécution >1s {$t->date_soumission}";
 				}
 				$t->date_soumission = $nouvelle_tentative->date_soumission;
 				return $user == "jdoe" && $uri == "https://depot.com/question_non_réussie" && $t == $nouvelle_tentative;
 			})
-			->andReturn([1653690241 => $nouvelle_tentative]);
+			->andReturn([990446400 => $nouvelle_tentative]);
 
 		$résultat_obtenu = $this->actingAs($this->user)->json_api(
 			"POST",
@@ -608,7 +606,7 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 		$nouvelle_tentative = new TentativeProg(
 			langage: "non_réussi",
 			code: "#+TODO\nprint(\"Hello world!\")",
-			date_soumission: 1653690241,
+			date_soumission: 990446400,
 			réussi: false,
 			tests_réussis: 0,
 			temps_exécution: 440,
@@ -642,13 +640,13 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 		$mockTentativeDAO
 			->shouldReceive("save")
 			->withArgs(function ($user, $uri, $t) use ($nouvelle_tentative) {
-				if ($t->date_soumission - time() > 1) {
+				if ($t->date_soumission - Carbon::now()->getTimestamp() > 1) {
 					throw "Temps d'exécution >1s {$t->date_soumission}";
 				}
 				$t->date_soumission = $nouvelle_tentative->date_soumission;
 				return $user == "jdoe" && $uri == "https://depot.com/question_non_réussie" && $t == $nouvelle_tentative;
 			})
-			->andReturn([1653690241 => $nouvelle_tentative]);
+			->andReturn([990446400 => $nouvelle_tentative]);
 
 		$résultat_obtenu = $this->actingAs($this->user)->json_api(
 			"POST",
@@ -676,7 +674,7 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 		$nouvelle_tentative = new TentativeProg(
 			langage: "erreur",
 			code: "#+TODO\nprint(\"Hello world!\")",
-			date_soumission: 1653690241,
+			date_soumission: 990446400,
 			réussi: false,
 			tests_réussis: 0,
 			temps_exécution: 440,
@@ -710,13 +708,13 @@ final class TentativeCtl_QuestionProg_Tests extends ContrôleurTestCase
 		$mockTentativeDAO
 			->shouldReceive("save")
 			->withArgs(function ($user, $uri, $t) use ($nouvelle_tentative) {
-				if ($t->date_soumission - time() > 1) {
+				if ($t->date_soumission - Carbon::now()->getTimestamp() > 1) {
 					throw "Temps d'exécution >1s {$t->date_soumission}";
 				}
 				$t->date_soumission = $nouvelle_tentative->date_soumission;
 				return $user == "jdoe" && $uri == "https://depot.com/question_non_réussie" && $t == $nouvelle_tentative;
 			})
-			->andReturn([1653690241 => $nouvelle_tentative]);
+			->andReturn([990446400 => $nouvelle_tentative]);
 
 		$résultat_obtenu = $this->actingAs($this->user)->json_api(
 			"POST",

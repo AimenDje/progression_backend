@@ -25,6 +25,7 @@ use progression\domaine\entité\user\{User, État, Rôle};
 use progression\domaine\entité\clé\{Clé, Portée};
 use progression\UserAuthentifiable;
 use Firebase\JWT\JWT;
+use Carbon\Carbon;
 
 final class AuthServiceProviderTests extends TestCase
 {
@@ -210,7 +211,7 @@ final class AuthServiceProviderTests extends TestCase
 		$mockCléDAO
 			->shouldReceive("get_clé")
 			->with("utilisateur_actif_normal", "cleValide01")
-			->andReturn(new Clé(null, (new \DateTime())->getTimestamp(), 0, Portée::AUTH));
+			->andReturn(new Clé(null, Carbon::now()->getTimestamp(), 0, Portée::AUTH));
 		$mockCléDAO
 			->shouldReceive("vérifier")
 			->with("utilisateur_actif_normal", "cleValide01", "secret")
@@ -243,7 +244,8 @@ final class AuthServiceProviderTests extends TestCase
 
 	public function test_étant_donné_un_token_pour_un_utilisateur_existant_lorsque_le_token_expire_dans_1_seconde_on_obtient_un_code_200()
 	{
-		$expiration = time() + 1;
+		$expiration = Carbon::now()->getTimestamp() + 1;
+
 		$tokenUtilisateurActifNormal = GénérateurDeToken::get_instance()->générer_token(
 			"utilisateur_actif_normal",
 			$expiration,
@@ -282,7 +284,7 @@ final class AuthServiceProviderTests extends TestCase
 
 	public function test_étant_donné_un_token_pour_un_utilisateur_existant_lorsque_la_date_dexpiration_est_échue_depuis_1_seconde_on_obtient_une_erreur_401()
 	{
-		$expiration = time() - 1;
+		$expiration = Carbon::now()->getTimestamp() - 1;
 		$tokenUtilisateurActifNormal = GénérateurDeToken::get_instance()->générer_token(
 			"utilisateur_actif_normal",
 			$expiration,
@@ -498,7 +500,7 @@ final class AuthServiceProviderTests extends TestCase
 	{
 		$tokenUtilisateurActifNormal = GénérateurDeToken::get_instance()->générer_token(
 			"utilisateur_actif_normal",
-			time() - 1,
+			Carbon::now()->getTimestamp() - 1,
 		);
 		$ressources = [
 			"test" => ["url" => "^user/autre_utilisateur$", "method" => "get"],
@@ -524,7 +526,7 @@ final class AuthServiceProviderTests extends TestCase
 		];
 		$tokenRessource = GénérateurDeToken::get_instance()->générer_token(
 			"autre_utilisateur",
-			time() - 1,
+			Carbon::now()->getTimestamp() - 1,
 			$ressources,
 		);
 
@@ -549,7 +551,7 @@ final class AuthServiceProviderTests extends TestCase
 		];
 		$payload = [
 			"username" => "utilisateur_actif_normal",
-			"current" => time(),
+			"current" => Carbon::now()->getTimestamp(),
 			"expired" => 0,
 			"ressources" => $ressources,
 			"version" => 1,
@@ -577,7 +579,7 @@ final class AuthServiceProviderTests extends TestCase
 		];
 		$tokenRessource = GénérateurDeToken::get_instance()->générer_token(
 			"autre_utilisateur",
-			time() - 1,
+			Carbon::now()->getTimestamp() - 1,
 			$ressources,
 		);
 
@@ -602,7 +604,7 @@ final class AuthServiceProviderTests extends TestCase
 		];
 		$payload = [
 			"username" => "autre_utilisateur",
-			"current" => time(),
+			"current" => Carbon::now()->getTimestamp(),
 			"expired" => 0,
 			"ressources" => $ressources,
 			"version" => 1,

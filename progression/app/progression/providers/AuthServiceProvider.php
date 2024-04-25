@@ -30,6 +30,7 @@ use Firebase\JWT\JWT;
 use Firebase\JWT\SignatureInvalidException;
 use UnexpectedValueException;
 use DomainException;
+use Carbon\Carbon;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -327,7 +328,7 @@ class AuthServiceProvider extends ServiceProvider
 
 	private function vérifierExpirationToken($token)
 	{
-		return time() < $token["expired"] || $token["expired"] === 0;
+		return Carbon::now()->getTimestamp() < $token["expired"] || $token["expired"] === 0;
 	}
 
 	private function vérifierRessourceAutorisée($ressources, $request)

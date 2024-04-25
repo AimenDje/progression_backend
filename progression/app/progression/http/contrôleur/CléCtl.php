@@ -25,6 +25,7 @@ use Illuminate\Support\MessageBag;
 use progression\domaine\interacteur\{ObtenirCléInt, GénérerCléAuthentificationInt};
 use progression\http\transformer\CléTransformer;
 use progression\http\transformer\dto\GénériqueDTO;
+use Carbon\Carbon;
 
 class CléCtl extends Contrôleur
 {
@@ -131,7 +132,7 @@ class CléCtl extends Contrôleur
 					"numeric",
 					"integer",
 					function ($attribute, $value, $fail) {
-						if ($value > 0 && $value < time()) {
+						if ($value > 0 && $value < Carbon::now()->getTimestamp()) {
 							$fail("Expiration ne peut être dans le passé.");
 						}
 					},

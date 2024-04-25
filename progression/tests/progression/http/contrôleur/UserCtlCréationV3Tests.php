@@ -22,7 +22,6 @@ use Illuminate\Support\Facades\Config;
 use progression\domaine\entité\user\{User, État, Rôle};
 use progression\dao\DAOFactory;
 use progression\UserAuthentifiable;
-use Carbon\Carbon;
 
 final class UserCréationCtlV3Tests extends ContrôleurTestCase
 {
@@ -132,8 +131,6 @@ final class UserCréationCtlV3Tests extends ContrôleurTestCase
 		Config::set("authentification.ldap", false);
 		Config::set("préférences.défaut", "{préférences par défaut}");
 
-		Carbon::setTestNow(Carbon::create(2021, 01, 16, 15, 23, 32));
-
 		$mockUserDAO = DAOFactory::getInstance()->get_user_dao();
 		$mockUserDAO
 			->shouldReceive("save")
@@ -229,8 +226,6 @@ final class UserCréationCtlV3Tests extends ContrôleurTestCase
 		Config::set("authentification.local", true);
 		Config::set("préférences.défaut", "{préférences par défaut}");
 
-		Carbon::setTestNow(Carbon::create(2021, 01, 16, 15, 23, 32));
-
 		$mockUserDAO = DAOFactory::getInstance()->get_user_dao();
 		$mockUserDAO->shouldReceive("trouver")->with(Mockery::any(), "marcel2@gmail.com")->andReturn(null);
 		$mockUserDAO
@@ -267,8 +262,6 @@ final class UserCréationCtlV3Tests extends ContrôleurTestCase
 	public function test_étant_donné_un_utilisateur_inexistant_avec_authentification_lorsquon_linscrit_sans_username_il_n_est_pas_sauvegardé_et_on_obtient_une_erreur_400()
 	{
 		Config::set("authentification.local", true);
-
-		Carbon::setTestNow(Carbon::create(2021, 01, 16, 15, 23, 32));
 
 		$mockUserDAO = DAOFactory::getInstance()->get_user_dao();
 		$mockUserDAO->shouldNotReceive("save");

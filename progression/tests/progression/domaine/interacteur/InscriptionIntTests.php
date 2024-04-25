@@ -22,7 +22,6 @@ use Illuminate\Support\Facades\Config;
 use progression\dao\DAOFactory;
 use progression\domaine\entité\user\{User, État, Rôle};
 use progression\TestCase;
-use Carbon\Carbon;
 use Mockery;
 
 final class InscriptionIntTests extends TestCase
@@ -54,8 +53,6 @@ final class InscriptionIntTests extends TestCase
 	{
 		Config::set("authentification.local", true);
 		Config::set("authentification.ldap", true);
-
-		Carbon::setTestNow(Carbon::create(2001, 5, 21, 12));
 
 		$roger = new User(
 			username: "roger",
@@ -113,8 +110,6 @@ final class InscriptionIntTests extends TestCase
 		Config::set("authentification.local", false);
 		Config::set("authentification.ldap", false);
 
-		Carbon::setTestNow(Carbon::create(2001, 5, 21, 12));
-
 		$mockUserDao = DAOFactory::getInstance()->get_user_dao();
 		$mockUserDao
 			->shouldReceive("get_user")
@@ -155,8 +150,6 @@ final class InscriptionIntTests extends TestCase
 		Config::set("authentification.local", true);
 		Config::set("authentification.ldap", false);
 		Config::set("mail.mailer", "no");
-
-		Carbon::setTestNow(Carbon::create(2001, 5, 21, 12));
 
 		$mockUserDao = DAOFactory::getInstance()->get_user_dao();
 		$mockUserDao
@@ -351,8 +344,6 @@ final class InscriptionIntTests extends TestCase
 		Config::set("authentification.local", true);
 		Config::set("authentification.ldap", false);
 		Config::set("préférences.défaut", "préférences par défaut");
-
-		Carbon::setTestNow(Carbon::create(2001, 5, 21, 12));
 
 		$mockUserDao = DAOFactory::getInstance()->get_user_dao();
 		$mockUserDao
