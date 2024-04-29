@@ -46,7 +46,7 @@ class QuestionCtl extends Contrôleur
 	/**
 	 * @return array<string>
 	 */
-	public function get_liens(string $question_uri, User|null $user = null): array
+	public static function get_liens(string $question_uri, User|null $user = null): array
 	{
 		$urlBase = Contrôleur::$urlBase;
 
