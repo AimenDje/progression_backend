@@ -65,7 +65,7 @@ class ConfigCtl extends Contrôleur
 	/**
 	 * @return array<string>
 	 */
-	public function get_liens(User|false $user): array
+	public static function get_liens(User|false $user): array
 	{
 		$urlBase = Contrôleur::$urlBase;
 
