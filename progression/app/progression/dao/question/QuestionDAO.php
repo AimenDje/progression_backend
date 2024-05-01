@@ -28,11 +28,14 @@ class QuestionDAO extends EntitéDAO
 	public function get_question($uri)
 	{
 		$scheme = parse_url($uri, PHP_URL_SCHEME);
+		$extension = pathinfo($uri, PATHINFO_EXTENSION);
 
 		if ($scheme == "file") {
 			$infos_question = ChargeurFactory::get_instance()
 				->get_chargeur_question_fichier()
 				->récupérer_question($uri);
+		} elseif ($extension == "git") {
+			$infos_question = ChargeurFactory::get_instance()->get_chargeur_question_git()->récupérer_question($uri);
 		} elseif ($scheme == "https") {
 			$infos_question = ChargeurFactory::get_instance()->get_chargeur_question_http()->récupérer_question($uri);
 		} else {
