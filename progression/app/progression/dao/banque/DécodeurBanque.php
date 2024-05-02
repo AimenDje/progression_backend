@@ -16,24 +16,20 @@
   along with Progression.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-namespace progression\domaine\interacteur;
+namespace progression\dao\banque;
 
-use progression\dao\DAOException;
-use progression\dao\chargeur\ChargeurException;
-use DomainException, LengthException, BadMethodCallException;
+use progression\domaine\entité\banque\Banque;
 
-class ObtenirQuestionInt extends Interacteur
+class DécodeurBanque
 {
-	function get_question($question_id)
+	/**
+	 * @param array<mixed> $infos_banque
+	 */
+	public static function load(Banque $banque, array $infos_banque): Banque
 	{
-		try {
-			return $this->source_dao->get_question_dao()->get_question($question_id);
-		} catch (BadMethodCallException $e) {
-			throw new ParamètreInvalideException($e);
-		} catch (DAOException $e) {
-			throw new IntéracteurException($e, 502);
-		} catch (LengthException | DomainException | ChargeurException $e) {
-			throw new RessourceInvalideException($e);
-		}
+		$banque->nom = $infos_banque["nom"] ?? null;
+		$banque->url = $infos_banque["url"] ?? null;
+
+		return $banque;
 	}
 }

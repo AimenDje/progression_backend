@@ -16,44 +16,39 @@
    along with Progression.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace progression\dao;
+namespace progression\dao\chargeur;
 
-class EntitéDAO
+class Chargeur
 {
-	protected $source = null;
+	const ERR_CHARGEMENT = 255;
 
-	public function __construct($source = null)
+	protected ChargeurFactory $source;
+
+	public function __construct(ChargeurFactory|null $source = null)
 	{
 		if ($source == null) {
-			$this->source = DAOFactory::getInstance();
+			$this->source = ChargeurFactory::get_instance();
 		} else {
 			$this->source = $source;
 		}
 	}
 
-	public static function filtrer_niveaux(mixed $includes, string $niveau): mixed
-	{
-		$sous_includes = [];
-
-		foreach ($includes as $include) {
-			if ($include != $niveau) {
-				$sous_includes[] = str_starts_with($include, $niveau . ".")
-					? substr($include, strlen($niveau) + 1)
-					: $include;
-			}
-		}
-
-		return $sous_includes;
-	}
-
 	/**
-	 * @param array<mixed> $array
+	 * @return array<mixed>
 	 */
-	public static function premier_élément(array $array): mixed
+	public function récupérer_fichier(string $uri): array
 	{
-		if (count($array) == 0) {
-			return null;
+		$scheme = parse_url($uri, PHP_URL_SCHEME);
+
+		if ($scheme == "file") {
+			$chargeur = $this->source->get_chargeur_fichier();
+			$infos_question = $chargeur->récupérer_fichier($uri);
+		} elseif ($scheme == "http" || $scheme == "https") {
+			$infos_question = $this->source->get_chargeur_ressource_http()->récupérer_fichier($uri);
+		} else {
+			throw new \BadMethodCallException("Schéma d'URI invalide");
 		}
-		return array_values($array)[0];
+
+		return $infos_question;
 	}
 }

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo Création du répertoire temporaire $TEMPDIR
+mkdir -p $TEMPDIR
+
 # Test unique nommé en paramètre
 test_simple="$1"
 DIR=$(dirname "${BASH_SOURCE[0]}")

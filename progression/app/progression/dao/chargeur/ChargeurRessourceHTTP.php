@@ -16,26 +16,36 @@
    along with Progression.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace progression\dao\question;
+namespace progression\dao\chargeur;
 
 use progression\dao\DAOException;
+use progression\dao\chargeur\ChargeurException;
 use RuntimeException;
 
-class ChargeurQuestionHTTP extends Chargeur
+class ChargeurRessourceHTTP extends Chargeur
 {
-	public function récupérer_question($uri)
+	/**
+	 * @return array<mixed>
+	 */
+	public function récupérer_fichier(string $uri): array
 	{
 		$entêtes = array_change_key_case($this->source->get_chargeur_http()->get_entêtes($uri));
 
 		$code = self::get_entête($entêtes, "0");
-		if (!self::vérifier_code_http($code)) {
+
+		if ($code === null || !self::vérifier_code_http($code)) {
 			throw new DAOException("Impossible de récupérer les entêtes");
 		}
 
 		$taille = self::get_entête($entêtes, "content-length");
-		self::vérifier_taille($taille);
+		self::vérifier_taille(intval($taille));
 
 		$content_type = self::get_entête($entêtes, "content-type");
+
+		if ($content_type === null) {
+			throw new ChargeurException("Impossible de charger le fichier de type inconnu.");
+		}
+
 		self::vérifier_type($content_type);
 
 		if (str_starts_with($content_type, "application")) {
@@ -43,13 +53,21 @@ class ChargeurQuestionHTTP extends Chargeur
 				self::get_entête($entêtes, "content-type"),
 				self::get_entête($entêtes, "content-disposition"),
 			);
+			if ($type_archive === false) {
+				throw new ChargeurException("Impossible de charger le fichier de type inconnu.");
+			}
 			return self::extraire_archive($uri, $type_archive);
 		} elseif (str_starts_with($content_type, "text")) {
-			return $this->source->get_chargeur_question_fichier()->récupérer_question($uri);
+			return $this->source->get_chargeur_fichier()->récupérer_fichier($uri);
+		} else {
+			throw new ChargeurException("Impossible de charger le fichier de type ${content_type}");
 		}
 	}
 
-	private function get_entête($entêtes, $clé)
+	/**
+	 * @param array<mixed> $entêtes
+	 */
+	private function get_entête(array $entêtes, string $clé): string|null
 	{
 		if ($entêtes == null) {
 			return null;
@@ -77,7 +95,7 @@ class ChargeurQuestionHTTP extends Chargeur
 		return explode(" ", $code)[1] == "200";
 	}
 
-	private function vérifier_taille($taille)
+	private function vérifier_taille(int $taille): void
 	{
 		$taille_max = config("limites.taille_question");
 
@@ -90,37 +108,46 @@ class ChargeurQuestionHTTP extends Chargeur
 		}
 	}
 
-	private function vérifier_type($type)
+	private function vérifier_type(string $type): void
 	{
 		if (!preg_match("/(application|text)\/.*/", $type)) {
 			throw new ChargeurException("Impossible de charger le fichier de type $type");
 		}
 	}
 
-	private function extraire_archive($uri, $type_archive)
+	/**
+	 * @return array<mixed>
+	 */
+	private function extraire_archive(string $uri, string $type_archive): array
 	{
 		$chemin_fichier = self::télécharger_fichier($uri);
+
+		if ($chemin_fichier === false) {
+			throw new ChargeurException("Impossible de charger le fichier archive $uri");
+		}
+
 		try {
-			$question = $this->source
-				->get_chargeur_question_archive()
-				->récupérer_question($chemin_fichier, $type_archive);
+			$ressource = $this->source->get_chargeur_archive()->récupérer_fichier($chemin_fichier, $type_archive);
 		} catch (ChargeurException $e) {
 			throw $e;
 		} finally {
 			unlink($chemin_fichier);
 		}
 
-		return $question;
+		return $ressource;
 	}
 
-	private function déterminer_type_archive($content_type, $content_disposition)
+	private function déterminer_type_archive(string|null $content_type, string|null $content_disposition): string|false
 	{
-		return self::déterminer_type_par_mime($content_type) ||
+		return self::déterminer_type_par_mime($content_type) ?:
 			self::déterminer_type_par_extension($content_disposition);
 	}
 
-	private function déterminer_type_par_mime($content_type)
+	private function déterminer_type_par_mime(string|null $content_type): string|false
 	{
+		if ($content_type === null) {
+			return false;
+		}
 		preg_match("/application\/(x-)*(.*)(-compressed)*/", $content_type, $résultats);
 		if (array_key_exists(2, $résultats)) {
 			switch ($résultats[2]) {
@@ -137,8 +164,11 @@ class ChargeurQuestionHTTP extends Chargeur
 		return false;
 	}
 
-	private function déterminer_type_par_extension($content_disposition)
+	private function déterminer_type_par_extension(string|null $content_disposition): string|false
 	{
+		if ($content_disposition === null) {
+			return false;
+		}
 		preg_match('/filename=\".+\.(.*)\"/i', $content_disposition, $résultats);
 		if (!array_key_exists(1, $résultats)) {
 			return false;
@@ -152,16 +182,12 @@ class ChargeurQuestionHTTP extends Chargeur
 		}
 	}
 
-	private function télécharger_fichier($uri)
+	private function télécharger_fichier(string $uri): string|false
 	{
 		$nomUnique = uniqid("archive_", true);
 		$chemin = sys_get_temp_dir() . "/$nomUnique.arc";
 
 		$contenu = $this->source->get_chargeur_http()->get_url($uri);
-
-		if ($contenu === false) {
-			throw new ChargeurException("Impossible de charger le fichier archive $uri");
-		}
 
 		if (file_put_contents($chemin, $contenu)) {
 			return $chemin;

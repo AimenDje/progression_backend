@@ -16,20 +16,21 @@
    along with Progression.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace progression\dao\question;
+namespace progression\dao\models;
 
-class Chargeur
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+
+class BanqueMdl extends Model
 {
-	const ERR_CHARGEMENT = 255;
+	protected $table = "banque";
+	public $timestamps = false;
 
-	protected $source = null;
+	protected $guarded = [];
 
-	public function __construct($source = null)
+	public function user(): HasOne
 	{
-		if ($source == null) {
-			$this->source = ChargeurFactory::get_instance();
-		} else {
-			$this->source = $source;
-		}
+		return $this->hasOne(UserMdl::class, "id", "user_id");
 	}
 }
+?>

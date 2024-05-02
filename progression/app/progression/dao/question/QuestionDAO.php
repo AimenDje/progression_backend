@@ -21,30 +21,14 @@ namespace progression\dao\question;
 use DomainException;
 use BadMethodCallException;
 use progression\dao\EntitéDAO;
+use progression\dao\chargeur\ChargeurFactory;
 use progression\domaine\entité\question\{QuestionProg, QuestionSys};
 
 class QuestionDAO extends EntitéDAO
 {
 	public function get_question($uri)
 	{
-		$scheme = parse_url($uri, PHP_URL_SCHEME);
-		$extension = pathinfo($uri, PATHINFO_EXTENSION);
-
-		if ($scheme == "file") {
-			$infos_question = ChargeurFactory::get_instance()
-				->get_chargeur_question_fichier()
-				->récupérer_question($uri);
-		} elseif ($extension == "git") {
-			$infos_question = ChargeurFactory::get_instance()->get_chargeur_question_git()->récupérer_question($uri);
-		} elseif ($scheme == "https") {
-			$infos_question = ChargeurFactory::get_instance()->get_chargeur_question_http()->récupérer_question($uri);
-		} else {
-			throw new BadMethodCallException("Schéma d'URI invalide");
-		}
-
-		if ($infos_question === null) {
-			return null;
-		}
+		$infos_question = ChargeurFactory::get_instance()->get_chargeur()->récupérer_fichier($uri);
 
 		$type = $infos_question["type"] ?? ($type = "prog");
 		if ($type == "prog") {

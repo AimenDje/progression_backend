@@ -16,24 +16,14 @@
   along with Progression.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-namespace progression\domaine\interacteur;
+namespace progression\http\transformer\dto;
 
-use progression\dao\DAOException;
-use progression\dao\chargeur\ChargeurException;
-use DomainException, LengthException, BadMethodCallException;
+use progression\http\contrôleur\BanqueCtl;
 
-class ObtenirQuestionInt extends Interacteur
+class BanqueDTO extends GénériqueDTO
 {
-	function get_question($question_id)
+	public function __construct(mixed $id, mixed $objet, array $liens)
 	{
-		try {
-			return $this->source_dao->get_question_dao()->get_question($question_id);
-		} catch (BadMethodCallException $e) {
-			throw new ParamètreInvalideException($e);
-		} catch (DAOException $e) {
-			throw new IntéracteurException($e, 502);
-		} catch (LengthException | DomainException | ChargeurException $e) {
-			throw new RessourceInvalideException($e);
-		}
+		parent::__construct($id, $objet, $liens);
 	}
 }

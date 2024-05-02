@@ -4,6 +4,7 @@ DELETE FROM avancement;
 DELETE FROM sauvegarde;
 DELETE FROM cle;
 DELETE FROM user;
+DELETE FROM banque;
 
 INSERT INTO user(id, courriel, username, password, etat, role, date_inscription) VALUES (
   1,
@@ -223,4 +224,16 @@ INSERT INTO commentaire(tentative_id, message, date, créateur_id, numéro_ligne
   1615696279,
   4,
   14
+);
+
+INSERT INTO banque(id, nom, url, user_id) VALUES(
+  1,
+  "Test banque de questions 1 - fichier yaml valide",
+  "file://progression/tests/progression/dao/démo/banque_1/contenu.yml",
+  2
+), (
+  2,
+  "Test banque de questions 2 - fichier yaml valide",
+  "file://progression/tests/progression/dao/démo/banque_2/contenu.yml",
+  2
 );

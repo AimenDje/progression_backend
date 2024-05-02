@@ -22,7 +22,7 @@ use progression\domaine\entité\question\{Question, QuestionProg, Type};
 use progression\domaine\entité\{Exécutable, TestProg};
 use progression\domaine\entité\user\{User, Rôle, État};
 use progression\dao\DAOFactory;
-use progression\dao\question\ChargeurException;
+use progression\dao\chargeur\ChargeurException;
 use progression\UserAuthentifiable;
 
 final class QuestionProgCtlTests extends ContrôleurTestCase

@@ -16,9 +16,32 @@
    along with Progression.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace progression\dao\question;
-use Exception;
+namespace progression\http\transformer;
 
-class ChargeurException extends Exception
+use Illuminate\Http\{JsonResponse, Request};
+use progression\domaine\entité\banque\Banque;
+use progression\http\transformer\dto\BanqueDTO;
+
+class BanqueTransformer extends BaseTransformer
 {
+	public string $type = "banque";
+
+	/**
+	 * @return array<string, mixed>
+	 */
+	public function transform(BanqueDTO $data_in): array
+	{
+		$id = $data_in->id;
+		$banque = $data_in->objet;
+		$liens = $data_in->liens;
+
+		$data_out = [
+			"id" => $id,
+			"nom" => $banque->nom,
+			"url" => $banque->url,
+			"questions" => $banque->questions,
+			"links" => $liens,
+		];
+		return $data_out;
+	}
 }
