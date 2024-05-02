@@ -20,10 +20,16 @@ namespace progression\dao\question;
 
 use progression\dao\DAOException;
 use RuntimeException;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
-class ChargeurQuestionHTTP extends Chargeur
+class ChargeurQuestionHTTP extends ChargeurQuestion
 {
-	public function récupérer_question($uri)
+	/**
+	 * @param string $uri
+	 * @return array<mixed>
+	 */
+	public function récupérer_question(string $uri): array
 	{
 		$entêtes = array_change_key_case($this->source->get_chargeur_http()->get_entêtes($uri));
 
@@ -38,6 +44,10 @@ class ChargeurQuestionHTTP extends Chargeur
 		$content_type = self::get_entête($entêtes, "content-type");
 		self::vérifier_type($content_type);
 
+		Log::debug("voici l'entêtes de la requête HTTP: " . json_encode($entêtes));
+		$etag = isset($entêtes["etag"]) ? trim($entêtes["etag"], '"') : null;
+		Log::debug("ETag actuel: {$etag}");
+
 		if (str_starts_with($content_type, "application")) {
 			$type_archive = self::déterminer_type_archive(
 				self::get_entête($entêtes, "content-type"),
@@ -45,8 +55,39 @@ class ChargeurQuestionHTTP extends Chargeur
 			);
 			return self::extraire_archive($uri, $type_archive);
 		} elseif (str_starts_with($content_type, "text")) {
-			return $this->source->get_chargeur_question_fichier()->récupérer_question($uri);
+			$contenu_question = $this->source->get_chargeur_question_fichier()->récupérer_question($uri);
+			Log::debug("Mise en cache de la question HTTP");
+			$donnéesÀMettreEnCache = [
+				"contenu" => $contenu_question,
+				"cléModification" => $etag,
+			];
+
+			$cléCache = md5($uri);
+			Cache::put($cléCache, $donnéesÀMettreEnCache);
+
+			return $contenu_question;
+		} else {
+			throw new ChargeurException("La récuperation de la question a echouée");
 		}
+	}
+
+	/**
+	 * @param string $uri
+	 * @param string $cle
+	 * @return bool
+	 */
+	public function est_modifié(string $uri, $cle): bool
+	{
+		$remote_ETag = $this->get_ETag($uri);
+		$cache_ETag = $cle;
+		return $cache_ETag !== $remote_ETag;
+	}
+
+	private function get_ETag(string $uri): string
+	{
+		$entêtes = array_change_key_case($this->source->get_chargeur_http()->get_entêtes($uri));
+		$etag = isset($entêtes["etag"]) ? trim($entêtes["etag"], '"') : "";
+		return $etag;
 	}
 
 	private function get_entête($entêtes, $clé)

@@ -58,4 +58,9 @@ class ChargeurFactory
 	{
 		return new ChargeurQuestionHTTP($this);
 	}
+
+	function get_chargeur_question_git(): ChargeurQuestionGit
+	{
+		return new ChargeurQuestionGit($this);
+	}
 }

@@ -551,16 +551,6 @@ parameters:
 			path: app/progression/dao/question/ChargeurHTTP.php
 
 		-
-			message: "#^Method progression\\\\dao\\\\question\\\\ChargeurQuestion\\:\\:récupérer_question\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: app/progression/dao/question/ChargeurQuestion.php
-
-		-
-			message: "#^Method progression\\\\dao\\\\question\\\\ChargeurQuestion\\:\\:récupérer_question\\(\\) has parameter \\$uri with no type specified\\.$#"
-			count: 1
-			path: app/progression/dao/question/ChargeurQuestion.php
-
-		-
 			message: "#^Method progression\\\\dao\\\\question\\\\ChargeurQuestionArchive\\:\\:extraire_zip\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: app/progression/dao/question/ChargeurQuestionArchive.php
@@ -672,16 +662,6 @@ parameters:
 
 		-
 			message: "#^Method progression\\\\dao\\\\question\\\\ChargeurQuestionHTTP\\:\\:get_entête\\(\\) has parameter \\$entêtes with no type specified\\.$#"
-			count: 1
-			path: app/progression/dao/question/ChargeurQuestionHTTP.php
-
-		-
-			message: "#^Method progression\\\\dao\\\\question\\\\ChargeurQuestionHTTP\\:\\:récupérer_question\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: app/progression/dao/question/ChargeurQuestionHTTP.php
-
-		-
-			message: "#^Method progression\\\\dao\\\\question\\\\ChargeurQuestionHTTP\\:\\:récupérer_question\\(\\) has parameter \\$uri with no type specified\\.$#"
 			count: 1
 			path: app/progression/dao/question/ChargeurQuestionHTTP.php
 
