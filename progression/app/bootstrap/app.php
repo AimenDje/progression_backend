@@ -112,6 +112,7 @@ $app->middleware([progression\http\middleware\Cors::class]);
 
 // $app->register(App\Providers\AppServiceProvider::class);
 $app->register(progression\providers\AuthServiceProvider::class);
+$app->register(progression\providers\GitServiceProvider::class);
 $app->register(Illuminate\Redis\RedisServiceProvider::class);
 $app->register(Illuminate\Mail\MailServiceProvider::class);
 

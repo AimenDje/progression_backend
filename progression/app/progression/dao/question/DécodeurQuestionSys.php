@@ -30,7 +30,9 @@ class DécodeurQuestionSys extends DécodeurQuestion
 
 		$question = self::load_infos_sys($question, $infos_question);
 
-		$question->tests = self::load_tests($infos_question);
+		if (array_key_exists("tests", $infos_question)) {
+			$question->tests = self::load_tests($infos_question);
+		}
 
 		return $question;
 	}
@@ -39,7 +41,7 @@ class DécodeurQuestionSys extends DécodeurQuestion
 	{
 		$question->utilisateur = $infos_question["utilisateur"] ?? null;
 		$question->image = $infos_question["image"];
-		$question->solution = $infos_question["solution"] ?? null;
+		$question->solution = $infos_question["réponse"] ?? null;
 		$question->init = $infos_question["init"] ?? null;
 		$question->commande = $infos_question["commande"] ?? null;
 

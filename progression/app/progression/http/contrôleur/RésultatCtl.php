@@ -51,7 +51,7 @@ class RésultatCtl extends Contrôleur
 		Log::debug("RésultatCtl.post. Params : ", [$attributs]);
 
 		$chemin = Encodage::base64_decode_url($uri);
-		$question = $this->récupérer_question($chemin);
+		$question = $this->récupérer_fichier($chemin);
 
 		$validation = null;
 		if ($question instanceof QuestionProg) {
@@ -140,7 +140,7 @@ class RésultatCtl extends Contrôleur
 		return $validateur->errors();
 	}
 
-	private function récupérer_question(string $chemin): Question|null
+	private function récupérer_fichier(string $chemin): Question|null
 	{
 		return (new ObtenirQuestionInt())->get_question($chemin);
 	}

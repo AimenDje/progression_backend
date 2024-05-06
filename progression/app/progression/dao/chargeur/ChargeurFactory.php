@@ -95,9 +95,9 @@ class ChargeurFactory
 		return $this->chargeur_archive;
 	}
 
-	function get_chargeur_question_git(): ChargeurQuestionGit
+	function get_chargeur_question_git(): ChargeurRessourceGit
 	{
-		return new ChargeurQuestionGit($this);
+		return new ChargeurRessourceGit($this);
 	}
 
 	function set_chargeur_fichier(Chargeur $chargeur): void

@@ -20,6 +20,7 @@ namespace progression\dao\question;
 
 use RuntimeException;
 use progression\dao\chargeur\{Chargeur, ChargeurException};
+use Illuminate\Support\Facades\File;
 
 class ChargeurQuestionFichier extends Chargeur
 {
@@ -31,6 +32,14 @@ class ChargeurQuestionFichier extends Chargeur
 		$output = null;
 		$err_code = null;
 
+		$composantes_url = parse_url($uri);
+
+		if (str_ends_with($composantes_url["path"], "/")) {
+			$composantes_url["path"] .= "info.yml";
+		}
+
+		$uri = $this->unparse_url($composantes_url);
+
 		//Les limites doivent être suffisamment basses pour empêcher les «abus» (inclusion récursive, fichiers volumineux, etc.)
 		exec(
 			"ulimit -s 256 && ulimit -t 3 && python3 -m progression_qc " . escapeshellarg($uri) . " 2>/dev/null",
@@ -38,19 +47,43 @@ class ChargeurQuestionFichier extends Chargeur
 			$err_code,
 		);
 
-		if ($err_code == Chargeur::ERR_CHARGEMENT) {
-			throw new ChargeurException("Le fichier {$uri} ne peut pas être chargé. (err: {$err_code})");
-		}
-
 		if ($err_code != 0) {
-			throw new ChargeurException("Le fichier {$uri} est invalide. (err: {$err_code})");
+			throw new ChargeurException("Le fichier n'existe pas ou est invalide. (err: {$err_code})");
 		}
 
 		$info = yaml_parse(implode("\n", $output));
 		if ($info === false) {
-			throw new RuntimeException("Le fichier {$uri} ne peut pas être décodé. Le format produit est invalide.");
+			throw new RuntimeException("Le fichier ne peut pas être décodé. Le format produit est invalide.");
 		}
 
 		return $info;
+	}
+
+	public function id_modif(string $uri): string|false
+	{
+		return false;
+	}
+
+	private function unparse_url($parsed_url)
+	{
+		$scheme = isset($parsed_url["scheme"]) ? $parsed_url["scheme"] . "://" : "";
+
+		$host = isset($parsed_url["host"]) ? $parsed_url["host"] : "";
+
+		$port = isset($parsed_url["port"]) ? ":" . $parsed_url["port"] : "";
+
+		$user = isset($parsed_url["user"]) ? $parsed_url["user"] : "";
+
+		$pass = isset($parsed_url["pass"]) ? ":" . $parsed_url["pass"] : "";
+
+		$pass = $user || $pass ? "$pass@" : "";
+
+		$path = isset($parsed_url["path"]) ? $parsed_url["path"] : "";
+
+		$query = isset($parsed_url["query"]) ? "?" . $parsed_url["query"] : "";
+
+		$fragment = isset($parsed_url["fragment"]) ? "#" . $parsed_url["fragment"] : "";
+
+		return "$scheme$user$pass$host$port$path$query$fragment";
 	}
 }

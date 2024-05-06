@@ -19,6 +19,7 @@
 namespace progression\dao\chargeur;
 
 use ZipArchive;
+use Spatie\TemporaryDirectory\TemporaryDirectory;
 
 class ChargeurArchive extends Chargeur
 {
@@ -39,18 +40,18 @@ class ChargeurArchive extends Chargeur
 
 		$archiveExtraite = null;
 
-		$nom_unique = uniqid("archive_", true);
-		$destination = getenv("TEMPDIR") . "/$nom_unique";
+		$répertoire_temporaire = (new TemporaryDirectory(getenv("TEMPDIR") ?: sys_get_temp_dir()))
+			->deleteWhenDestroyed()
+			->create();
 
+		$destination = $répertoire_temporaire->path("/");
+
+		self::extraire_zip($chemin_archive, $destination);
 		try {
 			self::extraire_zip($chemin_archive, $destination);
-			$question = $this->source
-				->get_chargeur_fichier()
-				->récupérer_fichier("file://" . $destination . "/info.yml");
+			$question = $this->source->get_chargeur_question_fichier()->récupérer_fichier("file://" . $destination);
 		} catch (ChargeurException $e) {
 			throw $e;
-		} finally {
-			self::supprimer_fichiers($destination);
 		}
 
 		return $question;
@@ -69,14 +70,5 @@ class ChargeurArchive extends Chargeur
 		}
 
 		$zip->close();
-	}
-
-	private function supprimer_fichiers(string $cheminCible): void
-	{
-		if (PHP_OS === "Windows") {
-			exec(sprintf("rd /s /q %s", escapeshellarg($cheminCible)));
-		} else {
-			exec(sprintf("rm -rf %s", escapeshellarg($cheminCible)));
-		}
 	}
 }

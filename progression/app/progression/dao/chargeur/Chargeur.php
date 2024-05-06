@@ -39,16 +39,19 @@ class Chargeur
 	public function récupérer_fichier(string $uri): array
 	{
 		$scheme = parse_url($uri, PHP_URL_SCHEME);
+		$path = parse_url($uri, PHP_URL_PATH);
+		$extension = pathinfo($path ?: "", PATHINFO_EXTENSION);
 
 		if ($scheme == "file") {
 			$chargeur = $this->source->get_chargeur_fichier();
-			$infos_question = $chargeur->récupérer_fichier($uri);
-		} elseif ($scheme == "http" || $scheme == "https") {
-			$infos_question = $this->source->get_chargeur_ressource_http()->récupérer_fichier($uri);
+		} elseif ($extension == "git") {
+			$chargeur = $this->source->get_chargeur_ressource_git();
+		} elseif ($scheme == "https") {
+			$chargeur = $this->source->get_chargeur_ressource_http();
 		} else {
-			throw new \BadMethodCallException("Schéma d'URI invalide");
+			throw new BadMethodCallException("Schéma d'URI invalide");
 		}
 
-		return $infos_question;
+		return $chargeur->récupérer_fichier($uri);
 	}
 }

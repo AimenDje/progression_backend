@@ -26,6 +26,7 @@ use Spatie\TemporaryDirectory\TemporaryDirectory;
 class ChargeurRessourceHTTP extends Chargeur
 {
 	/**
+	 * @param string $uri
 	 * @return array<mixed>
 	 */
 	public function récupérer_fichier(string $uri): array
@@ -65,10 +66,14 @@ class ChargeurRessourceHTTP extends Chargeur
 		}
 	}
 
-	/**
-	 * @param array<mixed> $entêtes
-	 */
-	private function get_entête(array $entêtes, string $clé): string|null
+	public function id_modif(string $uri): string
+	{
+		$entêtes = array_change_key_case($this->source->get_chargeur_http()->get_entêtes($uri));
+		$etag = isset($entêtes["etag"]) ? trim($entêtes["etag"], '"') : "";
+		return $etag;
+	}
+
+	private function get_entête($entêtes, $clé)
 	{
 		if ($entêtes == null) {
 			return null;

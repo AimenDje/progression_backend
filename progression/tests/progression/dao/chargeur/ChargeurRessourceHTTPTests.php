@@ -31,13 +31,13 @@ final class ChargeurRessourceHTTPTests extends TestCase
 	{
 		parent::setUp();
 
-		$this->contenu_tmp = scandir("/tmp/tests/");
+		$this->contenu_tmp = scandir(getenv("TEMPDIR"));
 	}
 
 	public function tearDown(): void
 	{
 		// Le contenu du répertoire /tmp/tests/ n'a pas changé
-		$this->assertEquals($this->contenu_tmp, scandir("/tmp/tests/"));
+		$this->assertEquals($this->contenu_tmp, scandir(getenv("TEMPDIR")));
 
 		parent::tearDown();
 	}

@@ -341,7 +341,7 @@ class AuthServiceProvider extends ServiceProvider
 					strlen($ressource["url"]) > 0 &&
 					array_key_exists("method", $ressource) &&
 					strlen($ressource["method"]) > 0 &&
-					preg_match("#" . $ressource["url"] . "#", $request->path()) &&
+					preg_match("#" . $ressource["url"] . "#", $request->path("/")) &&
 					preg_match("#" . $ressource["method"] . "#i", $request->method())
 				) {
 					return true;

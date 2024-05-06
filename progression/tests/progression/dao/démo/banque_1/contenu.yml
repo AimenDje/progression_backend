@@ -1,4 +1,4 @@
 - nom: Test banque de questions 1 - fichier yaml valide
-  url: file://progression/tests/progression/dao/démo/banque_1/question_1.yml
+  url: file:///var/www/progression/tests/progression/dao/démo/banque_1/question_1.yml
 - nom: Test banque de questions 2 - fichier yaml valide
-  url: file://progression/tests/progression/dao/démo/banque_1/question_2.yml  
+  url: file:///var/www/progression/tests/progression/dao/démo/banque_1/question_2.yml  

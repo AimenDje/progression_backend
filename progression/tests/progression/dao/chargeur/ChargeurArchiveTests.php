@@ -97,7 +97,7 @@ final class ChargeurArchiveTests extends TestCase
 			],
 		];
 
-		$uri = __DIR__ . "/démo/boucle_énumérée.zip";
+		$uri = __DIR__ . "/../question/démo/boucle_énumérée.zip";
 
 		$résultat_obtenu = (new ChargeurArchive())->récupérer_fichier($uri, "zip");
 
@@ -133,7 +133,7 @@ final class ChargeurArchiveTests extends TestCase
 
 	public function test_étant_donné_un_uri_de_fichier_zip_invalide_lorsquon_charge_la_question_on_obtient_une_ChargeurException_ER_NOZIP()
 	{
-		$uri = __DIR__ . "/démo/invalide.zip";
+		$uri = __DIR__ . "/../question/démo/invalide.zip";
 
 		try {
 			$résultat_obtenu = (new ChargeurArchive())->récupérer_fichier($uri, "zip");

@@ -38,7 +38,7 @@ class QuestionSys extends Question
 		string|null $image = null,
 		$utilisateur = null,
 		string $init = null,
-		$solution = null,
+		string $solution = null,
 		$tests = [],
 		string $description = null,
 		string|null $commande = null,

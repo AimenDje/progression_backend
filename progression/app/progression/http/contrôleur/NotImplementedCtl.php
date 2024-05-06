@@ -25,7 +25,7 @@ class NotImplementedCtl extends Contrôleur
 {
 	public function get(Request $request, $relation = null)
 	{
-		Log::warning("({$request->ip()}) - {$request->method()} {$request->path()} (" . __CLASS__ . ")");
+		Log::warning("({$request->ip()}) - {$request->method()} {$request->path("/")} (" . __CLASS__ . ")");
 		return $this->réponse_json(["message" => "Non implémenté"], 501);
 	}
 }

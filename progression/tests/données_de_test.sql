@@ -229,11 +229,11 @@ INSERT INTO commentaire(tentative_id, message, date, créateur_id, numéro_ligne
 INSERT INTO banque(id, nom, url, user_id) VALUES(
   1,
   "Test banque de questions 1 - fichier yaml valide",
-  "file://progression/tests/progression/dao/démo/banque_1/contenu.yml",
+  "file:///var/www/progression/tests/progression/dao/démo/banque_1/contenu.yml",
   2
 ), (
   2,
   "Test banque de questions 2 - fichier yaml valide",
-  "file://progression/tests/progression/dao/démo/banque_2/contenu.yml",
+  "file:///var/www/progression/tests/progression/dao/démo/banque_2/contenu.yml",
   2
 );

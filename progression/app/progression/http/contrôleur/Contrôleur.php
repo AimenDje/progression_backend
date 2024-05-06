@@ -118,10 +118,10 @@ class Contrôleur extends BaseController
 	{
 		$request = app(Request::class);
 		if ($réponse === null) {
-			Log::warning("({$request->ip()}) - {$request->method()} {$request->path()} (" . get_class($this) . ")");
+			Log::warning("({$request->ip()}) - {$request->method()} {$request->path("/")} (" . get_class($this) . ")");
 			return $this->réponse_json(["erreur" => "Ressource non trouvée."], 404);
 		} else {
-			Log::info("({$request->ip()}) - {$request->method()} {$request->path()} (" . get_class($this) . ")");
+			Log::info("({$request->ip()}) - {$request->method()} {$request->path("/")} (" . get_class($this) . ")");
 			return $this->réponse_json($réponse, $code);
 		}
 	}

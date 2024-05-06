@@ -1,0 +1,21 @@
+type: sys
+
+niveau: débutant
+titre: Toutes les permissions
+
+objectif: Exercice simple sur les changements de permissions.
+
+énoncé: Appliquez les commandes nécessaires au changement des permissions pour le fichier bonjour.txt. Le fichier doit être public pour tous.
+
+image: http://liendelimage.com:3000
+
+utilisateur: matt
+
+rétroactions:
+  positive: Bravo! tu es un pro des permissions
+  négative: "Pour tout savoir sur les permissions : [clique ici](http://unlien.com)"
+
+réponse: "34"
+
+auteur: Ginette 
+licence: libre

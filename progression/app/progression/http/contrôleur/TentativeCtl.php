@@ -75,7 +75,7 @@ class TentativeCtl extends Contrôleur
 
 		$chemin = Encodage::base64_decode_url($question_uri);
 
-		$question = $this->récupérer_question($chemin);
+		$question = $this->récupérer_fichier($chemin);
 
 		if ($question instanceof Question) {
 			if ($question instanceof QuestionProg) {
@@ -239,7 +239,7 @@ class TentativeCtl extends Contrôleur
 		return $validateur->errors();
 	}
 
-	private function récupérer_question($chemin)
+	private function récupérer_fichier($chemin)
 	{
 		$questionInt = new ObtenirQuestionInt();
 
