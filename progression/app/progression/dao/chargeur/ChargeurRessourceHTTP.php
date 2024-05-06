@@ -121,19 +121,15 @@ class ChargeurRessourceHTTP extends Chargeur
 	 */
 	private function extraire_archive(string $uri, string $type_archive): array
 	{
-		$chemin_fichier = self::télécharger_fichier($uri);
+		$répertoire_temporaire = self::télécharger_fichier($uri);
 
-		if ($chemin_fichier === false) {
+		if ($répertoire_temporaire === false) {
 			throw new ChargeurException("Impossible de charger le fichier archive $uri");
 		}
 
-		try {
-			$ressource = $this->source->get_chargeur_archive()->récupérer_fichier($chemin_fichier, $type_archive);
-		} catch (ChargeurException $e) {
-			throw $e;
-		} finally {
-			unlink($chemin_fichier);
-		}
+		$ressource = $this->source
+			->get_chargeur_archive()
+			->récupérer_fichier($répertoire_temporaire->path("archive.arc"), $type_archive);
 
 		return $ressource;
 	}

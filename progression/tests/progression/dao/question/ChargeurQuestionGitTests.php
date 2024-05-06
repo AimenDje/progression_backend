@@ -21,146 +21,84 @@ namespace progression\dao\question;
 use progression\TestCase;
 use Mockery;
 use RuntimeException;
+use progression\dao\chargeur\ChargeurException;
 
 final class ChargeurQuestionGitTests extends TestCase
 {
 	private $contenu_tmp;
+	private $répertoire_temporaire = null;
 
 	public function setUp(): void
 	{
 		parent::setUp();
+		$this->contenu_tmp = scandir(getenv("TEMPDIR"));
 
-		$this->contenu_tmp = scandir("/tmp");
+		$mockAdmin = Mockery::mock("alias:Gitonomy\Git\Admin");
+
+		// Simule un dépôt invalide
+		$mockAdmin
+			->shouldReceive("cloneTo")
+			->with(Mockery::Any(), "https://mondépôt_inexistant.git", false)
+			->andThrow(new RuntimeException());
+
+		// Simule le clonage d'un dépôt sans question
+		$mockAdmin
+			->shouldReceive("cloneTo")
+			->withArgs(function ($dir, $url, $bare) {
+				return $url == "https://git.com/mondépôt_sans_question.git" && !$bare;
+			})
+			->andReturn(true);
+
+		// Simule le clonage d'une question valide
+		$mockAdmin
+			->shouldReceive("cloneTo")
+			->withArgs(function ($dir, $url, $bare) {
+				if ($url == "https://git.com/mondépôt_valide.git" && !$bare) {
+					file_put_contents($dir . "/info.yml", ["type: sys\n", "image: ubuntu\n", "réponse: test\n"]);
+					return true;
+				} else {
+					return false;
+				}
+			})
+			->andReturn(true);
 	}
 
-	public function test_étant_donné_un_dépôt_git_avec_un_fichier_info_yml_inexistant_losrquon_cherche_info_yml_on_obtient_une_runtime_exception()
+	public function tearDown(): void
 	{
-		$mockFacadeFile = Mockery::mock("alias:Illuminate\Support\Facades\File");
-		$mockFacadeFile->shouldReceive("exists")->with("/tmp/gitExemple/info.yml")->andReturn(false);
-		try {
-			(new ChargeurQuestionGit())->chercher_info("/tmp/gitExemple");
-			$this->fail();
-		} catch (RuntimeException $e) {
-			$this->assertEquals("Fichier info.yml inexistant dans le dépôt.", $e->getMessage());
-		}
+		// Le contenu du répertoire /tmp n'a pas changé
+		$this->assertEquals($this->contenu_tmp, scandir(getenv("TEMPDIR")));
+
+		parent::tearDown();
 	}
 
-	public function test_étant_donné_un_dépôt_git_avec_un_fichier_info_yml_existant_losrquon_cherche_info_yml_on_obtient_le_chemin_du_fichier()
+	public function test_étant_donné_un_dépôt_git_avec_un_fichier_info_yml_inexistant_losrquon_cherche_info_yml_on_obtient_une_chargeur_exception()
 	{
-		$cheminAttendue = "/tmp/gitExemple/info.yml";
-		$mockFacadeFile = Mockery::mock("alias:Illuminate\Support\Facades\File");
-		$mockFacadeFile->shouldReceive("exists")->with("/tmp/gitExemple/info.yml")->andReturn(true);
-		$this->assertEquals($cheminAttendue, (new ChargeurQuestionGit())->chercher_info("/tmp/gitExemple"));
+		$this->expectException(ChargeurException::class);
+		$this->expectExceptionMessage("Fichier info.yml inexistant dans le dépôt.");
+
+		(new ChargeurQuestionGit())->récupérer_fichier("https://git.com/mondépôt_sans_question.git");
 	}
 
 	public function test_étant_donné_un_lien_public_dun_dépôt_git_lorsquon_récupère_le_lien_on_obtient_le_contenu_de_la_question()
 	{
-		$résultatAttendu = [];
+		$résultat_attendu = [
+			"type" => "sys",
+			"image" => "ubuntu",
+			"réponse" => "test",
+		];
 
-		$mockChargeurQuestionGit = Mockery::mock("progression\\dao\\question\\ChargeurQuestionGit");
-
-		$mockFacadeFile = Mockery::mock("alias:Illuminate\Support\Facades\File");
-		$mockFacadeFile->shouldReceive("deleteDirectory")->andReturn(true);
-		$mockFacadeFile->shouldReceive("isDirectory")->andReturn(true);
-		$mockFacadeFile->shouldReceive("exists")->andReturn(true);
-
-		$mockAdmin = Mockery::mock("alias:Gitonomy\Git\Admin");
-		$mockAdmin->shouldReceive("cloneTo")->andReturn();
-
-		$mockChargeurQuestionGit->shouldReceive("chercher_info")->andReturn("");
-
-		$mockChargeurFichier = Mockery::mock("progression\\dao\\question\\ChargeurQuestionFichier");
-		$mockChargeurFichier->shouldReceive("récupérer_question")->andReturn($résultatAttendu);
-		$mockChargeurFactory = Mockery::mock("progression\\dao\\question\\ChargeurFactory");
-		$mockChargeurFactory->shouldReceive("get_chargeur_question_fichier")->andReturn($mockChargeurFichier);
-
-		$ChargeurQuestionGit = new ChargeurQuestionGit($mockChargeurFactory);
-		$résultatObtenue = $ChargeurQuestionGit->récupérer_question("");
-		$this->assertEquals($résultatAttendu, $résultatObtenue);
+		$ChargeurQuestionGit = new ChargeurQuestionGit();
+		$résultat_obtenu = $ChargeurQuestionGit->récupérer_fichier("https://git.com/mondépôt_valide.git");
+		$this->assertEquals($résultat_attendu, $résultat_obtenu);
 	}
 
 	public function test_étant_donné_un_dépôt_git_inexistant_losrquon_essaie_de_cloner_on_obtient_une_chargeur_exception()
 	{
-		$mockFacadeFile = Mockery::mock("alias:Illuminate\Support\Facades\File");
-		$mockFacadeFile->shouldReceive("isDirectory")->with("/tmp")->andReturn(true);
-		$repTemporaire = "/tmp/git_repo_" . uniqid();
-		mkdir($repTemporaire);
-		$uriDépôt = "https://legitexistepas.git";
+		$this->expectException(ChargeurException::class);
+		$this->expectExceptionMessage(
+			"Le clonage du dépôt git a échoué! Ce dépôt est peut-être privé ou n'existe pas.",
+		);
 
-		$mockAdmin = Mockery::mock("alias:Gitonomy\Git\Admin");
-		$mockAdmin->shouldReceive("cloneTo")->with($repTemporaire, $uriDépôt, false);
-
-		$chargeurQuestionGit = new ChargeurQuestionGit();
-		$reflection = new \ReflectionClass(get_class($chargeurQuestionGit));
-		$methode = $reflection->getMethod("cloner_dépôt");
-		$methode->setAccessible(true);
-
-		try {
-			$methode->invokeArgs($chargeurQuestionGit, [$uriDépôt]);
-			$this->fail();
-		} catch (ChargeurException $e) {
-			rmdir($repTemporaire);
-			$this->assertEquals(
-				"Le clonage du dépôt git a échoué! Ce dépôt est peut-être privé ou n'existe pas.",
-				$e->getMessage(),
-			);
-		}
-	}
-
-	public function test_étant_donné_un_répertoire_temporaire_inexistant_losrquon_vérifie_si_il_existe_on_obtient_une_chargeur_exception()
-	{
-		$mockFacadeFile = Mockery::mock("alias:Illuminate\Support\Facades\File");
-		$mockFacadeFile->shouldReceive("isDirectory")->with("/tmp")->andReturn(false);
-
-		$uriDépôt = "https://legitexistepas.git";
-
-		$chargeurQuestionGit = new ChargeurQuestionGit();
-		$reflection = new \ReflectionClass(get_class($chargeurQuestionGit));
-		$methode = $reflection->getMethod("cloner_dépôt");
-		$methode->setAccessible(true);
-
-		try {
-			$methode->invokeArgs($chargeurQuestionGit, [$uriDépôt]);
-			$this->fail();
-		} catch (ChargeurException $e) {
-			$this->assertEquals("Le répertoire cible où le clone est sensé se faire n'existe pas.", $e->getMessage());
-		}
-	}
-
-	public function test_étant_donné_un_dépôt_git_losrquon_essaie_de_le_cloner_on_obtient_son_chemin_de_son_répertoire()
-	{
-		$résultat_attendu = "/tmp/git_repo_";
-
-		$mockFacadeFile = Mockery::mock("alias:Illuminate\Support\Facades\File");
-		$mockFacadeFile->shouldReceive("isDirectory")->with("/tmp")->andReturn(true);
-
-		$uriDépôt = "https://legitexistepas.git";
-
-		$mockAdmin = Mockery::mock("alias:Gitonomy\Git\Admin");
-		$mockAdmin->shouldReceive("cloneTo")->andReturn();
-
-		$chargeurQuestionGit = new ChargeurQuestionGit();
-		$reflection = new \ReflectionClass(get_class($chargeurQuestionGit));
-		$methode = $reflection->getMethod("cloner_dépôt");
-		$methode->setAccessible(true);
-
-		$résultat_obtenue = $methode->invokeArgs($chargeurQuestionGit, [$uriDépôt]);
-
-		$résultat_obtenue = substr($résultat_obtenue, 0, 14);
-
-		$this->assertEquals($résultat_attendu, $résultat_obtenue);
-	}
-
-	public function test_étant_donné_un_répertoire_temporaire_existant_dans_le_dossier_tmp_losrquon_le_supprime_on_obtient_un_dossier_tmp_vide()
-	{
-		$mockFacadeFile = Mockery::mock("alias:Illuminate\Support\Facades\File");
-		$mockFacadeFile->shouldReceive("isDirectory")->with("/tmp/repertoireTemporaire")->andReturn(true);
-		$mockFacadeFile->shouldReceive("deleteDirectory")->with("/tmp/repertoireTemporaire")->andReturn(true);
-		$chargeurQuestionGit = new ChargeurQuestionGit();
-		$reflection = new \ReflectionClass(get_class($chargeurQuestionGit));
-		$supprimer = $reflection->getMethod("supprimer_répertoire_temporaire");
-		$supprimer->setAccessible(true);
-		$résultat = $supprimer->invoke($chargeurQuestionGit, "/tmp/repertoireTemporaire");
-		$this->assertNull($résultat);
+		(new ChargeurQuestionGit())->récupérer_fichier("https://git.com/mondépôt_inexistant.git");
 	}
 }

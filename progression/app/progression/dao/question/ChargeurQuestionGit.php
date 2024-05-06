@@ -20,6 +20,7 @@ namespace progression\dao\question;
 use Gitonomy\Git\Admin;
 use Illuminate\Support\Facades\File;
 use RuntimeException;
+use progression\dao\chargeur\ChargeurException;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
 
 class ChargeurQuestionGit extends ChargeurQuestion
@@ -28,19 +29,13 @@ class ChargeurQuestionGit extends ChargeurQuestion
 	 * @param string $uri
 	 * @return array<mixed>
 	 */
-	public function récupérer_question(string $uri): array
+	public function récupérer_fichier(string $uri): array
 	{
-		$répertoire_temporaire = $this->cloner_dépôt($uri);
-
-		$chemin_fichier_dans_dépôt = $this->chercher_info($répertoire_temporaire);
-
 		$répertoire_temporaire = (new TemporaryDirectory(getenv("TEMPDIR")))->deleteWhenDestroyed()->create();
 		$chemin_fichier_dans_dépôt = $this->cloner_dépôt($répertoire_temporaire->path(), $uri);
 		$chargeurFichier = $this->source->get_chargeur_question_fichier();
 
-		$contenu_question = $chargeurFichier->récupérer_question($chemin_fichier_dans_dépôt);
-
-		$this->supprimer_répertoire_temporaire($répertoire_temporaire);
+		$contenu_question = $chargeurFichier->récupérer_fichier($chemin_fichier_dans_dépôt);
 		return $contenu_question;
 	}
 
@@ -58,47 +53,22 @@ class ChargeurQuestionGit extends ChargeurQuestion
 	 * @param string $url_du_dépôt
 	 * @return string
 	 */
-	private function cloner_dépôt(string $url_du_dépôt): string
+	private function cloner_dépôt(string $destination, string $url_du_dépôt): string
 	{
-		$répertoire_cible = sys_get_temp_dir();
-		$dossier_temporaire = $répertoire_cible . "/git_repo_" . uniqid();
-
-		if (!File::isDirectory($répertoire_cible)) {
-			throw new ChargeurException("Le répertoire cible où le clone est sensé se faire n'existe pas.");
-		}
-
 		try {
-			Admin::cloneTo($dossier_temporaire, $url_du_dépôt, false);
+			Admin::cloneTo($destination, $url_du_dépôt, false);
 		} catch (RuntimeException $e) {
 			throw new ChargeurException(
 				"Le clonage du dépôt git a échoué! Ce dépôt est peut-être privé ou n'existe pas.",
 			);
 		}
-		return $dossier_temporaire;
-	}
 
-	/**
-	 * @param string $répertoire_temporaire
-	 * @return string
-	 */
-	public function chercher_info(string $répertoire_temporaire): string
-	{
-		$cheminDirect = $répertoire_temporaire . "/info.yml";
+		$chemin_fichier_info = $destination . "/info.yml";
 
-		if (File::exists($cheminDirect)) {
-			return $cheminDirect;
-		}
-
-		throw new RuntimeException("Fichier info.yml inexistant dans le dépôt.");
-	}
-
-	/**
-	 * @param string $dossier_temporaire
-	 */
-	private function supprimer_répertoire_temporaire(string $dossier_temporaire): void
-	{
-		if (File::isDirectory($dossier_temporaire)) {
-			File::deleteDirectory($dossier_temporaire);
+		if (File::exists($chemin_fichier_info)) {
+			return $chemin_fichier_info;
+		} else {
+			throw new ChargeurException("Fichier info.yml inexistant dans le dépôt.");
 		}
 	}
 }

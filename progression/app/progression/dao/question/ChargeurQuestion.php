@@ -26,13 +26,13 @@ class ChargeurQuestion extends Chargeur
 	public function récupérer_fichier(string $uri): array
 	{
 		$scheme = parse_url(strtolower($uri), PHP_URL_SCHEME);
+		$extension = pathinfo($uri, PATHINFO_EXTENSION);
 
 		if ($scheme == "file") {
 			$sortie = $this->source->get_chargeur_question_fichier()->récupérer_fichier($uri);
 		} elseif ($extension == "git") {
 			$infos_question = $this->source->get_instance()->get_chargeur_question_git()->récupérer_question($uri);
-        }
-        elseif ($scheme == "https") {
+		} elseif ($scheme == "https") {
 			$sortie = $this->source->get_chargeur_question_http()->récupérer_fichier($uri);
 		} else {
 			throw new BadMethodCallException("Schéma d'URI invalide");
@@ -40,5 +40,11 @@ class ChargeurQuestion extends Chargeur
 
 		$sortie["uri"] = $uri;
 
-	abstract public function est_modifié(string $uri, int|string $cle): bool;
+		return $sortie;
+	}
+
+	public function est_modifié(string $uri, int|string $cle): bool
+	{
+		return true;
+	}
 }

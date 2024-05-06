@@ -18,7 +18,7 @@
 
 namespace progression\dao\chargeur;
 
-use progression\dao\question\ChargeurQuestionFichier;
+use progression\dao\question\{ChargeurQuestionFichier, ChargeurQuestionGit};
 
 class ChargeurFactory
 {
@@ -89,15 +89,22 @@ class ChargeurFactory
 	{
 		return $this->chargeur_fichier;
 	}
+
 	function get_chargeur_archive(): ChargeurArchive
 	{
 		return $this->chargeur_archive;
+	}
+
+	function get_chargeur_question_git(): ChargeurQuestionGit
+	{
+		return new ChargeurQuestionGit($this);
 	}
 
 	function set_chargeur_fichier(Chargeur $chargeur): void
 	{
 		$this->chargeur_fichier = $chargeur;
 	}
+
 	function set_chargeur_archive(ChargeurArchive $chargeur): void
 	{
 		$this->chargeur_archive = $chargeur;
