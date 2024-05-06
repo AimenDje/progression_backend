@@ -26,28 +26,104 @@ use Illuminate\Support\Facades\Cache;
 
 final class QuestionDAOTests extends TestCase
 {
+	public function setUp(): void
+	{
+		parent::setUp();
+		Cache::flush();
+	}
 	public function tearDown(): void
 	{
 		ChargeurFactory::set_instance(null);
 		parent::tearDown();
 	}
 
-	public function test_étant_donné_un_uri_de_question_inexistant_lorqsuon_la_charge_on_obtient_null()
+	public function test_étant_donné_un_uri_de_question_inexistant_lorqsuon_la_charge_on_obtient_une_exception()
 	{
-		Cache::shouldReceive("get")->once();
-		$this->assertNull((new QuestionDAO())->get_question("file://inexistant.yml"));
+		$this->expectException(ChargeurException::class);
+		(new QuestionDAO())->get_question("file://inexistant.yml");
 	}
 
-	public function test_étant_donné_un_fichier_de_question_minimal_lorsquon_charge_la_question_on_obtien_les_valeurs_par_défaut()
+	public function test_étant_donné_un_fichier_de_question_minimal_lorsquon_charge_la_question_on_obtient_les_valeurs_par_défaut()
 	{
 		$résultat_attendu = new QuestionProg(
 			tests: [new TestProg()],
 			exécutables: ["python" => new Exécutable("", "python")],
 		);
 
-		Cache::shouldReceive("get")->once();
-
 		$résultat_obtenu = (new QuestionDAO())->get_question("file://" . __DIR__ . "/démo/défauts/info.yml");
+
+		$this->assertEquals($résultat_attendu, $résultat_obtenu);
+	}
+
+	public function test_étant_donné_une_question_déjà_en_cache_lorsquon_la_récupère_de_nouveau_on_obtient_la_question_tirée_de_la_cache()
+	{
+		$résultat_attendu = new QuestionProg(
+			tests: [new TestProg()],
+			exécutables: ["python" => new Exécutable("", "python")],
+		);
+
+		$mockChargeurFichier = Mockery::mock("progression\\dao\\question\\ChargeurQuestionFichier");
+		$mockChargeurFichier
+			->shouldReceive("id_modif")
+			->once()
+			->with("file:///tmp/test/info.yml")
+			->andReturn("1710000000");
+		$mockChargeurFichier->shouldNotReceive("récupérer_question");
+
+		$mockFactory = Mockery::mock("progression\\dao\\question\\ChargeurFactory");
+		$mockFactory->shouldReceive("get_chargeur_question_fichier")->andReturn($mockChargeurFichier);
+		ChargeurFactory::set_instance($mockFactory);
+
+		Cache::shouldReceive("get")
+			->once()
+			->with("1710000000")
+			->andReturn([
+				"type" => "prog",
+				"ébauches" => [
+					"python" => "",
+				],
+				"tests" => [[]],
+			]);
+		Cache::shouldNotReceive("put");
+
+		$résultat_obtenu = (new QuestionDAO())->get_question("file:///tmp/test/info.yml");
+
+		$this->assertEquals($résultat_attendu, $résultat_obtenu);
+	}
+
+	public function test_étant_donné_une_question_pas_déjà_en_cache_lorsquon_la_récupère_on_obtient_la_question_et_elle_est_placée_en_cache()
+	{
+		$résultat_attendu = new QuestionProg(
+			tests: [new TestProg()],
+			exécutables: ["python" => new Exécutable("", "python")],
+		);
+
+		$question = [
+			"type" => "prog",
+			"ébauches" => [
+				"python" => "",
+			],
+			"tests" => [[]],
+		];
+
+		$mockChargeurFichier = Mockery::mock("progression\\dao\\question\\ChargeurQuestionFichier");
+		$mockChargeurFichier
+			->shouldReceive("id_modif")
+			->once()
+			->with("file:///tmp/test/info.yml")
+			->andReturn("1710000000");
+		$mockChargeurFichier
+			->shouldReceive("récupérer_question")
+			->with("file:///tmp/test/info.yml")
+			->andReturn($question);
+
+		$mockFactory = Mockery::mock("progression\\dao\\question\\ChargeurFactory");
+		$mockFactory->shouldReceive("get_chargeur_question_fichier")->andReturn($mockChargeurFichier);
+		ChargeurFactory::set_instance($mockFactory);
+
+		Cache::shouldReceive("get")->once()->with("1710000000")->andReturn(null);
+		Cache::shouldReceive("put")->once()->with("1710000000", $question);
+		$résultat_obtenu = (new QuestionDAO())->get_question("file:///tmp/test/info.yml");
 
 		$this->assertEquals($résultat_attendu, $résultat_obtenu);
 	}
@@ -78,8 +154,6 @@ final class QuestionDAOTests extends TestCase
 				),
 			],
 		);
-
-		Cache::shouldReceive("get")->once();
 
 		$résultat_obtenu = (new QuestionDAO())->get_question(
 			"file://" . __DIR__ . "/démo/boucles/boucle_énumérée/info.yml",
@@ -119,8 +193,6 @@ final class QuestionDAOTests extends TestCase
 			],
 		);
 
-		Cache::shouldReceive("get")->once();
-
 		$résultat_obtenu = (new QuestionDAO())->get_question(
 			"file://" . __DIR__ . "/démo/boucles/énoncé_multiparties/info.yml",
 		);
@@ -153,6 +225,11 @@ final class QuestionDAOTests extends TestCase
 				],
 			],
 		]);
+		$mockChargeurFichier
+			->shouldReceive("id_modif")
+			->with("file://" . __DIR__ . "/démo/permissions_sys/permissions/info.yml")
+			->andReturn("1710000000");
+
 		$mockFactory = Mockery::mock("progression\\dao\\question\\ChargeurFactory");
 		$mockFactory->shouldReceive("get_chargeur_question_fichier")->andReturn($mockChargeurFichier);
 
@@ -174,8 +251,6 @@ final class QuestionDAOTests extends TestCase
 		$résultat_attendu->tests[0]->utilisateur = "matt";
 		$résultat_attendu->tests[0]->feedback_pos = "Bien joué!";
 		$résultat_attendu->tests[0]->feedback_neg = "Encore un effort! Toutes les permissions ne sont pas octroyées";
-
-		Cache::shouldReceive("get")->once();
 
 		$résultat_obtenu = (new QuestionDAO())->get_question(
 			"file://" . __DIR__ . "/démo/permissions_sys/permissions/info.yml",
@@ -206,6 +281,11 @@ final class QuestionDAOTests extends TestCase
 				],
 			],
 		]);
+		$mockChargeurFichier
+			->shouldReceive("id_modif")
+			->with("file://" . __DIR__ . "/démo/permissions_sys/permissions/info.yml")
+			->andReturn("1710000000");
+
 		$mockFactory = Mockery::mock("progression\\dao\\question\\ChargeurFactory");
 		$mockFactory->shouldReceive("get_chargeur_question_fichier")->andReturn($mockChargeurFichier);
 
@@ -226,8 +306,6 @@ final class QuestionDAOTests extends TestCase
 		];
 		$résultat_attendu->tests[0]->validation = "ls –l test.txt";
 		$résultat_attendu->tests[0]->utilisateur = "matt";
-
-		Cache::shouldReceive("get")->once();
 
 		$résultat_obtenu = (new QuestionDAO())->get_question(
 			"file://" . __DIR__ . "/démo/permissions_sys/permissions/info.yml",

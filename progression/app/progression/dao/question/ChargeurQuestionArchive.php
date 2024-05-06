@@ -37,17 +37,17 @@ class ChargeurQuestionArchive extends Chargeur
 
 		$archiveExtraite = null;
 
-	    $destination = (new TemporaryDirectory(getenv("TEMPDIR")))->deleteWhenDestroyed()->create();
+		$destination = (new TemporaryDirectory(getenv("TEMPDIR") ?: sys_get_temp_dir()))
+			->deleteWhenDestroyed()
+			->create();
 
-		self::extraire_zip($chemin_archive, $destination);
+		self::extraire_zip($chemin_archive, $destination->path());
 		try {
 			$question = $this->source
 				->get_chargeur_question_fichier()
-				->récupérer_question("file://" . $destination . "/info.yml");
+				->récupérer_question("file://" . $destination->path() . "/info.yml");
 		} catch (ChargeurException $e) {
 			throw $e;
-		} finally {
-			self::supprimer_fichiers($destination);
 		}
 
 		return $question;
@@ -66,14 +66,5 @@ class ChargeurQuestionArchive extends Chargeur
 		}
 
 		$zip->close();
-	}
-
-	private function supprimer_fichiers($cheminCible)
-	{
-		if (PHP_OS === "Windows") {
-			exec(sprintf("rd /s /q %s", escapeshellarg($cheminCible)));
-		} else {
-			exec(sprintf("rm -rf %s", escapeshellarg($cheminCible)));
-		}
 	}
 }

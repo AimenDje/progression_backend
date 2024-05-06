@@ -16,15 +16,14 @@
    along with Progression.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace progression\dao\question;
+namespace progression\facades;
 
-abstract class ChargeurQuestion extends Chargeur
+use Illuminate\Support\Facades\Facade;
+
+class Git extends Facade
 {
-	/**
-	 * @param string $uri
-	 * @return array<mixed>
-	 */
-	abstract public function récupérer_question(string $uri): array;
-
-	abstract public function id_modif(string $uri): string|false;
+	protected static function getFacadeAccessor()
+	{
+		return "Git";
+	}
 }

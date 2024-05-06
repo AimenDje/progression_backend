@@ -20,8 +20,9 @@ namespace progression\dao\question;
 
 use progression\TestCase;
 use Mockery;
-use Gitonomy\Git\Admin;
-use Gitonomy\Git\Repository;
+use progression\facades\Git;
+use progression\domaine\entité\question\QuestionSys;
+
 use RuntimeException;
 
 final class ChargeurQuestionGitTests extends TestCase
@@ -32,75 +33,187 @@ final class ChargeurQuestionGitTests extends TestCase
 	{
 		parent::setUp();
 
-		$this->contenu_tmp = scandir("/tmp");
+		$this->contenu_tmp = scandir(getenv("TEMPDIR"));
 	}
 
 	public function tearDown(): void
 	{
-		$this->assertEquals($this->contenu_tmp, scandir("/tmp"));
+		$this->assertEquals($this->contenu_tmp, scandir(getenv("TEMPDIR")));
 
 		parent::tearDown();
 	}
 
-	public function test_étant_donné_un_url_dépôt_git_lorsquon_charge_la_question_on_obtient_un_objet_Question_correspondant()
+	public function test_étant_donné_un_dépôt_distant_existant_lorsquon_récupère_l_id_de_modification_sans_fournir_de_branche_on_btient_le_numéro_du_dernier_commit_sur_main()
 	{
+		Git::shouldReceive("ls_remote")
+			->with("https://test.com/depot.git", ["main", "master"], ["--heads", "--refs"])
+			->andReturn(["47b416917044fd7dd3591c2aa74c1239a33639f6	refs/heads/main"]);
+
+		$résultat_obtenu = (new ChargeurQuestionGit())->id_modif("https://test.com/depot.git");
+
+		$résultat_attendu = "47b416917044fd7dd3591c2aa74c1239a33639f6";
+
+		$this->assertEquals($résultat_attendu, $résultat_obtenu);
 	}
 
-	public function test_étant_donné_un_url_dépôt_git_privé_lorsquon_charge_la_question_on_obtient_une_exception_avec_un_message()
+	public function test_étant_donné_un_dépôt_distant_existant_lorsquon_récupère_l_id_de_modification_en_spécifiant_une_branche_on_btient_le_numéro_du_dernier_commit_sur_cette_branche()
 	{
+		Git::shouldReceive("ls_remote")
+			->with("https://test.com/depot.git", ["test_1"], ["--heads", "--refs"])
+			->andReturn(["a22973df618592429debce37cf24c6c7084006fd	refs/heads/test_1"]);
+
+		$résultat_obtenu = (new ChargeurQuestionGit())->id_modif("https://test.com/depot.git#test_1");
+
+		$résultat_attendu = "a22973df618592429debce37cf24c6c7084006fd";
+
+		$this->assertEquals($résultat_attendu, $résultat_obtenu);
 	}
 
-	public function test_étant_donné_un_url_dépôt_git_dans_lequel_le_fichier_infoYml_est_inexistant_lorsquon_charge_la_question_on_obtient_une_exception_avec_un_message()
+	public function test_étant_donné_un_dépôt_distant_existant_lorsquon_récupère_l_id_de_modification_en_spécifiant_une_branche_inexistante_on_btient_une_ChargeurException()
 	{
+		Git::shouldReceive("ls_remote")
+			->with("https://test.com/depot.git", ["inexistante"], ["--heads", "--refs"])
+			->andReturn([]);
+
+		$this->expectException(ChargeurException::class);
+		$this->expectExceptionMessage(
+			"Impossible de récupérer le dernier commit sur l'une des branches [inexistante].",
+		);
+
+		$résultat_obtenu = (new ChargeurQuestionGit())->id_modif("https://test.com/depot.git#inexistante");
 	}
 
-	public function test_étant_donné_un_répertoire_temporaire_lorsquon_essaye_de_récupérer_le_dernier_commit_on_obtient_le_hash_du_commit()
+	public function test_étant_donné_un_dépôt_distant_inexistant_lorsquon_récupère_l_id_de_modification_on_btient_une_ChargeurException()
 	{
-		$repertoireTemporaire = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "git_test_" . uniqid();
-		Admin::init($repertoireTemporaire, false);
+		Git::shouldReceive("ls_remote")
+			->with("https://test.com/depot_inexistant.git#master", Mockery::Any(), ["--heads", "--refs"])
+			->andThrow(new RuntimeException());
 
-		$repository = new Repository($repertoireTemporaire);
+		$this->expectException(ChargeurException::class);
+		$this->expectExceptionMessage(
+			"Le dépôt «https://test.com/depot_inexistant.git» n'existe pas ou est inaccessible.",
+		);
 
-		$repository->run("config", ["user.email", "test@example.com"]);
-		$repository->run("config", ["user.name", "Test User"]);
-
-		file_put_contents($repertoireTemporaire . DIRECTORY_SEPARATOR . "file.txt", "Contenu de test");
-		$repository->run("add", ["."]);
-		$repository->run("commit", ["-m", "Commit de test"]);
-
-		$hashAttendu = trim($repository->run("rev-parse", ["HEAD"]));
-
-		$chargeurQuestionGit = new ChargeurQuestionGit();
-
-		$reflection = new \ReflectionClass(get_class($chargeurQuestionGit));
-		$methode = $reflection->getMethod("getIdDernierCommit");
-		$methode->setAccessible(true);
-
-		$resultat = $methode->invokeArgs($chargeurQuestionGit, [$repertoireTemporaire]);
-
-		$this->assertEquals($hashAttendu, $resultat);
-
-		system("rm -rf " . escapeshellarg($repertoireTemporaire));
+		$résultat_obtenu = (new ChargeurQuestionGit())->id_modif("https://test.com/depot_inexistant.git");
 	}
 
-	public function test_étant_donné_un_répertoire_temporaire_avec_aucun_commit_lorsquon_essaye_de_récupérer_un_commit_on_obtient_une_RuntimeException()
+	public function test_étant_donné_un_dépôt_avec_une_question_valide_lorsquon_le_récupère_on_obtient_la_question_valide()
 	{
-		$repertoireTemporaire = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "git_test_" . uniqid();
-		Admin::init($repertoireTemporaire, false);
+		Git::shouldReceive("clone")
+			->once()
+			->withArgs(function ($dir, $url, $options) {
+				if ($url == "https://test.com/depot.git" && $options == ["--depth=1", "--single-branch"]) {
+					file_put_contents($dir . "/info.yml", ["type: sys\n", "image: ubuntu\n", "réponse: test\n"]);
+					return true;
+				}
+				return false;
+			});
 
-		$chargeurQuestionGit = new ChargeurQuestionGit();
+		$résultat_obtenu = (new ChargeurQuestionGit())->récupérer_question("https://test.com/depot.git");
 
-		$reflection = new \ReflectionClass(get_class($chargeurQuestionGit));
-		$methode = $reflection->getMethod("getIdDernierCommit");
-		$methode->setAccessible(true);
+		$résultat_attendu = [
+			"type" => "sys",
+			"image" => "ubuntu",
+			"réponse" => "test",
+		];
+		$this->assertEquals($résultat_attendu, $résultat_obtenu);
+	}
 
-		try {
-			$methode->invokeArgs($chargeurQuestionGit, [$repertoireTemporaire]);
-			$this->fail();
-		} catch (RuntimeException $e) {
-			$this->assertEquals("Aucun commit trouvé dans le dépôt cloné.", $e->getMessage());
-		}
+	public function test_étant_donné_un_dépôt_avec_une_question_valide_lorsquon_le_récupère_une_branche_spécifique_on_obtient_la_question_valide()
+	{
+		Git::shouldReceive("clone")
+			->once()
+			->withArgs(function ($dir, $url, $options) {
+				if (
+					$url == "https://test.com/depot.git" &&
+					$options == ["--depth=1", "--single-branch", "--branch=une_branche"]
+				) {
+					file_put_contents($dir . "/info.yml", [
+						"type: sys\n",
+						"image: ubuntu\n",
+						"réponse: une branche spécifique\n",
+					]);
+					return true;
+				}
+				return false;
+			});
 
-		system("rm -rf " . escapeshellarg($repertoireTemporaire));
+		$résultat_obtenu = (new ChargeurQuestionGit())->récupérer_question("https://test.com/depot.git#une_branche");
+
+		$résultat_attendu = [
+			"type" => "sys",
+			"image" => "ubuntu",
+			"réponse" => "une branche spécifique",
+		];
+		$this->assertEquals($résultat_attendu, $résultat_obtenu);
+	}
+
+	public function test_étant_donné_un_dépôt_avec_une_question_valide_lorsquon_le_récupère_une_branche_spécifique_inexistante_on_obtient_une_ChargeurException()
+	{
+		Git::shouldReceive("clone")
+			->once()
+			->with(Mockery::Any(), "https://test.com/depot.git", [
+				"--depth=1",
+				"--single-branch",
+				"--branch=branche_inexistante",
+			])
+			->andThrow(new RuntimeException());
+
+		$this->expectException(ChargeurException::class);
+		$this->expectExceptionMessage(
+			"Le clonage du dépôt «https://test.com/depot.git» a échoué! Le dépôt n'existe pas ou est inaccessible.",
+		);
+
+		$résultat_obtenu = (new ChargeurQuestionGit())->récupérer_question(
+			"https://test.com/depot.git#branche_inexistante",
+		);
+	}
+
+	public function test_étant_donné_un_dépôt_avec_une_question_invalide_lorsquon_le_récupère_on_obtient_une_ChargeurException()
+	{
+		Git::shouldReceive("clone")
+			->once()
+			->withArgs(function ($dir, $url, $options) {
+				if ($url == "https://test.com/depot.git" && $options == ["--depth=1", "--single-branch"]) {
+					file_put_contents($dir . "/info.yml", ["type: invalide\n"]);
+					return true;
+				}
+				return false;
+			});
+
+		$this->expectException(ChargeurException::class);
+		$this->expectExceptionMessage("Le fichier n'existe pas ou est invalide. (err: 1)");
+
+		$résultat_obtenu = (new ChargeurQuestionGit())->récupérer_question("https://test.com/depot.git");
+	}
+
+	public function test_étant_donné_un_dépôt_sans_info_yml_lorsquon_tente_de_le_récupérer_on_obtient_une_ChargeurException()
+	{
+		Git::shouldReceive("clone")
+			->once()
+			->withArgs(function ($dir, $url, $options) {
+				if ($url == "https://test.com/depot.git" && $options == ["--depth=1", "--single-branch"]) {
+					return true;
+				}
+				return false;
+			});
+
+		$this->expectException(ChargeurException::class);
+		$this->expectExceptionMessage("Le fichier n'existe pas ou est invalide. (err: 255)");
+		$résultat_obtenu = (new ChargeurQuestionGit())->récupérer_question("https://test.com/depot.git");
+	}
+
+	public function test_étant_donné_un_dépôt_inexistant_lorsquon_tente_de_le_récupérer_on_obtient_une_ChargeurException()
+	{
+		Git::shouldReceive("clone")
+			->once()
+			->with(Mockery::Any(), "https://test.com/depot.git", ["--depth=1", "--single-branch"])
+			->andThrow(new RuntimeException("Le dépôt n'existe pas"));
+
+		$this->expectException(ChargeurException::class);
+		$this->expectExceptionMessage(
+			"Le clonage du dépôt «https://test.com/depot.git» a échoué! Le dépôt n'existe pas ou est inaccessible.",
+		);
+		$résultat_obtenu = (new ChargeurQuestionGit())->récupérer_question("https://test.com/depot.git");
 	}
 }

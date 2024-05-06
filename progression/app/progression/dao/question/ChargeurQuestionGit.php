@@ -17,144 +17,73 @@
  */
 namespace progression\dao\question;
 
-use Gitonomy\Git\Admin;
-use Gitonomy\Git\Repository;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
+use progression\facades\Git;
+
 use RuntimeException;
-use Gitonomy\Git\Exception\ReferenceNotFoundException;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
 
 class ChargeurQuestionGit extends ChargeurQuestion
 {
 	/**
-	 * @param string $uri
 	 * @return array<mixed>
 	 */
 	public function récupérer_question(string $uri): array
 	{
 		$répertoire_temporaire = $this->cloner_dépôt($uri);
 
-		$dernierCommit = $this->getIdDernierCommit($répertoire_temporaire);
-
-		$chemin_fichier_dans_dépôt = $this->chercher_info($répertoire_temporaire);
-
+		$chemin_fichier_dans_dépôt = $répertoire_temporaire->path() . "/info.yml";
 		$chargeurFichier = $this->source->get_chargeur_question_fichier();
 
 		$contenu_question = $chargeurFichier->récupérer_question($chemin_fichier_dans_dépôt);
 
-		$donnéesÀMettreEnCache = [
-			"contenu" => $contenu_question,
-			"cléModification" => $dernierCommit,
-		];
-
-		$cléCache = md5($uri);
-
-		try {
-			Cache::put($cléCache, $donnéesÀMettreEnCache);
-			$this->supprimer_répertoire_temporaire($répertoire_temporaire);
-		} catch (ChargeurException $e) {
-			throw new ChargeurException("La mise en cache la question a échoué! L'uri de la question est invalide");
-		}
-
 		return $contenu_question;
 	}
 
-	/**
-	 * @param string $uri
-	 * @param string $hash_cache
-	 * @return bool
-	 */
-	public function est_modifié(string $uri, string $hash_cache): bool
+	public function id_modif(string $uri): string|false
 	{
-		$remote_hash = $this->obtenir_hash_dernier_commit($uri);
-		return $hash_cache !== $remote_hash;
-	}
+		$fragment = parse_url($uri, PHP_URL_FRAGMENT) ?? "";
+		$uri_valide = str_replace("#{$fragment}", "", $uri);
+		$branches = $fragment ? [$fragment] : ["main", "master"];
 
-	/**
-	 * @param string $uri
-	 * @return string
-	 */
-	public function obtenir_hash_dernier_commit(string $uri): string
-	{
+		$options = ["--heads", "--refs"];
+
 		try {
-			$uri_valide = escapeshellarg($uri);
-			$commande_remote = "git ls-remote $uri_valide | grep -o '^\S*'";
-			$liste_commits = [];
-			exec($commande_remote, $liste_commits);
-			$latestCommitHash = $liste_commits[0] ?? null;
-
-			if ($latestCommitHash) {
-				[$hash_dernier_commit] = explode("\t", $latestCommitHash);
-				return trim($hash_dernier_commit);
-			}
-			throw new RuntimeException("Impossible de récupérer le dernier commit");
-		} catch (ChargeurException $e) {
-			Log::error("Erreur lors de l'obtention du hash du dernier commit : " . $e->getMessage());
-			throw new ChargeurException(
-				"L'obtention du hash du dernier commit a échoué! Ce dépôt est peut-être privé ou n'existe pas.",
-			);
+			$liste_commits = Git::ls_remote($uri_valide, $branches, $options);
+		} catch (RuntimeException $e) {
+			throw new ChargeurException("Le dépôt «{$uri}» n'existe pas ou est inaccessible.");
 		}
+
+		if ($liste_commits) {
+			[$hash_dernier_commit] = explode("\t", $liste_commits[0]);
+			return trim($hash_dernier_commit);
+		}
+
+		throw new ChargeurException(
+			"Impossible de récupérer le dernier commit sur l'une des branches [" . implode(", ", $branches) . "].",
+		);
 	}
 
-	/**
-	 * @param string $url_du_dépôt
-	 * @return string
-	 */
-	private function cloner_dépôt(string $url_du_dépôt): string
+	private function cloner_dépôt(string $url_du_dépôt): TemporaryDirectory
 	{
-		$répertoire_temporaire = (new TemporaryDirectory(getenv("TEMPDIR")))->deleteWhenDestroyed()->create();
+		$fragment = parse_url($url_du_dépôt, PHP_URL_FRAGMENT) ?? "";
+		$url_valide = str_replace("#{$fragment}", "", $url_du_dépôt);
+		$branche = $fragment;
+
+		$répertoire_temporaire = (new TemporaryDirectory(getenv("TEMPDIR") ?: sys_get_temp_dir()))
+			->deleteWhenDestroyed()
+			->create();
 
 		try {
-			Admin::cloneTo($répertoire_temporaire, $url_du_dépôt, false);
-		} catch (ChargeurException $e) {
-			Log::error("Erreur lors du clonage du dépôt : " . $e->getMessage());
+			Git::clone(
+				$répertoire_temporaire->path(),
+				$url_valide,
+				array_merge(["--depth=1", "--single-branch"], $branche ? ["--branch={$branche}"] : []),
+			);
+		} catch (RuntimeException $e) {
 			throw new ChargeurException(
-				"Le clonage du dépôt git a échoué! Ce dépôt est peut-être privé ou n'existe pas.",
+				"Le clonage du dépôt «{$url_valide}» a échoué! Le dépôt n'existe pas ou est inaccessible.",
 			);
 		}
 		return $répertoire_temporaire;
-	}
-
-	private function getIdDernierCommit(string $répertoire): string
-	{
-		try {
-			$repository = new Repository($répertoire);
-			$commit = $repository->getHeadCommit();
-
-			if ($commit !== null) {
-				return $commit->getHash();
-			} else {
-				throw new RuntimeException("Aucun commit trouvé dans le dépôt cloné.");
-			}
-		} catch (ReferenceNotFoundException $e) {
-			throw new RuntimeException("Aucun commit trouvé dans le dépôt cloné.");
-		}
-	}
-
-	/**
-	 * @param string $répertoire_temporaire
-	 * @return string
-	 */
-	private function chercher_info(string $répertoire_temporaire): string
-	{
-		$cheminDirect = $répertoire_temporaire . "/info.yml";
-
-		if (File::exists($cheminDirect)) {
-			return $cheminDirect;
-		}
-
-		throw new RuntimeException("Fichier info.yml inexistant dans le dépôt.");
-	}
-
-	/**
-	 * @param string $dossier_temporaire
-	 */
-	private function supprimer_répertoire_temporaire(string $dossier_temporaire): void
-	{
-		if (File::isDirectory($dossier_temporaire)) {
-			File::deleteDirectory($dossier_temporaire);
-		}
 	}
 }

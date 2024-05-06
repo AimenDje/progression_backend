@@ -71,19 +71,7 @@ class ChargeurQuestionHTTP extends ChargeurQuestion
 		}
 	}
 
-	/**
-	 * @param string $uri
-	 * @param string $cle
-	 * @return bool
-	 */
-	public function est_modifié(string $uri, $cle): bool
-	{
-		$remote_ETag = $this->get_ETag($uri);
-		$cache_ETag = $cle;
-		return $cache_ETag !== $remote_ETag;
-	}
-
-	private function get_ETag(string $uri): string
+	public function id_modif(string $uri): string
 	{
 		$entêtes = array_change_key_case($this->source->get_chargeur_http()->get_entêtes($uri));
 		$etag = isset($entêtes["etag"]) ? trim($entêtes["etag"], '"') : "";

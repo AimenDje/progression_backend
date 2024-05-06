@@ -19,10 +19,11 @@
 namespace progression\dao\question;
 
 use RuntimeException;
+use Illuminate\Support\Facades\File;
 
-class ChargeurQuestionFichier extends Chargeur
+class ChargeurQuestionFichier extends ChargeurQuestion
 {
-	public function récupérer_question($uri)
+	public function récupérer_question($uri): array
 	{
 		$output = null;
 		$err_code = null;
@@ -34,19 +35,24 @@ class ChargeurQuestionFichier extends Chargeur
 			$err_code,
 		);
 
-		if ($err_code == Chargeur::ERR_CHARGEMENT) {
-			return null;
-		}
-
 		if ($err_code != 0) {
-			throw new ChargeurException("Le fichier {$uri} est invalide. (err: {$err_code})");
+			throw new ChargeurException("Le fichier n'existe pas ou est invalide. (err: {$err_code})");
 		}
 
 		$info = yaml_parse(implode("\n", $output));
 		if ($info === false) {
-			throw new RuntimeException("Le fichier {$uri} ne peut pas être décodé. Le format produit est invalide.");
+			throw new RuntimeException("Le fichier ne peut pas être décodé. Le format produit est invalide.");
 		}
 
 		return $info;
+	}
+
+	public function id_modif(string $uri): string|false
+	{
+		if (File::isFile($uri)) {
+			return strval(File::lastModified($uri));
+		} else {
+			return false;
+		}
 	}
 }

@@ -16,15 +16,22 @@
    along with Progression.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace progression\dao\question;
+namespace progression\providers;
 
-abstract class ChargeurQuestion extends Chargeur
+use progression\services\git\GitImpl;
+use Illuminate\Support\ServiceProvider;
+
+class GitServiceProvider extends ServiceProvider
 {
 	/**
-	 * @param string $uri
-	 * @return array<mixed>
+	 * Register any application services.
+	 *
+	 * @return void
 	 */
-	abstract public function récupérer_question(string $uri): array;
-
-	abstract public function id_modif(string $uri): string|false;
+	public function register()
+	{
+		$this->app->bind("Git", function ($app) {
+			return new GitImpl();
+		});
+	}
 }

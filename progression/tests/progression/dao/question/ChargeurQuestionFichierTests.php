@@ -73,28 +73,27 @@ final class ChargeurQuestionFichierTests extends TestCase
 	{
 		$uri = "file://" . __DIR__ . "/démo/yaml_invalide/info.yml";
 
-		try {
-			$résultat_obtenu = (new ChargeurQuestionFichier())->récupérer_question($uri);
-			$this->fail();
-		} catch (ChargeurException $résultat_obtenu) {
-			$this->assertEquals("Le fichier {$uri} est invalide. (err: 1)", $résultat_obtenu->getMessage());
-		}
+		$this->expectException(ChargeurException::class);
+		$this->expectExceptionMessage("Le fichier n'existe pas ou est invalide. (err: 1)");
+
+		$résultat_obtenu = (new ChargeurQuestionFichier())->récupérer_question($uri);
 	}
 
 	public function test_étant_donné_un_uri_de_fichier_question_invalide_lorsquon_charge_la_question_on_obtient_une_ChargeurException_err_1()
 	{
 		$uri = "file://" . __DIR__ . "/démo/question_invalide/info.yml";
 
-		try {
-			$résultat_obtenu = (new ChargeurQuestionFichier())->récupérer_question($uri);
-			$this->fail();
-		} catch (ChargeurException $résultat_obtenu) {
-			$this->assertEquals("Le fichier {$uri} est invalide. (err: 1)", $résultat_obtenu->getMessage());
-		}
+		$this->expectException(ChargeurException::class);
+		$this->expectExceptionMessage("Le fichier n'existe pas ou est invalide. (err: 1)");
+
+		$résultat_obtenu = (new ChargeurQuestionFichier())->récupérer_question($uri);
 	}
 
-	public function test_étant_donné_un_uri_de_fichier_non_existant_lorsquon_charge_la_question_on_obtient_null()
+	public function test_étant_donné_un_uri_de_fichier_non_existant_lorsquon_charge_la_question_on_obtient_une_ChargeurException()
 	{
+		$this->expectException(ChargeurException::class);
+		$this->expectExceptionMessage("Le fichier n'existe pas ou est invalide. (err: 255)");
+
 		$uri = "file://" . __DIR__ . "/démo/inexistant/info.yml";
 
 		$this->assertNull((new ChargeurQuestionFichier())->récupérer_question($uri));

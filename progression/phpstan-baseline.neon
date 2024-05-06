@@ -581,26 +581,6 @@ parameters:
 			path: app/progression/dao/question/ChargeurQuestionArchive.php
 
 		-
-			message: "#^Method progression\\\\dao\\\\question\\\\ChargeurQuestionArchive\\:\\:supprimer_fichiers\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: app/progression/dao/question/ChargeurQuestionArchive.php
-
-		-
-			message: "#^Method progression\\\\dao\\\\question\\\\ChargeurQuestionArchive\\:\\:supprimer_fichiers\\(\\) has parameter \\$cheminCible with no type specified\\.$#"
-			count: 1
-			path: app/progression/dao/question/ChargeurQuestionArchive.php
-
-		-
-			message: "#^Method progression\\\\dao\\\\question\\\\ChargeurQuestionFichier\\:\\:récupérer_question\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: app/progression/dao/question/ChargeurQuestionFichier.php
-
-		-
-			message: "#^Method progression\\\\dao\\\\question\\\\ChargeurQuestionFichier\\:\\:récupérer_question\\(\\) has parameter \\$uri with no type specified\\.$#"
-			count: 1
-			path: app/progression/dao/question/ChargeurQuestionFichier.php
-
-		-
 			message: "#^Method progression\\\\dao\\\\question\\\\ChargeurQuestionHTTP\\:\\:déterminer_type_archive\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: app/progression/dao/question/ChargeurQuestionHTTP.php
