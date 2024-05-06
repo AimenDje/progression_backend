@@ -20,6 +20,7 @@ namespace progression\dao\question;
 use Gitonomy\Git\Admin;
 use Illuminate\Support\Facades\File;
 use RuntimeException;
+use Spatie\TemporaryDirectory\TemporaryDirectory;
 
 class ChargeurQuestionGit extends ChargeurQuestion
 {
@@ -33,6 +34,8 @@ class ChargeurQuestionGit extends ChargeurQuestion
 
 		$chemin_fichier_dans_dépôt = $this->chercher_info($répertoire_temporaire);
 
+		$répertoire_temporaire = (new TemporaryDirectory(getenv("TEMPDIR")))->deleteWhenDestroyed()->create();
+		$chemin_fichier_dans_dépôt = $this->cloner_dépôt($répertoire_temporaire->path(), $uri);
 		$chargeurFichier = $this->source->get_chargeur_question_fichier();
 
 		$contenu_question = $chargeurFichier->récupérer_question($chemin_fichier_dans_dépôt);

@@ -21,6 +21,7 @@ namespace progression\dao\chargeur;
 use progression\dao\DAOException;
 use progression\dao\chargeur\ChargeurException;
 use RuntimeException;
+use Spatie\TemporaryDirectory\TemporaryDirectory;
 
 class ChargeurRessourceHTTP extends Chargeur
 {
@@ -182,15 +183,13 @@ class ChargeurRessourceHTTP extends Chargeur
 		}
 	}
 
-	private function télécharger_fichier(string $uri): string|false
+	private function télécharger_fichier(string $uri): TemporaryDirectory
 	{
-		$nomUnique = uniqid("archive_", true);
-		$chemin = sys_get_temp_dir() . "/$nomUnique.arc";
-
+		$destination = (new TemporaryDirectory(getenv("TEMPDIR")))->deleteWhenDestroyed()->create();
 		$contenu = $this->source->get_chargeur_http()->get_url($uri);
 
-		if (file_put_contents($chemin, $contenu)) {
-			return $chemin;
+		if (file_put_contents($destination->path("archive.arc"), $contenu)) {
+			return $destination;
 		}
 
 		return false;
