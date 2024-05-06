@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use RuntimeException;
 use Gitonomy\Git\Exception\ReferenceNotFoundException;
+use Spatie\TemporaryDirectory\TemporaryDirectory;
 
 class ChargeurQuestionGit extends ChargeurQuestion
 {
@@ -103,12 +104,7 @@ class ChargeurQuestionGit extends ChargeurQuestion
 	 */
 	private function cloner_dépôt(string $url_du_dépôt): string
 	{
-		$répertoire_cible = sys_get_temp_dir();
-		$répertoire_temporaire = $répertoire_cible . "/git_repo_" . uniqid();
-
-		if (!File::isDirectory($répertoire_cible)) {
-			File::makeDirectory($répertoire_cible, 0777, true);
-		}
+		$répertoire_temporaire = (new TemporaryDirectory(getenv("TEMPDIR")))->deleteWhenDestroyed()->create();
 
 		try {
 			Admin::cloneTo($répertoire_temporaire, $url_du_dépôt, false);

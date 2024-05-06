@@ -19,6 +19,7 @@
 namespace progression\dao\question;
 
 use ZipArchive;
+use Spatie\TemporaryDirectory\TemporaryDirectory;
 
 class ChargeurQuestionArchive extends Chargeur
 {
@@ -36,8 +37,7 @@ class ChargeurQuestionArchive extends Chargeur
 
 		$archiveExtraite = null;
 
-		$nom_unique = uniqid("archive_", true);
-		$destination = sys_get_temp_dir() . "/$nom_unique";
+	    $destination = (new TemporaryDirectory(getenv("TEMPDIR")))->deleteWhenDestroyed()->create();
 
 		self::extraire_zip($chemin_archive, $destination);
 		try {
